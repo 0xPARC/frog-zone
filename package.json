@@ -1,0 +1,11 @@
+{
+    "name": "frog-zone",
+    "workspaces": [
+      "packages/*"
+    ],
+    "private": true,
+    "scripts": {},
+    "devDependencies": { },
+    "engines": {},
+    "dependencies": {}
+  }
