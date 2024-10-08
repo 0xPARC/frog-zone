@@ -39,6 +39,22 @@ pub struct Item {
 }
 
 #[derive(Clone, Copy, Deserialize)]
+pub enum EntityType {
+    None,
+    Player,
+    Item,
+    Monster,
+}
+
+pub struct CellEncryptedData {
+    pub entity_type: Encrypted<EntityType>,
+    pub entity_id: Encrypted<usize>,
+    pub hp: Encrypted<u8>,
+    pub atk: Encrypted<u8>,
+    pub is_consumed: Encrypted<bool>,
+}
+
+#[derive(Clone, Copy, Deserialize)]
 pub enum Direction {
     Up,
     Down,
@@ -287,4 +303,6 @@ impl Zone {
 
         events
     }
+
+    pub fn get_viewport(&self, player_id: usize, claimed_coords: EncryptedCoord) -> [[]]
 }
