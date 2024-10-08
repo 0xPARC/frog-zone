@@ -9,7 +9,7 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use tokio::time;
 use tracing::info;
-use zone::{Coord, Direction, Event, Item, Player, Zone};
+use zone::{Direction, EncryptedCoord, Event, Item, Player, Zone};
 
 #[macro_use]
 extern crate rocket;
@@ -96,68 +96,10 @@ async fn game_loop(state: SharedState) {
 #[launch]
 async fn rocket() -> _ {
     let shared_state: Arc<Mutex<GameState>> = Arc::new(Mutex::new(GameState {
-        zone: Zone::new(64, 64, 3_000), // 64x64 zone, 3s tick
+        zone: Zone::new(64, 64), // 64x64 zone, 3s tick
         move_queue: VecDeque::new(),
         events: Vec::new(),
     }));
-
-    let mut add_events = Vec::new();
-    let mut setup_state_guard = shared_state.lock().unwrap();
-    add_events.push(setup_state_guard.zone.add_player(
-        Player {
-            id: 1,
-            atk: 50,
-            hp: 100,
-        },
-        Coord { x: 0, y: 0 },
-    ));
-    add_events.push(setup_state_guard.zone.add_player(
-        Player {
-            id: 2,
-            atk: 50,
-            hp: 100,
-        },
-        Coord { x: 10, y: 0 },
-    ));
-    add_events.push(setup_state_guard.zone.add_player(
-        Player {
-            id: 3,
-            atk: 50,
-            hp: 100,
-        },
-        Coord { x: 20, y: 0 },
-    ));
-    add_events.push(setup_state_guard.zone.add_player(
-        Player {
-            id: 4,
-            atk: 50,
-            hp: 100,
-        },
-        Coord { x: 30, y: 0 },
-    ));
-    add_events.push(
-        setup_state_guard
-            .zone
-            .add_item(Item { atk: 10, hp: 10 }, Coord { x: 5, y: 5 }),
-    );
-    add_events.push(
-        setup_state_guard
-            .zone
-            .add_item(Item { atk: 10, hp: 10 }, Coord { x: 10, y: 10 }),
-    );
-    add_events.push(
-        setup_state_guard
-            .zone
-            .add_item(Item { atk: 10, hp: 10 }, Coord { x: 15, y: 15 }),
-    );
-    add_events.push(
-        setup_state_guard
-            .zone
-            .add_item(Item { atk: 10, hp: 10 }, Coord { x: 20, y: 20 }),
-    );
-
-    setup_state_guard.events.extend(add_events.into_iter());
-    drop(setup_state_guard);
 
     let state_guard = shared_state.clone();
     tokio::spawn(async move {
