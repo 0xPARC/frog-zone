@@ -304,5 +304,13 @@ impl Zone {
         events
     }
 
-    pub fn get_viewport(&self, player_id: usize, claimed_coords: EncryptedCoord) -> [[]]
+    // this function takes in a player ID and returns a 5x5 array of CellEncryptedData
+    // to do this, we take the encrypted coordinates (x, y) corresponding to the player ID,
+    // then iterate over all players and items (but NOT obstacles or tiles at the moment)
+    // to see if any of them have coords equal to (x, y). if so, we copy over that entity's
+    // encrypted data into ret[2][2].
+    // we do the same for the surrounding tiles: (x-2, y-2) goes into ret[0][0], (x-1, y-2)
+    // goes into ret[1][0], etc.
+    //
+    // pub fn get_viewport(&self, player_id: usize) -> Vec<Vec<CellEncryptedData>>
 }
