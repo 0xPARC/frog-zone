@@ -32,6 +32,58 @@ const syncPhaser = (eventStream$: EventStream, game: PhaserGame, api: Api) => {
     return go;
   };
 
+  const handleMovePlayer = async (direction: Direction) => {
+    const selectedPlayer = players.get(selectedPlayerId);
+    if (!selectedPlayer) return;
+
+    const tileWidth = phaserConfig.tilemap.tileWidth;
+    const tileHeight = phaserConfig.tilemap.tileHeight;
+
+    let newX = selectedPlayer.x;
+    let newY = selectedPlayer.y;
+
+    switch (direction) {
+      case Direction.LEFT:
+        newX -= tileWidth;
+        break;
+      case Direction.RIGHT:
+        newX += tileWidth;
+        break;
+      case Direction.UP:
+        newY -= tileHeight;
+        break;
+      case Direction.DOWN:
+        newY += tileHeight;
+        break;
+    }
+
+    // Add the marker at the new position
+    const nextMoveMarker = game.mainScene.add.image(
+      newX,
+      newY,
+      phaserConfig.assetKeys.arrow,
+    );
+    nextMoveMarker.setSize(tileWidth, tileHeight);
+    nextMoveMarker.setDisplaySize(tileWidth * 0.7, tileHeight * 0.7);
+
+    const rotation = {
+      [Direction.LEFT]: Math.PI,
+      [Direction.RIGHT]: 0,
+      [Direction.UP]: (3 * Math.PI) / 2,
+      [Direction.DOWN]: Math.PI / 2,
+    };
+
+    nextMoveMarker.setRotation(rotation[direction]);
+
+    try {
+      await api.move(selectedPlayerId, direction);
+    } finally {
+      setTimeout(() => {
+        nextMoveMarker.destroy();
+      }, 1000);
+    }
+  };
+
   const addItem = (coord: Coord): Phaser.GameObjects.Image => {
     const pixelCoord = getCenterPixelCoord(
       coord,
@@ -57,6 +109,7 @@ const syncPhaser = (eventStream$: EventStream, game: PhaserGame, api: Api) => {
       case "PlayerAdd": {
         const args = event[1];
         const [player, coord] = args;
+        console.log("player add", coord);
         const playerGameObject = addPlayer(coord);
         players.set(player.id, playerGameObject);
         break;
@@ -95,15 +148,16 @@ const syncPhaser = (eventStream$: EventStream, game: PhaserGame, api: Api) => {
     }
   });
 
-  game.input.keyboard$.pipe(debounceTime(500)).subscribe((key) => {
+  game.input.keyboard$.pipe(debounceTime(500)).subscribe(async (key) => {
     if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.LEFT) {
-      api.move(selectedPlayerId, Direction.LEFT);
+      console.log("players left", players.get(selectedPlayerId));
+      handleMovePlayer(Direction.LEFT);
     } else if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.RIGHT) {
-      api.move(selectedPlayerId, Direction.RIGHT);
+      handleMovePlayer(Direction.RIGHT);
     } else if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.UP) {
-      api.move(selectedPlayerId, Direction.UP);
+      handleMovePlayer(Direction.UP);
     } else if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.DOWN) {
-      api.move(selectedPlayerId, Direction.DOWN);
+      handleMovePlayer(Direction.DOWN);
     }
   });
 };
