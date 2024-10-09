@@ -7,6 +7,7 @@ const config = {
 	assetKeys: {
 		tileset: "tileset",
 		frog: "frog",
+		arrow: "arrow",
 		item: "item",
 	},
 };

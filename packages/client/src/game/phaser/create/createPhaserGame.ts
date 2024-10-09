@@ -17,6 +17,7 @@ const createPhaserGame = async () => {
 			scene.load.image(phaserConfig.assetKeys.tileset, "/assets/tile.png");
 			scene.load.image(phaserConfig.assetKeys.frog, "/assets/frog.png");
 			scene.load.image(phaserConfig.assetKeys.item, "/assets/potion.png");
+			scene.load.image(phaserConfig.assetKeys.arrow, "/assets/arrow.png");
 		},
 	});
 	const config: Phaser.Types.Core.GameConfig = {
