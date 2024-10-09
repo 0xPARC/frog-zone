@@ -6,6 +6,7 @@ import type { PhaserGame } from "../phaser/create/createPhaserGame";
 import type { Coord } from "../store";
 import phaserConfig from "./create/phaserConfig";
 import { getPlayerId } from "../../utils/getPlayerId";
+import { completedMoveAnimation } from "../../utils/animations";
 
 const syncPhaser = (eventStream$: EventStream, game: PhaserGame, api: Api) => {
   const players = new Map<number, Phaser.GameObjects.Image>();
@@ -124,7 +125,21 @@ const syncPhaser = (eventStream$: EventStream, game: PhaserGame, api: Api) => {
             phaserConfig.tilemap.tileWidth,
             phaserConfig.tilemap.tileHeight,
           );
-          player.setPosition(pixelCoord.x, pixelCoord.y);
+          const x = pixelCoord.x;
+          const y = pixelCoord.y;
+          game.mainScene.tweens.add({
+            targets: player,
+            x,
+            y,
+            duration: 200,
+            ease: "Power2",
+            onComplete: () => {
+              if (playerId === selectedPlayerId) {
+                game.mainScene.cameras.main.centerOn(x, y);
+                completedMoveAnimation(player);
+              }
+            },
+          });
         }
         break;
       }
