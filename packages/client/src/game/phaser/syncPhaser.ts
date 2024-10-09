@@ -11,6 +11,7 @@ import { completedMoveAnimation } from "../../utils/animations";
 const syncPhaser = (eventStream$: EventStream, game: PhaserGame, api: Api) => {
   const players = new Map<number, Phaser.GameObjects.Image>();
   const items = new Map<number, Phaser.GameObjects.Image>();
+  let moveMarker: Phaser.GameObjects.Image | null = null;
 
   const selectedPlayerId = Number(getPlayerId());
 
@@ -30,6 +31,7 @@ const syncPhaser = (eventStream$: EventStream, game: PhaserGame, api: Api) => {
       phaserConfig.tilemap.tileWidth,
       phaserConfig.tilemap.tileHeight,
     );
+    go.setDepth(1);
     return go;
   };
 
@@ -66,6 +68,7 @@ const syncPhaser = (eventStream$: EventStream, game: PhaserGame, api: Api) => {
     );
     nextMoveMarker.setSize(tileWidth, tileHeight);
     nextMoveMarker.setDisplaySize(tileWidth * 0.7, tileHeight * 0.7);
+    nextMoveMarker.setDepth(0);
 
     const rotation = {
       [Direction.LEFT]: Math.PI,
@@ -75,14 +78,9 @@ const syncPhaser = (eventStream$: EventStream, game: PhaserGame, api: Api) => {
     };
 
     nextMoveMarker.setRotation(rotation[direction]);
+    moveMarker = nextMoveMarker;
 
-    try {
-      await api.move(selectedPlayerId, direction);
-    } finally {
-      setTimeout(() => {
-        nextMoveMarker.destroy();
-      }, 1000);
-    }
+    await api.move(selectedPlayerId, direction);
   };
 
   const addItem = (coord: Coord): Phaser.GameObjects.Image => {
@@ -137,6 +135,10 @@ const syncPhaser = (eventStream$: EventStream, game: PhaserGame, api: Api) => {
               if (playerId === selectedPlayerId) {
                 game.mainScene.cameras.main.centerOn(x, y);
                 completedMoveAnimation(player);
+                if (moveMarker) {
+                  moveMarker.destroy();
+                  moveMarker = null;
+                }
               }
             },
           });
