@@ -18,10 +18,12 @@ extern crate rocket;
 
 const MOVE_TIME_MILLIS: u64 = 500;
 const GET_CELL_TIME_MILLIS: u64 = 140; // based on benchmark of 700ms for 5 cells
+const MOVE_TIME_RATE_LIMIT_MILLIS: u64 = 3500;
 
 struct GameState {
     zone: Zone,
     move_queue: VecDeque<(usize, Encrypted<Direction>, Arc<Notify>)>,
+    player_last_move_time: [u64; 4],
 }
 
 type SharedState = Arc<Mutex<GameState>>;
@@ -46,6 +48,7 @@ struct MoveRequest {
 #[derive(Serialize, Clone)]
 struct MoveResponse {
     my_new_coords: EncryptedCoord,
+    rate_limited: bool,
 }
 
 fn make_cors() -> Cors {
@@ -76,35 +79,6 @@ fn make_cors() -> Cors {
     .expect("[main] error while building CORS")
 }
 
-#[post("/move", format = "json", data = "<move_request>")]
-async fn queue_move(
-    state: &State<SharedState>,
-    move_request: Json<MoveRequest>,
-) -> Json<MoveResponse> {
-    let notify = Arc::new(Notify::new());
-    let notify_clone = notify.clone();
-
-    {
-        let mut game_state = state.lock().await;
-        game_state.move_queue.push_back((
-            move_request.player_id,
-            move_request.direction,
-            notify_clone,
-        ));
-    }
-
-    notify.notified().await;
-
-    let game_state = state.lock().await;
-    let player = &game_state.zone.players[move_request.player_id];
-
-    info!("processed /move request");
-
-    Json(MoveResponse {
-        my_new_coords: player.data.loc,
-    })
-}
-
 #[post("/get_cells", format = "json", data = "<request>")]
 async fn get_cells(
     state: &State<SharedState>,
@@ -125,6 +99,60 @@ async fn get_cells(
     info!("processed /get_cells request");
 
     Json(GetCellsResponse { cell_data })
+}
+
+#[post("/move", format = "json", data = "<move_request>")]
+async fn queue_move(
+    state: &State<SharedState>,
+    move_request: Json<MoveRequest>,
+) -> Json<MoveResponse> {
+    let can_move = {
+        let current_time = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_millis() as u64;
+        let game_state = state.lock().await;
+        let last_request_time = game_state.player_last_move_time[move_request.player_id];
+        current_time - last_request_time > MOVE_TIME_RATE_LIMIT_MILLIS
+    };
+
+    if !can_move {
+        return Json(MoveResponse {
+            my_new_coords: EncryptedCoord {
+                x: Encrypted { val: 0 },
+                y: Encrypted { val: 0 },
+            },
+            rate_limited: true,
+        });
+    }
+
+    let notify = Arc::new(Notify::new());
+    let notify_clone = notify.clone();
+
+    {
+        let mut game_state = state.lock().await;
+        game_state.move_queue.push_back((
+            move_request.player_id,
+            move_request.direction,
+            notify_clone,
+        ));
+        game_state.player_last_move_time[move_request.player_id] = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_millis() as u64;
+    }
+
+    notify.notified().await;
+
+    let game_state = state.lock().await;
+    let player = &game_state.zone.players[move_request.player_id];
+
+    info!("processed /move request");
+
+    Json(MoveResponse {
+        my_new_coords: player.data.loc,
+        rate_limited: false,
+    })
 }
 
 async fn process_moves(state: SharedState) {
@@ -160,6 +188,7 @@ async fn rocket() -> _ {
     let shared_state: Arc<Mutex<GameState>> = Arc::new(Mutex::new(GameState {
         zone: Zone::new(64, 64), // 64x64 zone
         move_queue: VecDeque::new(),
+        player_last_move_time: [0, 0, 0, 0],
     }));
 
     let state_clone = shared_state.clone();
