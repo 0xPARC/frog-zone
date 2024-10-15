@@ -1,7 +1,6 @@
-use serde::{Deserialize, Serialize};
+#![allow(arithmetic_overflow)]
 
-use std::time::Duration;
-use tokio::time;
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq, Default)]
 pub struct Encrypted<T> {
@@ -47,6 +46,7 @@ pub enum EntityType {
     Player,
     Item,
     Monster,
+    Invalid,
 }
 
 impl Default for EntityType {
@@ -63,7 +63,7 @@ pub struct CellEncryptedData {
     pub atk: Encrypted<u8>,
 }
 
-#[derive(Clone, Copy, Deserialize)]
+#[derive(Clone, Copy, Deserialize, Debug)]
 pub enum Direction {
     Up,
     Down,
@@ -71,15 +71,16 @@ pub enum Direction {
     Right,
 }
 
+#[derive(Clone, Debug)]
 pub struct Zone {
     pub width: u8,
     pub height: u8,
     pub players: [Player; 4],
     pub items: [Item; 2],
-    pub obstacles: [EncryptedCoord; 2],
+    pub obstacles: [EncryptedCoord; 96],
 }
 
-pub fn apply_move_raw(
+pub fn fhe_apply_move_raw(
     old_coords: EncryptedCoord,
     direction: Encrypted<Direction>,
     height: u8,
@@ -119,17 +120,20 @@ pub fn apply_move_raw(
     new_coords
 }
 
-pub fn apply_move_check_collisions(
+pub fn fhe_apply_move_check_collisions(
     old_coords: EncryptedCoord,
     direction: Encrypted<Direction>,
     height: u8,
     width: u8,
     obstacles: [EncryptedCoord; 100],
 ) -> EncryptedCoord {
-    let new_coords = apply_move_raw(old_coords, direction, height, width);
+    let new_coords = fhe_apply_move_raw(old_coords, direction, height, width);
 
     for obstacle in obstacles {
         if new_coords == obstacle {
+            // note that if fhe_apply_move_raw returned the original coordinates,
+            // we'll end up in here because the player's old_coords are part of obstacles
+            // this is fine since we're returning old_coords anyways
             return old_coords;
         }
     }
@@ -137,7 +141,7 @@ pub fn apply_move_check_collisions(
     new_coords
 }
 
-pub fn apply_move(
+pub fn fhe_apply_move(
     player_data: PlayerEncryptedData,
     direction: Encrypted<Direction>,
     height: u8,
@@ -146,11 +150,11 @@ pub fn apply_move(
     items: [ItemEncryptedData; 2],
 ) -> (PlayerEncryptedData, [ItemEncryptedData; 2]) {
     let new_coords =
-        apply_move_check_collisions(player_data.loc, direction, height, width, obstacles);
+        fhe_apply_move_check_collisions(player_data.loc, direction, height, width, obstacles);
 
-    let mut new_player_data = player_data.clone();
+    let mut new_player_data = player_data;
     new_player_data.loc = new_coords;
-    let mut new_item_data = items.clone();
+    let mut new_item_data = items;
 
     for (idx, item) in items.iter().enumerate() {
         if new_coords == item.loc && !item.is_consumed.val {
@@ -161,6 +165,66 @@ pub fn apply_move(
     }
 
     (new_player_data, new_item_data)
+}
+
+fn fhe_get_cell_no_check(
+    coord: EncryptedCoord,
+    items: [Item; 2],
+    players: [Player; 4],
+) -> CellEncryptedData {
+    let mut cell = CellEncryptedData::default();
+
+    for item in items {
+        if coord == item.data.loc && !item.data.is_consumed.val {
+            cell.entity_type = Encrypted::<EntityType> {
+                val: EntityType::Item,
+            };
+            cell.entity_id = Encrypted::<usize> { val: item.id };
+            cell.hp = Encrypted::<u8> {
+                val: item.data.hp.val,
+            };
+            cell.atk = Encrypted::<u8> {
+                val: item.data.atk.val,
+            };
+        }
+    }
+
+    for player in players {
+        if coord == player.data.loc {
+            cell.entity_type = Encrypted::<EntityType> {
+                val: EntityType::Player,
+            };
+            cell.entity_id = Encrypted::<usize> { val: player.id };
+            cell.hp = Encrypted::<u8> {
+                val: player.data.hp.val,
+            };
+            cell.atk = Encrypted::<u8> {
+                val: player.data.atk.val,
+            };
+        }
+    }
+
+    cell
+}
+
+fn fhe_get_cell(
+    player_coord: EncryptedCoord,
+    query_coord: EncryptedCoord,
+    items: [Item; 2],
+    players: [Player; 4],
+) -> CellEncryptedData {
+    // coord's x and y values must be within [-2, +2] of player's x and y values
+    if query_coord.x.val.abs_diff(player_coord.x.val) > 2
+        || query_coord.y.val.abs_diff(player_coord.y.val) > 2
+    {
+        let mut ret = CellEncryptedData::default();
+        ret.entity_type = Encrypted::<EntityType> {
+            val: EntityType::Invalid,
+        };
+        return ret;
+    }
+
+    fhe_get_cell_no_check(query_coord, items, players)
 }
 
 impl Zone {
@@ -203,7 +267,7 @@ impl Zone {
                 id: 3,
                 data: PlayerEncryptedData {
                     loc: EncryptedCoord {
-                        x: Encrypted { val: 31 },
+                        x: Encrypted { val: 2 },
                         y: Encrypted { val: 0 },
                     },
                     hp: Encrypted { val: 5 },
@@ -239,16 +303,15 @@ impl Zone {
             },
         ];
 
-        let obstacles = [
-            EncryptedCoord {
-                x: Encrypted { val: 0 },
-                y: Encrypted { val: 0 },
-            },
-            EncryptedCoord {
-                x: Encrypted { val: 20 },
-                y: Encrypted { val: 20 },
-            },
-        ];
+        let filler_coord = EncryptedCoord {
+            x: Encrypted { val: 255 },
+            y: Encrypted { val: 255 },
+        };
+        let mut obstacles: [EncryptedCoord; 96] = [filler_coord; 96];
+        obstacles[0] = EncryptedCoord {
+            x: Encrypted { val: 0 },
+            y: Encrypted { val: 0 },
+        };
 
         Self {
             width,
@@ -259,7 +322,7 @@ impl Zone {
         }
     }
 
-    pub async fn move_player(
+    pub fn move_player(
         &mut self,
         player_id: usize,
         direction: Encrypted<Direction>,
@@ -271,43 +334,37 @@ impl Zone {
             };
         }
 
-        // simulate that the state update to the GET servers has not happened
-        // until 500ms has elapsed following a move request
-        time::sleep(Duration::from_millis(500)).await;
+        let player = self.players[player_id];
+        let player_data = player.data;
 
-        let mut player = self.players[player_id];
-        let player_data = player.data.clone();
-
-        let item_data = self.items.map(|i| i.data.clone());
+        let item_data = self.items.map(|i| i.data);
 
         let filler_coord = EncryptedCoord {
             x: Encrypted { val: 255 },
             y: Encrypted { val: 255 },
         };
-        let mut obstacles = vec![filler_coord; 100];
+        let mut obstacles = [filler_coord; 100];
 
         let mut count = 0;
-        for obstacle in &self.obstacles {
-            obstacles[count] = obstacle.clone();
+        for obstacle in self.obstacles {
+            obstacles[count] = obstacle;
             count += 1;
         }
-        for player in &self.players {
-            if player.id != player_id {
-                obstacles[count] = player.data.loc.clone();
-                count += 1;
-            }
+        for test_player in self.players {
+            obstacles[count] = test_player.data.loc;
+            count += 1;
         }
 
-        let (new_player_data, new_item_data) = apply_move(
+        let (new_player_data, new_item_data) = fhe_apply_move(
             player_data,
             direction,
             self.height,
             self.width,
-            obstacles.try_into().unwrap(),
+            obstacles,
             item_data,
         );
 
-        player.data = new_player_data;
+        self.players[player_id].data = new_player_data;
 
         for i in 0..self.items.len() {
             self.items[i].data = new_item_data[i];
@@ -316,61 +373,24 @@ impl Zone {
         return player.data.loc;
     }
 
-    fn get_cell(&self, player_id: usize, coord: &EncryptedCoord) -> CellEncryptedData {
-        let mut cell = CellEncryptedData::default();
-
-        let player_coord = self.players[player_id].data.loc;
-
-        // coord's x and y values must be within [-2, +2] of player's x and y values
-        // note if coord.x.val - player_coord.x.val < -2, this quantity will wrap around
-        if coord.x.val - player_coord.x.val + 2 > 4 || coord.y.val - player_coord.y.val + 2 > 4 {
-            return cell;
-        }
-
-        for item in &self.items {
-            if *coord == item.data.loc && !item.data.is_consumed.val {
-                cell.entity_type = Encrypted::<EntityType> {
-                    val: EntityType::Item,
-                };
-                cell.hp = Encrypted::<u8> {
-                    val: item.data.hp.val,
-                };
-                cell.atk = Encrypted::<u8> {
-                    val: item.data.atk.val,
-                };
-            }
-        }
-
-        for player in &self.players {
-            if *coord == player.data.loc {
-                cell.entity_type = Encrypted::<EntityType> {
-                    val: EntityType::Player,
-                };
-                cell.hp = Encrypted::<u8> {
-                    val: player.data.hp.val,
-                };
-                cell.atk = Encrypted::<u8> {
-                    val: player.data.atk.val,
-                };
-            }
-        }
-
-        cell
-    }
-
-    pub async fn get_cells(
+    pub fn get_cells(
         &self,
         player_id: usize,
         coords: Vec<EncryptedCoord>,
     ) -> Vec<CellEncryptedData> {
         let mut cells = Vec::new();
+        let player_coord = self.players[player_id].data.loc;
 
-        for coord in &coords {
-            cells.push(self.get_cell(player_id, coord));
+        for coord in coords.iter() {
+            cells.push(fhe_get_cell(
+                player_coord,
+                coord.clone(),
+                self.items,
+                self.players,
+            ));
         }
 
         let len = coords.len();
-        time::sleep(Duration::from_millis(100 * (len as u64)));
 
         cells
     }
