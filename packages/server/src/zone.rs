@@ -1,5 +1,8 @@
 use serde::{Deserialize, Serialize};
 
+use std::time::Duration;
+use tokio::time;
+
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq, Default)]
 pub struct Encrypted<T> {
     pub val: T,
@@ -66,11 +69,6 @@ pub enum Direction {
     Down,
     Left,
     Right,
-}
-
-#[derive(Serialize, Clone)]
-pub enum Event {
-    PlayerMove(usize),
 }
 
 pub struct Zone {
@@ -261,11 +259,21 @@ impl Zone {
         }
     }
 
-    pub fn move_player(&mut self, player_id: usize, direction: Encrypted<Direction>) -> Vec<Event> {
-        let mut events = Vec::new();
+    pub async fn move_player(
+        &mut self,
+        player_id: usize,
+        direction: Encrypted<Direction>,
+    ) -> EncryptedCoord {
         if player_id >= self.players.len() {
-            return events;
+            return EncryptedCoord {
+                x: Encrypted { val: 255 },
+                y: Encrypted { val: 255 },
+            };
         }
+
+        // simulate that the state update to the GET servers has not happened
+        // until 500ms has elapsed following a move request
+        time::sleep(Duration::from_millis(500)).await;
 
         let mut player = self.players[player_id];
         let player_data = player.data.clone();
@@ -305,12 +313,10 @@ impl Zone {
             self.items[i].data = new_item_data[i];
         }
 
-        events.push(Event::PlayerMove(player_id));
-
-        events
+        return player.data.loc;
     }
 
-    pub fn get_cell(&self, player_id: usize, coord: EncryptedCoord) -> CellEncryptedData {
+    fn get_cell(&self, player_id: usize, coord: &EncryptedCoord) -> CellEncryptedData {
         let mut cell = CellEncryptedData::default();
 
         let player_coord = self.players[player_id].data.loc;
@@ -322,7 +328,7 @@ impl Zone {
         }
 
         for item in &self.items {
-            if coord == item.data.loc && !item.data.is_consumed.val {
+            if *coord == item.data.loc && !item.data.is_consumed.val {
                 cell.entity_type = Encrypted::<EntityType> {
                     val: EntityType::Item,
                 };
@@ -336,7 +342,7 @@ impl Zone {
         }
 
         for player in &self.players {
-            if coord == player.data.loc {
+            if *coord == player.data.loc {
                 cell.entity_type = Encrypted::<EntityType> {
                     val: EntityType::Player,
                 };
@@ -352,16 +358,19 @@ impl Zone {
         cell
     }
 
-    pub fn get_cells(
+    pub async fn get_cells(
         &self,
         player_id: usize,
         coords: Vec<EncryptedCoord>,
     ) -> Vec<CellEncryptedData> {
         let mut cells = Vec::new();
 
-        for coord in coords {
+        for coord in &coords {
             cells.push(self.get_cell(player_id, coord));
         }
+
+        let len = coords.len();
+        time::sleep(Duration::from_millis(100 * (len as u64)));
 
         cells
     }
