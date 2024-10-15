@@ -5,32 +5,41 @@ use rocket::serde::{json::Json, Deserialize, Serialize};
 use rocket::State;
 use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors, CorsOptions};
 use std::collections::VecDeque;
-use std::sync::{Arc, Mutex};
-use std::time::Duration;
-use tokio::time;
+use std::sync::Arc;
+use tokio::sync::Mutex;
 use tracing::info;
-use zone::{Direction, EncryptedCoord, Event, Item, Player, Zone};
+use zone::{CellEncryptedData, Direction, Encrypted, EncryptedCoord, Zone};
 
 #[macro_use]
 extern crate rocket;
 
 struct GameState {
     zone: Zone,
-    move_queue: VecDeque<(usize, Direction)>,
-    events: Vec<Event>,
+    move_queue: VecDeque<(usize, Encrypted<Direction>)>,
 }
 
 type SharedState = Arc<Mutex<GameState>>;
 
 #[derive(Deserialize)]
-struct MoveRequest {
+struct GetCellsRequest {
     player_id: usize,
-    direction: Direction,
+    coords: Vec<EncryptedCoord>,
 }
 
 #[derive(Serialize, Clone)]
-struct GameStateResponse {
-    events: Vec<Event>,
+struct GetCellsResponse {
+    cell_data: Vec<CellEncryptedData>,
+}
+
+#[derive(Deserialize)]
+struct MoveRequest {
+    player_id: usize,
+    direction: Encrypted<Direction>,
+}
+
+#[derive(Serialize, Clone)]
+struct MoveResponse {
+    my_new_coords: EncryptedCoord,
 }
 
 fn make_cors() -> Cors {
@@ -61,53 +70,52 @@ fn make_cors() -> Cors {
     .expect("[main] error while building CORS")
 }
 
-#[post("/move", data = "<move_request>")]
-async fn queue_move(state: &State<SharedState>, move_request: Json<MoveRequest>) -> &'static str {
-    let mut game_state = state.lock().unwrap();
+#[post("/move", format = "json", data = "<move_request>")]
+async fn queue_move(
+    state: &State<SharedState>,
+    move_request: Json<MoveRequest>,
+) -> Json<MoveResponse> {
+    let mut game_state = state.lock().await;
     game_state
         .move_queue
         .push_back((move_request.player_id, move_request.direction));
-    "move queued"
-}
 
-#[get("/state")]
-async fn get_state(state: &State<SharedState>) -> Json<GameStateResponse> {
-    let game_state = state.lock().unwrap();
-    Json(GameStateResponse {
-        events: game_state.events.clone(),
+    info!("processed /get_cells request");
+
+    Json(MoveResponse {
+        my_new_coords: EncryptedCoord {
+            x: Encrypted::<u8> { val: 0 },
+            y: Encrypted::<u8> { val: 0 },
+        },
     })
 }
 
-async fn game_loop(state: SharedState) {
-    let mut interval = time::interval(Duration::from_millis(state.lock().unwrap().zone.tick_rate));
-    loop {
-        interval.tick().await;
-        let mut game_state = state.lock().unwrap();
+#[post("/get_cells", format = "json", data = "<request>")]
+async fn get_cells(
+    state: &State<SharedState>,
+    request: Json<GetCellsRequest>,
+) -> Json<GetCellsResponse> {
+    let game_state = state.lock().await;
+    let zone = &game_state.zone;
 
-        while let Some((player_id, direction)) = game_state.move_queue.pop_front() {
-            let new_events = game_state.zone.move_player(player_id, direction);
-            game_state.events.extend(new_events);
-        }
+    let cell_data = zone
+        .get_cells(request.player_id, request.coords.clone())
+        .await;
 
-        info!("processed {} events", game_state.events.len());
-    }
+    info!("processed /get_cells request");
+
+    Json(GetCellsResponse { cell_data })
 }
 
 #[launch]
 async fn rocket() -> _ {
     let shared_state: Arc<Mutex<GameState>> = Arc::new(Mutex::new(GameState {
-        zone: Zone::new(64, 64), // 64x64 zone, 3s tick
+        zone: Zone::new(64, 64), // 64x64 zone
         move_queue: VecDeque::new(),
-        events: Vec::new(),
     }));
-
-    let state_guard = shared_state.clone();
-    tokio::spawn(async move {
-        game_loop(state_guard).await;
-    });
 
     rocket::build()
         .manage(shared_state.clone())
-        .mount("/", routes![queue_move, get_state])
+        .mount("/", routes![queue_move, get_cells])
         .attach(make_cors())
 }
