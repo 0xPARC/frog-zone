@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq, Default)]
 pub struct Encrypted<T> {
     pub val: T,
 }
@@ -38,7 +38,7 @@ pub struct Item {
     pub data: ItemEncryptedData,
 }
 
-#[derive(Clone, Copy, Deserialize)]
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub enum EntityType {
     None,
     Player,
@@ -46,12 +46,18 @@ pub enum EntityType {
     Monster,
 }
 
+impl Default for EntityType {
+    fn default() -> Self {
+        EntityType::None
+    }
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq, Default)]
 pub struct CellEncryptedData {
     pub entity_type: Encrypted<EntityType>,
     pub entity_id: Encrypted<usize>,
     pub hp: Encrypted<u8>,
     pub atk: Encrypted<u8>,
-    pub is_consumed: Encrypted<bool>,
 }
 
 #[derive(Clone, Copy, Deserialize)]
@@ -149,7 +155,7 @@ pub fn apply_move(
     let mut new_item_data = items.clone();
 
     for (idx, item) in items.iter().enumerate() {
-        if new_coords == item.loc {
+        if new_coords == item.loc && !item.is_consumed.val {
             new_item_data[idx].is_consumed.val = true;
             new_player_data.atk.val += new_item_data[idx].atk.val;
             new_player_data.hp.val += new_item_data[idx].hp.val;
@@ -304,13 +310,59 @@ impl Zone {
         events
     }
 
-    // this function takes in a player ID and returns a 5x5 array of CellEncryptedData
-    // to do this, we take the encrypted coordinates (x, y) corresponding to the player ID,
-    // then iterate over all players and items (but NOT obstacles or tiles at the moment)
-    // to see if any of them have coords equal to (x, y). if so, we copy over that entity's
-    // encrypted data into ret[2][2].
-    // we do the same for the surrounding tiles: (x-2, y-2) goes into ret[0][0], (x-1, y-2)
-    // goes into ret[1][0], etc.
-    //
-    // pub fn get_viewport(&self, player_id: usize) -> Vec<Vec<CellEncryptedData>>
+    pub fn get_cell(&self, player_id: usize, coord: EncryptedCoord) -> CellEncryptedData {
+        let mut cell = CellEncryptedData::default();
+
+        let player_coord = self.players[player_id].data.loc;
+
+        // coord's x and y values must be within [-2, +2] of player's x and y values
+        // note if coord.x.val - player_coord.x.val < -2, this quantity will wrap around
+        if coord.x.val - player_coord.x.val + 2 > 4 || coord.y.val - player_coord.y.val + 2 > 4 {
+            return cell;
+        }
+
+        for item in &self.items {
+            if coord == item.data.loc && !item.data.is_consumed.val {
+                cell.entity_type = Encrypted::<EntityType> {
+                    val: EntityType::Item,
+                };
+                cell.hp = Encrypted::<u8> {
+                    val: item.data.hp.val,
+                };
+                cell.atk = Encrypted::<u8> {
+                    val: item.data.atk.val,
+                };
+            }
+        }
+
+        for player in &self.players {
+            if coord == player.data.loc {
+                cell.entity_type = Encrypted::<EntityType> {
+                    val: EntityType::Player,
+                };
+                cell.hp = Encrypted::<u8> {
+                    val: player.data.hp.val,
+                };
+                cell.atk = Encrypted::<u8> {
+                    val: player.data.atk.val,
+                };
+            }
+        }
+
+        cell
+    }
+
+    pub fn get_cells(
+        &self,
+        player_id: usize,
+        coords: Vec<EncryptedCoord>,
+    ) -> Vec<CellEncryptedData> {
+        let mut cells = Vec::new();
+
+        for coord in coords {
+            cells.push(self.get_cell(player_id, coord));
+        }
+
+        cells
+    }
 }
