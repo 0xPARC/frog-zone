@@ -33,6 +33,10 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 			}
 			if (tile.entity_type.val === "Player") {
 				const id = tile.entity_id.val;
+				const playerImg = players.get(id);
+				if (playerImg) {
+					playerImg.destroy();
+				}
 				const playerGameObject = addPlayer({
 					playerId: id,
 					coord: tile.coord,
@@ -159,7 +163,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				x: moveResponse.my_new_coords.x.val,
 				y: moveResponse.my_new_coords.y.val,
 			};
-			drawTilesAroundPlayer({
+			await drawTilesAroundPlayer({
 				coord: newCoord,
 			});
 			if (selectedPlayer) {
