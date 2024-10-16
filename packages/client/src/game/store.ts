@@ -5,10 +5,22 @@ enableMapSet();
 import { coordToKey } from "@smallbraingames/small-phaser";
 import { immer } from "zustand/middleware/immer";
 
+export type TileEntityType = "None" | "Player" | "Item";
+
+export type Tile = {
+	atk: { val: number };
+	entity_id: { val: 0 };
+	entity_type: { val: TileEntityType };
+	hp: { val: number };
+};
+
+export type TileWithCoord = Tile & { coord: Coord };
+
 export type Player = {
 	id: number;
 	hp: number;
 	atk: number;
+	coord: Coord;
 };
 
 export type Item = {
@@ -27,11 +39,15 @@ interface State {
 	players: Map<number, Player>;
 	items: Map<number, Item>;
 
-	addPlayer: (player: Player, coord: Coord) => void;
+	addPlayer: (player: Player) => void;
 	addItem: (item: Item, coord: Coord) => void;
 
 	movePlayer: (id: number, coord: Coord) => void;
-	pickupItem: (playerId: number, coord: Coord, itemEffect: ItemEffect) => void;
+	pickupItem: (
+		playerId: number,
+		coord: Coord,
+		itemEffect: ItemEffect,
+	) => void;
 }
 
 const useStore = create<State>()(
@@ -39,9 +55,9 @@ const useStore = create<State>()(
 		players: new Map(),
 		items: new Map(),
 
-		addPlayer: (player, coord) => {
+		addPlayer: (player) => {
 			set((state) => {
-				state.players.set(coordToKey(coord), player);
+				state.players.set(coordToKey(player.coord), player);
 			});
 		},
 		addItem: (item, coord) => {

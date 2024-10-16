@@ -1,4 +1,4 @@
-import { serverUrl } from "./createEventStream";
+const serverUrl = import.meta.env.VITE_SERVER_URL;
 
 export enum Direction {
 	UP = "Up",
@@ -9,7 +9,17 @@ export enum Direction {
 
 interface type {
 	player_id: number;
-	direction: Direction;
+	direction: {
+		val: Direction;
+	};
+}
+
+interface MoveResponse {
+	my_new_coords: {
+		x: { val: number };
+		y: { val: number };
+	};
+	rate_limited: boolean;
 }
 
 export type Api = ReturnType<typeof createApi>;
@@ -18,8 +28,11 @@ const createApi = () => {
 	const move = async (
 		playerId: number,
 		direction: Direction,
-	): Promise<string> => {
-		const moveRequest: type = { player_id: playerId, direction };
+	): Promise<MoveResponse> => {
+		const moveRequest: type = {
+			player_id: playerId,
+			direction: { val: direction },
+		};
 
 		const response = await fetch(`${serverUrl}/move`, {
 			method: "POST",
@@ -33,7 +46,9 @@ const createApi = () => {
 			throw new Error("Failed to queue move");
 		}
 
-		return response.text();
+		const data = await response.json();
+
+		return data;
 	};
 
 	return { move };

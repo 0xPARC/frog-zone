@@ -42,6 +42,9 @@ export const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId }) => {
 			</h4>
 			<p>HP: {player.hp}</p>
 			<p>ATK: {player.atk}</p>
+			<p>
+				x: {player.coord.x} y: {player.coord.y}
+			</p>
 		</div>
 	);
 };
