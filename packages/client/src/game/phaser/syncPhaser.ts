@@ -1,60 +1,117 @@
-import { PLAYER_CONFIG } from "./../../../player.config";
 import { coordToKey, getCenterPixelCoord } from "@smallbraingames/small-phaser";
-import { debounce, debounceTime, distinct } from "rxjs";
+import { debounceTime } from "rxjs";
+import { completedMoveAnimation } from "../../utils/animations";
+import { getPlayerId } from "../../utils/getPlayerId";
+import { getTilesAroundPlayer } from "../../utils/getTilesAroundPlayer";
 import { type Api, Direction } from "../createApi";
 import type { PhaserGame } from "../phaser/create/createPhaserGame";
-import type { Coord } from "../store";
-import phaserConfig from "./create/phaserConfig";
-import { getPlayerId } from "../../utils/getPlayerId";
-import { completedMoveAnimation } from "../../utils/animations";
-import { getTilesAroundPlayer } from "../../utils/getTilesAroundPlayer";
+import type { Coord, TileWithCoord } from "../store";
 import useStore from "../store";
+import { PLAYER_CONFIG } from "./../../../player.config";
+import phaserConfig from "./create/phaserConfig";
 
-const MOVE_DEBOUNCE_TIME = 1000;
+const MOVE_DEBOUNCE_TIME = 300;
+
+const initializeGrid = (size: number) => {
+	const grid = new Map();
+	for (let x = 0; x < size; x++) {
+		for (let y = 0; y < size; y++) {
+			const coordKey = coordToKey({ x, y });
+			grid.set(coordKey, {
+				coord: { x, y },
+				entity_type: { val: "None" },
+				fetchedAt: 0,
+				isShown: false,
+			});
+		}
+	}
+	return grid;
+};
+
+// Pure fn to update the grid with the new visible tiles
+const getUpdatedGrid = (
+	grid: Map<number, TileWithCoord>,
+	tileList: TileWithCoord[],
+) => {
+	const newGrid = new Map(grid);
+
+	// Rest all tiles to unseen for now
+	newGrid.forEach((value, key) => {
+		newGrid.set(key, {
+			...value,
+			isShown: false, // Set isShown to false for all tiles
+		});
+	});
+
+	tileList.forEach((tile) => {
+		const coordKey = coordToKey(tile.coord); // Get the key based on tile's coordinates
+
+		// Update the grid with the new tile value (overrides the isShown: false set above)
+		if (newGrid.has(coordKey)) {
+			newGrid.set(coordKey, {
+				...tile,
+				isShown: true,
+			}); // Replace the old tile with the new tile from tileList
+		}
+	});
+
+	return newGrid; // Return the new grid with updated values
+};
 
 const syncPhaser = async (game: PhaserGame, api: Api) => {
 	const players = new Map<number, Phaser.GameObjects.Image>();
 	const items = new Map<number, Phaser.GameObjects.Image>();
+	const selectedPlayerId = Number(getPlayerId());
+	let grid = initializeGrid(8);
+	let gridToShow = [];
 	let moveMarker: Phaser.GameObjects.Image | null = null;
 
-	const selectedPlayerId = Number(getPlayerId());
-
-	const drawTilesAroundPlayer = async ({ coord }: { coord: Coord }) => {
-		const tiles = await getTilesAroundPlayer({
+	const drawTiles = async ({ coord }: { coord: Coord }) => {
+		gridToShow = await getTilesAroundPlayer({
 			playerId: selectedPlayerId,
 			coord,
 		});
 
-		tiles.forEach((tile) => {
-			game.tilemap.removeFogAt(tile.coord);
-			if (tile.entity_type.val === "Item") {
-				const itemGameObject = addItem(tile.coord);
-				items.set(tile.entity_id.val, itemGameObject);
+		grid = getUpdatedGrid(grid, gridToShow);
+
+		console.log("GRID", grid);
+
+		grid.forEach((tile) => {
+			if (tile.isShown) {
+				game.tilemap.removeFogAt(tile.coord);
+			} else {
+				game.tilemap.putFogAt(tile.coord);
 			}
-			if (tile.entity_type.val === "Player") {
-				const id = tile.entity_id.val;
-				const playerImg = players.get(id);
-				if (playerImg) {
-					playerImg.destroy();
+			if (tile.entity_type.val && tile.entity_id?.val !== undefined) {
+				if (tile.entity_type.val === "Item") {
+					const itemGameObject = addItem(tile.coord);
+					items.set(tile.entity_id.val, itemGameObject);
 				}
-				const playerGameObject = addPlayer({
-					playerId: id,
-					coord: tile.coord,
-				});
-				players.set(id, playerGameObject);
-				useStore.getState().addPlayer({
-					id,
-					hp: tile.hp.val,
-					atk: tile.atk.val,
-					coord: tile.coord,
-				});
-			}
-			if (tile.entity_type.val === "None") {
-				// remove image at coord
-				const id = coordToKey(tile.coord);
-				const image = players.get(id) || items.get(id);
-				if (image) {
-					image.destroy();
+				if (tile.entity_type.val === "Player") {
+					const id = tile.entity_id.val;
+					const playerImg = players.get(id);
+					if (playerImg) {
+						playerImg.destroy();
+					}
+					const playerGameObject = addPlayer({
+						playerId: id,
+						coord: tile.coord,
+					});
+					players.set(id, playerGameObject);
+					useStore.getState().addPlayer({
+						id,
+						hp: tile.hp.val,
+						atk: tile.atk.val,
+						coord: tile.coord,
+					});
+				}
+				if (tile.entity_type.val === "None") {
+					// remove image at coord
+					const id = coordToKey(tile.coord);
+					const image = players.get(id) || items.get(id);
+					if (image) {
+						image.destroy();
+					}
 				}
 			}
 		});
@@ -163,7 +220,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				x: moveResponse.my_new_coords.x.val,
 				y: moveResponse.my_new_coords.y.val,
 			};
-			await drawTilesAroundPlayer({
+			await drawTiles({
 				coord: newCoord,
 			});
 			if (selectedPlayer) {
@@ -216,7 +273,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 	};
 
 	// draw initial tiles around player
-	drawTilesAroundPlayer({ coord: PLAYER_CONFIG[selectedPlayerId] });
+	drawTiles({ coord: PLAYER_CONFIG[selectedPlayerId] });
 
 	game.input.keyboard$
 		.pipe(debounceTime(MOVE_DEBOUNCE_TIME))

@@ -14,7 +14,11 @@ export type Tile = {
 	hp: { val: number };
 };
 
-export type TileWithCoord = Tile & { coord: Coord };
+export type TileWithCoord = Tile & {
+	coord: Coord; // phaser coordinate of the tile
+	isShown?: boolean; // if the tile is shown in the game
+	fetchedAt: number; // timestamp of when the tile was fetched
+};
 
 export type Player = {
 	id: number;
