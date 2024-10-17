@@ -5,8 +5,8 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use wasm_bindgen::prelude::wasm_bindgen;
 
-#[cfg(test)]
-mod test;
+#[cfg(feature = "dev")]
+pub mod dev;
 
 /// Parameter shared between server and users.
 #[wasm_bindgen]

@@ -5,10 +5,8 @@ use crate::{
 use core::{array::from_fn, iter::repeat_with, ops::*};
 use itertools::{izip, Itertools};
 use rand::{rngs::StdRng, Rng, SeedableRng};
-use wasm_bindgen_test::*;
 
-#[wasm_bindgen_test(unsupported = test)]
-fn e2e() {
+pub fn run_e2e() {
     let param = PhantomParam::i_4p_60();
     let mut server = PhantomEvaluator::new(param);
     let mut users: [PhantomUser; 4] = from_fn(|user_id| {
