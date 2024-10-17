@@ -589,7 +589,7 @@ impl Zone {
 
     fn fully_encrypted_players(&self) -> [PlayerWithEncryptedId; 4] {
         let mut ret = [PlayerWithEncryptedId::default(); 4];
-        for i in 0..4 {
+        for i in 0..self.players.len() {
             let player = self.players[i];
             ret[i] = PlayerWithEncryptedId {
                 id: self.precomputed_ids[player.id],
@@ -601,7 +601,7 @@ impl Zone {
 
     fn fully_encrypted_items(&self) -> [ItemWithEncryptedId; 2] {
         let mut ret = [ItemWithEncryptedId::default(); 2];
-        for i in 0..4 {
+        for i in 0..self.items.len() {
             let item = self.items[i];
             ret[i] = ItemWithEncryptedId {
                 id: self.precomputed_ids[item.id],
