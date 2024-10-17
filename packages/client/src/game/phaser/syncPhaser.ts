@@ -2,13 +2,14 @@ import { coordToKey, getCenterPixelCoord } from "@smallbraingames/small-phaser";
 import { debounceTime } from "rxjs";
 import { completedMoveAnimation } from "../../utils/animations";
 import { getPlayerId } from "../../utils/getPlayerId";
-import { getTilesAroundPlayer } from "../../utils/getTilesAroundPlayer";
 import { type Api, Direction } from "../createApi";
 import type { PhaserGame } from "../phaser/create/createPhaserGame";
 import type { Coord, TileWithCoord } from "../store";
 import useStore from "../store";
 import { PLAYER_CONFIG } from "./../../../player.config";
 import phaserConfig from "./create/phaserConfig";
+import { getSurroundingCoordinates } from "../../utils/getSurroundingCoordinates";
+import { createTileFetcher } from "./create/createTileFetcher";
 
 const MOVE_DEBOUNCE_TIME = 300;
 
@@ -29,21 +30,38 @@ const initializeGrid = (size: number) => {
 };
 
 // Pure fn to update the grid with the new visible tiles
-const getUpdatedGrid = (
-	grid: Map<number, TileWithCoord>,
-	tileList: TileWithCoord[],
-) => {
+const getUpdatedGrid = ({
+	grid,
+	viewportCoords,
+	newTiles,
+}: {
+	grid: Map<number, TileWithCoord>;
+	viewportCoords: Coord[];
+	newTiles: TileWithCoord[];
+}) => {
 	const newGrid = new Map(grid);
 
-	// Rest all tiles to unseen for now
+	// Reset all tiles to unseen for now
 	newGrid.forEach((value, key) => {
 		newGrid.set(key, {
 			...value,
 			isShown: false, // Set isShown to false for all tiles
 		});
 	});
+	// set the view port tiles to shown
+	viewportCoords.forEach((coord) => {
+		const coordKey = coordToKey(coord); // Get the key based on tile's coordinates
 
-	tileList.forEach((tile) => {
+		// Update the grid with the new tile value (overrides the isShown: false set above)
+		if (newGrid.has(coordKey)) {
+			newGrid.set(coordKey, {
+				...newGrid.get(coordKey),
+				isShown: true,
+			}); // Replace the old tile with the new tile from tileList
+		}
+	});
+
+	newTiles.forEach((tile) => {
 		const coordKey = coordToKey(tile.coord); // Get the key based on tile's coordinates
 
 		// Update the grid with the new tile value (overrides the isShown: false set above)
@@ -63,22 +81,30 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 	const items = new Map<number, Phaser.GameObjects.Image>();
 	const selectedPlayerId = Number(getPlayerId());
 	let grid = initializeGrid(8);
-	let gridToShow = [];
+	let tilesToFetchQueue = getSurroundingCoordinates(
+		PLAYER_CONFIG[selectedPlayerId],
+	);
 	let moveMarker: Phaser.GameObjects.Image | null = null;
 
-	const drawTiles = async ({ coord }: { coord: Coord }) => {
-		gridToShow = await getTilesAroundPlayer({
-			playerId: selectedPlayerId,
-			coord,
+	const drawTiles = ({ tiles }: { tiles: TileWithCoord[] }) => {
+		grid = getUpdatedGrid({
+			grid,
+			viewportCoords: tilesToFetchQueue,
+			newTiles: tiles,
 		});
-
-		grid = getUpdatedGrid(grid, gridToShow);
 
 		console.log("GRID", grid);
 
 		grid.forEach((tile) => {
 			if (tile.isShown) {
 				game.tilemap.removeFogAt(tile.coord);
+				if (!tile.fetchedAt) {
+					game.tilemap.putFogAt(tile.coord, 0.3);
+				}
+				// if the tile was last fetched more than 3 seconds ago
+				if (tile.fetchedAt && tile.fetchedAt < Date.now() - 2500) {
+					game.tilemap.putFogAt(tile.coord, 0.1);
+				}
 			} else {
 				game.tilemap.putFogAt(tile.coord);
 			}
@@ -117,8 +143,14 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		});
 	};
 
+	const tileFetcher = createTileFetcher({
+		initialCoordinates: tilesToFetchQueue,
+		batchSize: 5,
+		playerId: selectedPlayerId,
+		onSuccessfulFetch: drawTiles,
+	});
+
 	const addPlayer = ({
-		playerId,
 		coord,
 	}: {
 		playerId: number;
@@ -220,9 +252,9 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				x: moveResponse.my_new_coords.x.val,
 				y: moveResponse.my_new_coords.y.val,
 			};
-			await drawTiles({
-				coord: newCoord,
-			});
+			tilesToFetchQueue = getSurroundingCoordinates(newCoord);
+			tileFetcher.updateCoordinates(tilesToFetchQueue);
+
 			if (selectedPlayer) {
 				const pixelCoord = getCenterPixelCoord(
 					newCoord,
@@ -272,8 +304,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		return go;
 	};
 
-	// draw initial tiles around player
-	drawTiles({ coord: PLAYER_CONFIG[selectedPlayerId] });
+	tileFetcher.start();
 
 	game.input.keyboard$
 		.pipe(debounceTime(MOVE_DEBOUNCE_TIME))

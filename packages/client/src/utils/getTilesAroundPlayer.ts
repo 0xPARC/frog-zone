@@ -2,15 +2,11 @@ import { Coord, Tile, TileWithCoord } from "../game/store";
 import { getSurroundingCoordinates } from "./getSurroundingCoordinates";
 export const serverUrl = import.meta.env.VITE_SERVER_URL;
 
-export const getTilesAroundPlayer = async ({
-	playerId,
-	coord,
-}: {
-	playerId: number;
-	coord: Coord;
-}): Promise<TileWithCoord[]> => {
+export const fetchTiles = async (
+	playerId: number,
+	coords: Coord[],
+): Promise<TileWithCoord[]> => {
 	try {
-		const coords = getSurroundingCoordinates(coord);
 		const response = await fetch(`${serverUrl}/get_cells`, {
 			method: "POST",
 			headers: {
@@ -38,6 +34,7 @@ export const getTilesAroundPlayer = async ({
 			(item: Tile, i: number): TileWithCoord => ({
 				...item,
 				coord: coords[i],
+				fetchedAt: Date.now(),
 			}),
 		);
 		return dataWithCoords;
@@ -45,4 +42,15 @@ export const getTilesAroundPlayer = async ({
 		console.error("Error fetching cells:", error);
 		throw error;
 	}
+};
+
+export const getTilesAroundPlayer = async ({
+	playerId,
+	coord,
+}: {
+	playerId: number;
+	coord: Coord;
+}): Promise<TileWithCoord[]> => {
+	const coords = getSurroundingCoordinates(coord);
+	return fetchTiles(playerId, coords); // Call the factored-out fetchTiles function
 };

@@ -59,7 +59,7 @@ const createTilemap = (scene: Phaser.Scene) => {
 	const fogMap: { [key: string]: Phaser.GameObjects.Graphics } = {};
 
 	// Function to add fog to a specific tile
-	const putFogAt = (tileCoord: Coord) => {
+	const putFogAt = (tileCoord: Coord, opacity: number = 0.5) => {
 		const tileX =
 			(tileCoord.x + gridSize / 2) * tileWidth + startX * tileWidth;
 		const tileY =
@@ -69,7 +69,7 @@ const createTilemap = (scene: Phaser.Scene) => {
 		const key = `${tileCoord.x},${tileCoord.y}`;
 		if (!fogMap[key]) {
 			const fogOverlay = scene.add.graphics();
-			fogOverlay.fillStyle(0xffffff, 0.5); // White with 50% opacity
+			fogOverlay.fillStyle(0xffffff, opacity); // White with 50% opacity
 			fogOverlay.fillRect(tileX, tileY, tileWidth, tileHeight);
 			fogMap[key] = fogOverlay; // Store the fog overlay in the map
 		}
