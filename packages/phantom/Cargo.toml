@@ -1,0 +1,15 @@
+[package]
+name = "phantom"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+getrandom = { version = "0.2", features = ["js"] }
+itertools = "0.13.0"
+phantom-zone-evaluator = { git = "https://github.com/gausslabs/phantom-zone", branch = "rewrite", features = ["serde"] }
+rand = "0.8.5"
+serde = "1.0.210"
+wasm-bindgen = "0.2.95"
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"
