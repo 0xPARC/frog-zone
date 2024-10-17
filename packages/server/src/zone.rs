@@ -7,26 +7,32 @@ pub struct Encrypted<T> {
     pub val: T,
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq, Default)]
 pub struct EncryptedCoord {
     pub x: Encrypted<u8>,
     pub y: Encrypted<u8>,
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq, Default)]
 pub struct PlayerEncryptedData {
     pub loc: EncryptedCoord,
     pub hp: Encrypted<u8>,
     pub atk: Encrypted<u8>,
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq, Default)]
 pub struct Player {
     pub id: usize,
     pub data: PlayerEncryptedData,
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq, Default)]
+pub struct PlayerWithEncryptedId {
+    pub id: Encrypted<u8>,
+    pub data: PlayerEncryptedData,
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq, Default)]
 pub struct ItemEncryptedData {
     pub loc: EncryptedCoord,
     pub hp: Encrypted<u8>,
@@ -34,9 +40,14 @@ pub struct ItemEncryptedData {
     pub is_consumed: Encrypted<bool>,
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq, Default)]
 pub struct Item {
     pub id: usize,
+    pub data: ItemEncryptedData,
+}
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq, Default)]
+pub struct ItemWithEncryptedId {
+    pub id: Encrypted<u8>,
     pub data: ItemEncryptedData,
 }
 
@@ -58,7 +69,7 @@ impl Default for EntityType {
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq, Default)]
 pub struct CellEncryptedData {
     pub entity_type: Encrypted<EntityType>,
-    pub entity_id: Encrypted<usize>,
+    pub entity_id: Encrypted<u8>,
     pub hp: Encrypted<u8>,
     pub atk: Encrypted<u8>,
 }
@@ -78,6 +89,7 @@ pub struct Zone {
     pub players: [Player; 4],
     pub items: [Item; 2],
     pub obstacles: [EncryptedCoord; 96],
+    pub precomputed_ids: [Encrypted<u8>; 20],
 }
 
 pub fn fhe_apply_move_raw(
@@ -169,8 +181,8 @@ pub fn fhe_apply_move(
 
 fn fhe_get_cell_no_check(
     coord: EncryptedCoord,
-    items: [Item; 2],
-    players: [Player; 4],
+    items: [ItemWithEncryptedId; 2],
+    players: [PlayerWithEncryptedId; 4],
 ) -> CellEncryptedData {
     let mut cell = CellEncryptedData::default();
 
@@ -179,7 +191,7 @@ fn fhe_get_cell_no_check(
             cell.entity_type = Encrypted::<EntityType> {
                 val: EntityType::Item,
             };
-            cell.entity_id = Encrypted::<usize> { val: item.id };
+            cell.entity_id = item.id;
             cell.hp = Encrypted::<u8> {
                 val: item.data.hp.val,
             };
@@ -194,7 +206,7 @@ fn fhe_get_cell_no_check(
             cell.entity_type = Encrypted::<EntityType> {
                 val: EntityType::Player,
             };
-            cell.entity_id = Encrypted::<usize> { val: player.id };
+            cell.entity_id = player.id;
             cell.hp = Encrypted::<u8> {
                 val: player.data.hp.val,
             };
@@ -210,10 +222,11 @@ fn fhe_get_cell_no_check(
 fn fhe_get_cell(
     player_coord: EncryptedCoord,
     query_coord: EncryptedCoord,
-    items: [Item; 2],
-    players: [Player; 4],
+    items: [ItemWithEncryptedId; 2],
+    players: [PlayerWithEncryptedId; 4],
 ) -> CellEncryptedData {
     // coord's x and y values must be within [-2, +2] of player's x and y values
+    // can ignore this check if necessary for performance
     if query_coord.x.val.abs_diff(player_coord.x.val) > 2
         || query_coord.y.val.abs_diff(player_coord.y.val) > 2
     {
@@ -225,6 +238,183 @@ fn fhe_get_cell(
     }
 
     fhe_get_cell_no_check(query_coord, items, players)
+}
+
+fn fhe_get_five_cells(
+    player_coord: EncryptedCoord,
+    query_coords: [EncryptedCoord; 5],
+    items: [ItemWithEncryptedId; 2],
+    players: [PlayerWithEncryptedId; 4],
+) -> [CellEncryptedData; 5] {
+    let mut cells = [CellEncryptedData::default(); 5];
+
+    for (idx, query_coord) in query_coords.iter().enumerate() {
+        // coord's x and y values must be within [-2, +2] of player's x and y values
+        // can ignore this check if necessary for performance
+        if query_coord.x.val.abs_diff(player_coord.x.val) > 2
+            || query_coord.y.val.abs_diff(player_coord.y.val) > 2
+        {
+            let mut ret = CellEncryptedData::default();
+            ret.entity_type = Encrypted::<EntityType> {
+                val: EntityType::Invalid,
+            };
+            cells[idx] = ret;
+        } else {
+            cells[idx] = fhe_get_cell_no_check(query_coord.clone(), items, players);
+        }
+    }
+
+    cells
+}
+
+fn fhe_get_cross_cells(
+    player_coord: EncryptedCoord,
+    items: [ItemWithEncryptedId; 2],
+    players: [PlayerWithEncryptedId; 4],
+) -> [CellEncryptedData; 5] {
+    let mut cells = [CellEncryptedData::default(); 5];
+
+    let query_coords = [
+        player_coord,
+        EncryptedCoord {
+            x: player_coord.x,
+            y: Encrypted::<u8> {
+                val: player_coord.y.val + 1,
+            },
+        },
+        EncryptedCoord {
+            x: player_coord.x,
+            y: Encrypted::<u8> {
+                val: player_coord.y.val - 1,
+            },
+        },
+        EncryptedCoord {
+            x: Encrypted::<u8> {
+                val: player_coord.x.val + 1,
+            },
+            y: player_coord.y,
+        },
+        EncryptedCoord {
+            x: Encrypted::<u8> {
+                val: player_coord.x.val - 1,
+            },
+            y: player_coord.y,
+        },
+    ];
+
+    for (idx, query_coord) in query_coords.iter().enumerate() {
+        cells[idx] = fhe_get_cell_no_check(query_coord.clone(), items, players);
+    }
+
+    cells
+}
+
+fn fhe_get_vertical_cells(
+    player_coord: EncryptedCoord,
+    query_coord: EncryptedCoord,
+    items: [ItemWithEncryptedId; 2],
+    players: [PlayerWithEncryptedId; 4],
+) -> [CellEncryptedData; 5] {
+    let mut cells = [CellEncryptedData::default(); 5];
+
+    // can ignore this check if necessary for performance
+    if query_coord.y.val != player_coord.y.val || query_coord.x.val.abs_diff(player_coord.x.val) > 2
+    {
+        for i in 0..5 {
+            cells[i].entity_type = Encrypted::<EntityType> {
+                val: EntityType::Invalid,
+            };
+        }
+        return cells;
+    }
+
+    let query_coords = [
+        EncryptedCoord {
+            x: query_coord.x,
+            y: Encrypted::<u8> {
+                val: query_coord.y.val - 2,
+            },
+        },
+        EncryptedCoord {
+            x: query_coord.x,
+            y: Encrypted::<u8> {
+                val: query_coord.y.val - 1,
+            },
+        },
+        query_coord,
+        EncryptedCoord {
+            x: query_coord.x,
+            y: Encrypted::<u8> {
+                val: query_coord.y.val + 1,
+            },
+        },
+        EncryptedCoord {
+            x: query_coord.x,
+            y: Encrypted::<u8> {
+                val: query_coord.y.val + 2,
+            },
+        },
+    ];
+
+    for (idx, query_coord) in query_coords.iter().enumerate() {
+        cells[idx] = fhe_get_cell_no_check(query_coord.clone(), items, players);
+    }
+
+    cells
+}
+
+fn fhe_get_horizontal_cells(
+    player_coord: EncryptedCoord,
+    query_coord: EncryptedCoord,
+    items: [ItemWithEncryptedId; 2],
+    players: [PlayerWithEncryptedId; 4],
+) -> [CellEncryptedData; 5] {
+    let mut cells = [CellEncryptedData::default(); 5];
+
+    // can ignore this check if necessary for performance
+    if query_coord.x.val != player_coord.x.val || query_coord.y.val.abs_diff(player_coord.y.val) > 2
+    {
+        for i in 0..5 {
+            cells[i].entity_type = Encrypted::<EntityType> {
+                val: EntityType::Invalid,
+            };
+        }
+        return cells;
+    }
+
+    let query_coords = [
+        EncryptedCoord {
+            x: Encrypted::<u8> {
+                val: query_coord.x.val - 2,
+            },
+            y: query_coord.y,
+        },
+        EncryptedCoord {
+            x: Encrypted::<u8> {
+                val: query_coord.x.val - 1,
+            },
+            y: query_coord.y,
+        },
+        query_coord,
+        EncryptedCoord {
+            x: Encrypted::<u8> {
+                val: query_coord.x.val + 1,
+            },
+            y: query_coord.y,
+        },
+        EncryptedCoord {
+            x: Encrypted::<u8> {
+                val: query_coord.x.val + 2,
+            },
+            y: query_coord.y,
+        },
+    ];
+
+    for (idx, query_coord) in query_coords.iter().enumerate() {
+        cells[idx] = fhe_get_cell_no_check(query_coord.clone(), items, players);
+    }
+
+    cells
 }
 
 impl Zone {
@@ -313,12 +503,36 @@ impl Zone {
             y: Encrypted { val: 0 },
         };
 
+        let precomputed_ids = [
+            Encrypted::<u8> { val: 0 },
+            Encrypted::<u8> { val: 1 },
+            Encrypted::<u8> { val: 2 },
+            Encrypted::<u8> { val: 3 },
+            Encrypted::<u8> { val: 4 },
+            Encrypted::<u8> { val: 5 },
+            Encrypted::<u8> { val: 6 },
+            Encrypted::<u8> { val: 7 },
+            Encrypted::<u8> { val: 8 },
+            Encrypted::<u8> { val: 9 },
+            Encrypted::<u8> { val: 10 },
+            Encrypted::<u8> { val: 11 },
+            Encrypted::<u8> { val: 12 },
+            Encrypted::<u8> { val: 13 },
+            Encrypted::<u8> { val: 14 },
+            Encrypted::<u8> { val: 15 },
+            Encrypted::<u8> { val: 16 },
+            Encrypted::<u8> { val: 17 },
+            Encrypted::<u8> { val: 18 },
+            Encrypted::<u8> { val: 19 },
+        ];
+
         Self {
             width,
             height,
             players,
             items,
             obstacles,
+            precomputed_ids,
         }
     }
 
@@ -373,6 +587,30 @@ impl Zone {
         return player.data.loc;
     }
 
+    fn fully_encrypted_players(&self) -> [PlayerWithEncryptedId; 4] {
+        let mut ret = [PlayerWithEncryptedId::default(); 4];
+        for i in 0..4 {
+            let player = self.players[i];
+            ret[i] = PlayerWithEncryptedId {
+                id: self.precomputed_ids[player.id],
+                data: player.data,
+            }
+        }
+        ret
+    }
+
+    fn fully_encrypted_items(&self) -> [ItemWithEncryptedId; 2] {
+        let mut ret = [ItemWithEncryptedId::default(); 2];
+        for i in 0..4 {
+            let item = self.items[i];
+            ret[i] = ItemWithEncryptedId {
+                id: self.precomputed_ids[item.id],
+                data: item.data,
+            }
+        }
+        ret
+    }
+
     pub fn get_cells(
         &self,
         player_id: usize,
@@ -385,13 +623,58 @@ impl Zone {
             cells.push(fhe_get_cell(
                 player_coord,
                 coord.clone(),
-                self.items,
-                self.players,
+                self.fully_encrypted_items(),
+                self.fully_encrypted_players(),
             ));
         }
 
-        let len = coords.len();
-
         cells
+    }
+
+    pub fn get_five_cells(
+        &self,
+        player_id: usize,
+        coords: [EncryptedCoord; 5],
+    ) -> [CellEncryptedData; 5] {
+        fhe_get_five_cells(
+            self.players[player_id].data.loc,
+            coords,
+            self.fully_encrypted_items(),
+            self.fully_encrypted_players(),
+        )
+    }
+
+    pub fn get_cross_cells(&self, player_id: usize) -> [CellEncryptedData; 5] {
+        fhe_get_cross_cells(
+            self.players[player_id].data.loc,
+            self.fully_encrypted_items(),
+            self.fully_encrypted_players(),
+        )
+    }
+
+    pub fn get_vertical_cells(
+        &self,
+        player_id: usize,
+        center: EncryptedCoord,
+    ) -> [CellEncryptedData; 5] {
+        fhe_get_vertical_cells(
+            self.players[player_id].data.loc,
+            center,
+            self.fully_encrypted_items(),
+            self.fully_encrypted_players(),
+        )
+    }
+
+    pub fn get_horizontal_cells(
+        &self,
+        player_id: usize,
+        center: EncryptedCoord,
+    ) -> [CellEncryptedData; 5] {
+        fhe_get_horizontal_cells(
+            self.players[player_id].data.loc,
+            center,
+            self.fully_encrypted_items(),
+            self.fully_encrypted_players(),
+        )
     }
 }
