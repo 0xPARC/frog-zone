@@ -205,6 +205,9 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		const selectedPlayer = players.get(selectedPlayerId);
 		if (!selectedPlayer) return;
 
+		// stop the fetcher so we can show the pending move
+		tileFetcher.stop();
+
 		const tileWidth = phaserConfig.tilemap.tileWidth;
 		const tileHeight = phaserConfig.tilemap.tileHeight;
 
