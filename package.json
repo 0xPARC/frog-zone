@@ -1,11 +1,12 @@
 {
     "name": "frog-zone",
     "workspaces": [
-      "packages/*"
+        "packages/*"
     ],
     "private": true,
     "scripts": {},
-    "devDependencies": { },
     "engines": {},
-    "dependencies": {}
-  }
+    "dependencies": {
+        "qrcode.react": "^4.0.1"
+    }
+}
