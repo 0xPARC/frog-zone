@@ -5,13 +5,11 @@ import { getPlayerId } from "../../utils/getPlayerId";
 import { type Api, Direction } from "../createApi";
 import type { PhaserGame } from "../phaser/create/createPhaserGame";
 import type { Coord, TileWithCoord } from "../store";
-import useStore from "../store";
+import useStore, { NEXT_MOVE_TIME_MILLIS } from "../store";
 import { PLAYER_CONFIG } from "./../../../player.config";
 import phaserConfig from "./create/phaserConfig";
 import { getSurroundingCoordinates } from "../../utils/getSurroundingCoordinates";
 import { createTileFetcher } from "./create/createTileFetcher";
-
-const MOVE_DEBOUNCE_TIME = 300;
 
 const initializeGrid = (size: number) => {
 	const grid = new Map();
@@ -209,7 +207,8 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 	const handleMovePlayer = async (direction: Direction) => {
 		const selectedPlayer = players.get(selectedPlayerId);
 		if (!selectedPlayer) return;
-
+		// record a move was made
+		useStore.getState().setLastMoveTimeStamp(Date.now());
 		// stop the fetcher so we can show the pending move
 		tileFetcher.stop();
 
@@ -314,19 +313,24 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 
 	tileFetcher.start();
 
-	game.input.keyboard$
-		.pipe(debounceTime(MOVE_DEBOUNCE_TIME))
-		.subscribe(async (key) => {
-			if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.LEFT) {
-				handleMovePlayer(Direction.LEFT);
-			} else if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.RIGHT) {
-				handleMovePlayer(Direction.RIGHT);
-			} else if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.UP) {
-				handleMovePlayer(Direction.UP);
-			} else if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.DOWN) {
-				handleMovePlayer(Direction.DOWN);
-			}
-		});
+	game.input.keyboard$.subscribe(async (key) => {
+		const lastMoveTime = useStore.getState().lastMoveTimeStamp;
+		const now = Date.now();
+		const canMove =
+			!lastMoveTime || now - lastMoveTime >= NEXT_MOVE_TIME_MILLIS;
+		if (!canMove) {
+			return;
+		}
+		if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.LEFT) {
+			handleMovePlayer(Direction.LEFT);
+		} else if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.RIGHT) {
+			handleMovePlayer(Direction.RIGHT);
+		} else if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.UP) {
+			handleMovePlayer(Direction.UP);
+		} else if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.DOWN) {
+			handleMovePlayer(Direction.DOWN);
+		}
+	});
 };
 
 export default syncPhaser;
