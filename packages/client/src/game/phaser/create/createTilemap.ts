@@ -84,11 +84,9 @@ const createTilemap = (scene: Phaser.Scene) => {
 		}
 	};
 
-	// Initially cover all tiles with fog
 	for (let x = 0; x < gridSize; x++) {
 		for (let y = 0; y < gridSize; y++) {
 			putTileAt(0, { x, y });
-			putFogAt({ x, y }); // Add fog to each tile
 		}
 	}
 

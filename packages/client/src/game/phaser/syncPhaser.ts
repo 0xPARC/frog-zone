@@ -78,7 +78,8 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 	const players = new Map<number, Phaser.GameObjects.Image>();
 	const items = new Map<number, Phaser.GameObjects.Image>();
 	const selectedPlayerId = Number(getPlayerId());
-	let grid = initializeGrid(8);
+	// TODO: look into why the actual rendered grid by phase is 32 when config is 64
+	let grid = initializeGrid(32);
 	const initialViewportCoords = getSurroundingCoordinates(
 		PLAYER_CONFIG[selectedPlayerId],
 	);
