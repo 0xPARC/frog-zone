@@ -48,32 +48,30 @@ const getUpdatedGrid = ({
 			isShown: false, // Set isShown to false for all tiles
 		});
 	});
-	// set the view port tiles to shown
+	// set all the view port tiles to shown
 	viewportCoords.forEach((coord) => {
-		const coordKey = coordToKey(coord); // Get the key based on tile's coordinates
-
-		// Update the grid with the new tile value (overrides the isShown: false set above)
+		const coordKey = coordToKey(coord);
 		if (newGrid.has(coordKey)) {
 			newGrid.set(coordKey, {
 				...newGrid.get(coordKey),
 				isShown: true,
-			}); // Replace the old tile with the new tile from tileList
+			});
 		}
 	});
 
 	newTiles.forEach((tile) => {
-		const coordKey = coordToKey(tile.coord); // Get the key based on tile's coordinates
+		const coordKey = coordToKey(tile.coord);
 
-		// Update the grid with the new tile value (overrides the isShown: false set above)
+		// Update the grid with the newly fetched tile value (overrides the isShown: false set above)
 		if (newGrid.has(coordKey)) {
 			newGrid.set(coordKey, {
 				...tile,
 				isShown: true,
-			}); // Replace the old tile with the new tile from tileList
+			});
 		}
 	});
 
-	return newGrid; // Return the new grid with updated values
+	return newGrid;
 };
 
 const syncPhaser = async (game: PhaserGame, api: Api) => {
@@ -81,15 +79,21 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 	const items = new Map<number, Phaser.GameObjects.Image>();
 	const selectedPlayerId = Number(getPlayerId());
 	let grid = initializeGrid(8);
-	let tilesToFetchQueue = getSurroundingCoordinates(
+	const initialViewportCoords = getSurroundingCoordinates(
 		PLAYER_CONFIG[selectedPlayerId],
 	);
 	let moveMarker: Phaser.GameObjects.Image | null = null;
 
-	const drawTiles = ({ tiles }: { tiles: TileWithCoord[] }) => {
+	const drawTiles = ({
+		tiles,
+		viewportCoords,
+	}: {
+		tiles: TileWithCoord[];
+		viewportCoords: Coord[];
+	}) => {
 		grid = getUpdatedGrid({
 			grid,
-			viewportCoords: tilesToFetchQueue,
+			viewportCoords,
 			newTiles: tiles,
 		});
 
@@ -144,7 +148,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 	};
 
 	const tileFetcher = createTileFetcher({
-		initialCoordinates: tilesToFetchQueue,
+		initialCoordinates: initialViewportCoords,
 		batchSize: 5,
 		playerId: selectedPlayerId,
 		onSuccessfulFetch: drawTiles,
@@ -255,8 +259,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				x: moveResponse.my_new_coords.x.val,
 				y: moveResponse.my_new_coords.y.val,
 			};
-			tilesToFetchQueue = getSurroundingCoordinates(newCoord);
-			tileFetcher.updateCoordinates(tilesToFetchQueue);
+			const newViewportCoords = getSurroundingCoordinates(newCoord);
 
 			if (selectedPlayer) {
 				const pixelCoord = getCenterPixelCoord(
@@ -279,6 +282,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 							moveMarker.destroy();
 							moveMarker = null;
 						}
+						tileFetcher.updateCoordinates(newViewportCoords);
 					},
 				});
 			}

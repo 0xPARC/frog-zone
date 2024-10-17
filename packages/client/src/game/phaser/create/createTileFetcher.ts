@@ -12,7 +12,13 @@ export const createTileFetcher = ({
 	initialCoordinates: Coord[];
 	batchSize: number;
 	playerId: number;
-	onSuccessfulFetch: ({ tiles }: { tiles: TileWithCoord[] }) => void;
+	onSuccessfulFetch: ({
+		tiles,
+		viewportCoords,
+	}: {
+		tiles: TileWithCoord[];
+		viewportCoords: Coord[];
+	}) => void;
 }) => {
 	let coordinates = initialCoordinates;
 	let currentIndex = 0;
@@ -28,7 +34,7 @@ export const createTileFetcher = ({
 
 		const newTiles = await fetchTiles(playerId, nextBatch);
 
-		onSuccessfulFetch({ tiles: newTiles });
+		onSuccessfulFetch({ tiles: newTiles, viewportCoords: coordinates });
 
 		currentIndex += batchSize;
 
