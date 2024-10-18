@@ -631,6 +631,10 @@ impl Zone {
         cells
     }
 
+	pub fn get_player(&self, player_id: usize) -> PlayerEncryptedData {
+        self.players[player_id].data
+    }
+
     pub fn get_five_cells(
         &self,
         player_id: usize,

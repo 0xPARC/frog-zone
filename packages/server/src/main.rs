@@ -8,7 +8,7 @@ use std::collections::VecDeque;
 use std::sync::Arc;
 use tokio::sync::{Mutex, Notify};
 use tracing::info;
-use zone::{CellEncryptedData, Direction, Encrypted, EncryptedCoord, Zone};
+use zone::{CellEncryptedData, Direction, Encrypted, EncryptedCoord, PlayerEncryptedData, Zone};
 
 use std::time::Duration;
 use tokio::time;
@@ -18,6 +18,7 @@ extern crate rocket;
 
 const MOVE_TIME_MILLIS: u64 = 500;
 const GET_CELL_TIME_MILLIS: u64 = 140; // based on benchmark of 700ms for 5 cells
+const GET_PLAYER_TIME_MILLIS: u64 = 140;
 const MOVE_TIME_RATE_LIMIT_MILLIS: u64 = 3500;
 
 struct GameState {
@@ -37,6 +38,16 @@ struct GetCellsRequest {
 #[derive(Serialize, Clone)]
 struct GetCellsResponse {
     cell_data: Vec<CellEncryptedData>,
+}
+
+#[derive(Deserialize)]
+struct GetPlayerRequest {
+    player_id: usize,
+}
+
+#[derive(Serialize, Clone)]
+struct GetPlayerResponse {
+    player_data: PlayerEncryptedData,
 }
 
 #[derive(Deserialize)]
@@ -99,6 +110,27 @@ async fn get_cells(
     info!("processed /get_cells request");
 
     Json(GetCellsResponse { cell_data })
+}
+
+#[post("/get_player", format = "json", data = "<request>")]
+async fn get_player(
+    state: &State<SharedState>,
+    request: Json<GetPlayerRequest>,
+) -> Json<GetPlayerResponse> {
+    let mut player_response = PlayerEncryptedData::default();
+
+    {
+        let game_state = state.lock().await;
+        let zone = &game_state.zone;
+
+        player_response = zone.get_player(request.player_id).clone();
+    }
+
+    time::sleep(Duration::from_millis(GET_PLAYER_TIME_MILLIS)).await;
+
+    info!("processed /get_player request");
+
+    Json(GetPlayerResponse { player_data: player_response })
 }
 
 #[post("/move", format = "json", data = "<move_request>")]
@@ -198,6 +230,6 @@ async fn rocket() -> _ {
 
     rocket::build()
         .manage(shared_state.clone())
-        .mount("/", routes![queue_move, get_cells])
+        .mount("/", routes![queue_move, get_cells, get_player])
         .attach(make_cors())
 }

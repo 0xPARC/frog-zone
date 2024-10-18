@@ -44,7 +44,7 @@ export const NEXT_MOVE_TIME_MILLIS = 3500;
 interface State {
 	players: Map<number, Player>;
 	items: Map<number, Item>;
-	lastMoveTimeStamp: null; // timestamp for next move
+	lastMoveTimeStamp: number | null; // timestamp for next move
 
 	addPlayer: (player: Player) => void;
 	addItem: (item: Item, coord: Coord) => void;
@@ -56,10 +56,11 @@ interface State {
 		itemEffect: ItemEffect,
 	) => void;
 	setLastMoveTimeStamp: (time: number) => void;
+	getPlayerById: (id: number) => Player | null;
 }
 
 const useStore = create<State>()(
-	immer((set) => ({
+	immer((set, get) => ({
 		players: new Map(),
 		items: new Map(),
 		lastMoveTimeStamp: null, // Store the last move timestamp
@@ -98,6 +99,10 @@ const useStore = create<State>()(
 		},
 		setLastMoveTimeStamp: (time: number) =>
 			set({ lastMoveTimeStamp: time }),
+		getPlayerById: (id: number) => {
+			const players = get().players;
+			return players.get(id) || null;
+		},
 	})),
 );
 

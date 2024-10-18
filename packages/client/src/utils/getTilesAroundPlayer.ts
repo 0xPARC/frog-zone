@@ -1,13 +1,13 @@
+import { SERVER_URL } from "../const/env.const";
 import { Coord, Tile, TileWithCoord } from "../game/store";
 import { getSurroundingCoordinates } from "./getSurroundingCoordinates";
-export const serverUrl = import.meta.env.VITE_SERVER_URL;
 
 export const fetchTiles = async (
 	playerId: number,
 	coords: Coord[],
 ): Promise<TileWithCoord[]> => {
 	try {
-		const response = await fetch(`${serverUrl}/get_cells`, {
+		const response = await fetch(`${SERVER_URL}/get_cells`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",

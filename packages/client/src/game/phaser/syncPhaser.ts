@@ -1,15 +1,14 @@
 import { coordToKey, getCenterPixelCoord } from "@smallbraingames/small-phaser";
-import { debounceTime } from "rxjs";
 import { completedMoveAnimation } from "../../utils/animations";
+import { fetchPlayer } from "../../utils/fetchPlayer";
 import { getPlayerId } from "../../utils/getPlayerId";
+import { getSurroundingCoordinates } from "../../utils/getSurroundingCoordinates";
 import { type Api, Direction } from "../createApi";
 import type { PhaserGame } from "../phaser/create/createPhaserGame";
 import type { Coord, TileWithCoord } from "../store";
 import useStore, { NEXT_MOVE_TIME_MILLIS } from "../store";
-import { PLAYER_CONFIG } from "./../../../player.config";
-import phaserConfig from "./create/phaserConfig";
-import { getSurroundingCoordinates } from "../../utils/getSurroundingCoordinates";
 import { createTileFetcher } from "./create/createTileFetcher";
+import phaserConfig from "./create/phaserConfig";
 
 const initializeGrid = (size: number) => {
 	const grid = new Map();
@@ -78,9 +77,11 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 	const selectedPlayerId = Number(getPlayerId());
 	// TODO: look into why the actual rendered grid by phase is 32 when config is 64
 	let grid = initializeGrid(32);
-	const initialViewportCoords = getSurroundingCoordinates(
-		PLAYER_CONFIG[selectedPlayerId],
-	);
+	const player = await fetchPlayer(selectedPlayerId);
+	const initialViewportCoords = getSurroundingCoordinates({
+		x: player?.player_data?.loc.x.val,
+		y: player?.player_data?.loc.y.val,
+	});
 	let moveMarker: Phaser.GameObjects.Image | null = null;
 
 	const drawTiles = ({
