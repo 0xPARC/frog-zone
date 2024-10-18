@@ -1,6 +1,5 @@
 import { SERVER_URL } from "../const/env.const";
 import { Coord, Tile, TileWithCoord } from "../game/store";
-import { getSurroundingCoordinates } from "./getSurroundingCoordinates";
 
 export const fetchTiles = async (
 	playerId: number,
@@ -42,15 +41,4 @@ export const fetchTiles = async (
 		console.error("Error fetching cells:", error);
 		throw error;
 	}
-};
-
-export const getTilesAroundPlayer = async ({
-	playerId,
-	coord,
-}: {
-	playerId: number;
-	coord: Coord;
-}): Promise<TileWithCoord[]> => {
-	const coords = getSurroundingCoordinates(coord);
-	return fetchTiles(playerId, coords); // Call the factored-out fetchTiles function
 };

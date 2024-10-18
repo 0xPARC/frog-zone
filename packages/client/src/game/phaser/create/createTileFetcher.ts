@@ -1,4 +1,4 @@
-import { fetchTiles } from "../../../utils/getTilesAroundPlayer";
+import { fetchTiles } from "../../../utils/fetchTiles";
 import { Coord, TileWithCoord } from "../../store";
 // Fetches the tiles in batches of 5
 
