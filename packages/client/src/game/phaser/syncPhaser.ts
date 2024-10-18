@@ -2,7 +2,6 @@ import { coordToKey, getCenterPixelCoord } from "@smallbraingames/small-phaser";
 import { completedMoveAnimation } from "../../utils/animations";
 import { fetchPlayer } from "../../utils/fetchPlayer";
 import { getPlayerId } from "../../utils/getPlayerId";
-import { getSurroundingCoordinates } from "../../utils/getSurroundingCoordinates";
 import { type Api, Direction } from "../createApi";
 import type { PhaserGame } from "../phaser/create/createPhaserGame";
 import type { Coord, TileWithCoord } from "../store";
@@ -10,73 +9,10 @@ import useStore, { NEXT_MOVE_TIME_MILLIS } from "../store";
 import { createTileFetcher } from "./create/createTileFetcher";
 import phaserConfig from "./create/phaserConfig";
 
-const initializeGrid = (size: number) => {
-	const grid = new Map();
-	for (let x = 0; x < size; x++) {
-		for (let y = 0; y < size; y++) {
-			const coordKey = coordToKey({ x, y });
-			grid.set(coordKey, {
-				coord: { x, y },
-				entity_type: { val: "None" },
-				fetchedAt: 0,
-				isShown: false,
-			});
-		}
-	}
-	return grid;
-};
-
-// Pure fn to update the grid with the new visible tiles
-const getUpdatedGrid = ({
-	grid,
-	viewportCoords,
-	newTiles,
-}: {
-	grid: Map<number, TileWithCoord>;
-	viewportCoords: Coord[];
-	newTiles: TileWithCoord[];
-}) => {
-	const newGrid = new Map(grid);
-
-	// Reset all tiles to unseen for now
-	newGrid.forEach((value, key) => {
-		newGrid.set(key, {
-			...value,
-			isShown: false, // Set isShown to false for all tiles
-		});
-	});
-	// set all the view port tiles to shown
-	viewportCoords.forEach((coord) => {
-		const coordKey = coordToKey(coord);
-		if (newGrid.has(coordKey)) {
-			newGrid.set(coordKey, {
-				...newGrid.get(coordKey),
-				isShown: true,
-			});
-		}
-	});
-
-	newTiles.forEach((tile) => {
-		const coordKey = coordToKey(tile.coord);
-
-		// Update the grid with the newly fetched tile value (overrides the isShown: false set above)
-		if (newGrid.has(coordKey)) {
-			newGrid.set(coordKey, {
-				...tile,
-				isShown: true,
-			});
-		}
-	});
-
-	return newGrid;
-};
-
 const syncPhaser = async (game: PhaserGame, api: Api) => {
 	const players = new Map<number, Phaser.GameObjects.Image>();
 	const items = new Map<number, Phaser.GameObjects.Image>();
 	const selectedPlayerId = Number(getPlayerId());
-	// TODO: look into why the actual rendered grid by phase is 32 when config is 64
-	let grid = initializeGrid(32);
 	const player = await fetchPlayer(selectedPlayerId);
 	const initialPlayerCoord = {
 		x: player?.player_data?.loc.x.val,
@@ -91,13 +27,8 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		tiles: TileWithCoord[];
 		viewportCoords: Coord[];
 	}) => {
-		grid = getUpdatedGrid({
-			grid,
-			viewportCoords,
-			newTiles: tiles,
-		});
-
-		console.log("GRID", grid);
+		useStore.getState().updateGrid(viewportCoords, tiles);
+		const grid = useStore.getState().grid;
 
 		grid.forEach((tile) => {
 			if (tile.isShown) {
@@ -179,30 +110,18 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 			phaserConfig.tilemap.tileHeight,
 		);
 		go.setDepth(1);
-		// if (selectedPlayerId === playerId) {
-		// 	// Define the triangle's points
-		// 	const triangleSize = 10; // Adjust this size as needed
-		// 	const triangleX = go.x;
-		// 	const triangleY = 25; // Position above the image
-
-		// 	// Add the triangle above the image
-		// 	const triangle = game.mainScene.add.triangle(
-		// 		triangleX,
-		// 		triangleY,
-		// 		0,
-		// 		triangleSize, // Point 1 (top)
-		// 		-triangleSize,
-		// 		-triangleSize, // Point 2 (bottom left)
-		// 		triangleSize,
-		// 		-triangleSize, // Point 3 (bottom right)
-		// 		0xffd700, // Yellow color in hex
-		// 	);
-
-		// 	// Set the origin to center the triangle
-		// 	triangle.setDepth(2);
-		// 	triangle.setOrigin(0.5, 0.5);
-		// }
 		return go;
+	};
+
+	const positionCamera = (coord: Coord) => {
+		const pixelCoord = getCenterPixelCoord(
+			coord,
+			phaserConfig.tilemap.tileWidth,
+			phaserConfig.tilemap.tileHeight,
+		);
+		const x = pixelCoord.x;
+		const y = pixelCoord.y;
+		game.mainScene.cameras.main.centerOn(x, y);
 	};
 
 	const handleMovePlayer = async (direction: Direction) => {
@@ -311,26 +230,30 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		return go;
 	};
 
-	tileFetcher.start();
+	const setupGame = () => {
+		positionCamera(initialPlayerCoord);
+		tileFetcher.start();
 
-	game.input.keyboard$.subscribe(async (key) => {
-		const lastMoveTime = useStore.getState().lastMoveTimeStamp;
-		const now = Date.now();
-		const canMove =
-			!lastMoveTime || now - lastMoveTime >= NEXT_MOVE_TIME_MILLIS;
-		if (!canMove) {
-			return;
-		}
-		if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.LEFT) {
-			handleMovePlayer(Direction.LEFT);
-		} else if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.RIGHT) {
-			handleMovePlayer(Direction.RIGHT);
-		} else if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.UP) {
-			handleMovePlayer(Direction.UP);
-		} else if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.DOWN) {
-			handleMovePlayer(Direction.DOWN);
-		}
-	});
+		game.input.keyboard$.subscribe(async (key) => {
+			const lastMoveTime = useStore.getState().lastMoveTimeStamp;
+			const now = Date.now();
+			const canMove =
+				!lastMoveTime || now - lastMoveTime >= NEXT_MOVE_TIME_MILLIS;
+			if (!canMove) {
+				return;
+			}
+			if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.LEFT) {
+				handleMovePlayer(Direction.LEFT);
+			} else if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.RIGHT) {
+				handleMovePlayer(Direction.RIGHT);
+			} else if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.UP) {
+				handleMovePlayer(Direction.UP);
+			} else if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.DOWN) {
+				handleMovePlayer(Direction.DOWN);
+			}
+		});
+	};
+	setupGame();
 };
 
 export default syncPhaser;

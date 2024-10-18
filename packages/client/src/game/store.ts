@@ -44,7 +44,8 @@ export const NEXT_MOVE_TIME_MILLIS = 3500;
 interface State {
 	players: Map<number, Player>;
 	items: Map<number, Item>;
-	lastMoveTimeStamp: number | null; // timestamp for next move
+	grid: Map<number, TileWithCoord>;
+	lastMoveTimeStamp: number; // timestamp for next move
 
 	addPlayer: (player: Player) => void;
 	addItem: (item: Item, coord: Coord) => void;
@@ -57,13 +58,32 @@ interface State {
 	) => void;
 	setLastMoveTimeStamp: (time: number) => void;
 	getPlayerById: (id: number) => Player | null;
+	updateGrid: (viewportCoords: Coord[], newTiles: TileWithCoord[]) => void;
 }
+
+const initializeGrid = (size: number) => {
+	const grid = new Map();
+	for (let x = 0; x < size; x++) {
+		for (let y = 0; y < size; y++) {
+			const coordKey = coordToKey({ x, y });
+			grid.set(coordKey, {
+				coord: { x, y },
+				entity_type: { val: "None" },
+				fetchedAt: 0,
+				isShown: false,
+			});
+		}
+	}
+	return grid;
+};
 
 const useStore = create<State>()(
 	immer((set, get) => ({
-		players: new Map(),
-		items: new Map(),
-		lastMoveTimeStamp: null, // Store the last move timestamp
+		players: new Map<number, Player>(),
+		items: new Map<number, Item>(),
+		// TODO: look into why the actual rendered grid by phase is 32 when config is 64
+		grid: initializeGrid(32),
+		lastMoveTimeStamp: 0, // Store the last move timestamp
 
 		addPlayer: (player) => {
 			set((state) => {
@@ -101,7 +121,56 @@ const useStore = create<State>()(
 			set({ lastMoveTimeStamp: time }),
 		getPlayerById: (id: number) => {
 			const players = get().players;
-			return players.get(id) || null;
+			let player: Player | null = null;
+
+			players.forEach((value) => {
+				if (value.id === id) {
+					player = value;
+				}
+			});
+
+			return player as Player | null;
+		},
+		updateGrid: (viewportCoords, newTiles) => {
+			set((state) => {
+				const newGrid = new Map(state.grid);
+
+				const viewportCoordKeys = new Set(
+					viewportCoords.map(coordToKey),
+				);
+
+				// Update the grid
+				newGrid.forEach((value, key) => {
+					// Check if the tile is in the viewport
+					if (viewportCoordKeys.has(key)) {
+						// Set isShown to true for tiles in the viewport
+						newGrid.set(key, {
+							...value,
+							isShown: true,
+						});
+					} else {
+						// Set isShown to false for tiles outside the viewport
+						newGrid.set(key, {
+							...value,
+							isShown: false,
+						});
+					}
+				});
+
+				newTiles.forEach((tile) => {
+					const coordKey = coordToKey(tile.coord);
+
+					// Update the grid with the newly fetched tile value (overrides the isShown: false set above)
+					if (newGrid.has(coordKey)) {
+						newGrid.set(coordKey, {
+							...tile,
+							isShown: true,
+						});
+					}
+				});
+
+				state.grid = newGrid;
+			});
 		},
 	})),
 );

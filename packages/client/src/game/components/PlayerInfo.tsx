@@ -22,8 +22,7 @@ const styles = {
 };
 
 export const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId }) => {
-	const getPlayerById = useStore((state) => state.getPlayerById);
-	const player = getPlayerById(playerId);
+	const player = useStore((state) => state.getPlayerById(playerId));
 
 	if (!player) {
 		return null;
