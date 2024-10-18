@@ -78,10 +78,10 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 	// TODO: look into why the actual rendered grid by phase is 32 when config is 64
 	let grid = initializeGrid(32);
 	const player = await fetchPlayer(selectedPlayerId);
-	const initialViewportCoords = getSurroundingCoordinates({
+	const initialPlayerCoord = {
 		x: player?.player_data?.loc.x.val,
 		y: player?.player_data?.loc.y.val,
-	});
+	};
 	let moveMarker: Phaser.GameObjects.Image | null = null;
 
 	const drawTiles = ({
@@ -148,7 +148,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 	};
 
 	const tileFetcher = createTileFetcher({
-		initialCoordinates: initialViewportCoords,
+		initialCoordinate: initialPlayerCoord,
 		batchSize: 5,
 		playerId: selectedPlayerId,
 		onSuccessfulFetch: drawTiles,
@@ -260,7 +260,6 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				x: moveResponse.my_new_coords.x.val,
 				y: moveResponse.my_new_coords.y.val,
 			};
-			const newViewportCoords = getSurroundingCoordinates(newCoord);
 
 			if (selectedPlayer) {
 				const pixelCoord = getCenterPixelCoord(
@@ -283,7 +282,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 							moveMarker.destroy();
 							moveMarker = null;
 						}
-						tileFetcher.updateCoordinates(newViewportCoords);
+						tileFetcher.updateCoordinates(newCoord);
 					},
 				});
 			}

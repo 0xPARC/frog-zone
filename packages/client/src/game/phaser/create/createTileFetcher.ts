@@ -1,15 +1,16 @@
 import { fetchTiles } from "../../../utils/fetchTiles";
+import { getSurroundingCoordinates } from "../../../utils/getSurroundingCoordinates";
 import { Coord, TileWithCoord } from "../../store";
 // Fetches the tiles in batches of 5
 
 const FETCH_INTERVAL = 1000;
 export const createTileFetcher = ({
-	initialCoordinates,
+	initialCoordinate,
 	batchSize,
 	playerId,
 	onSuccessfulFetch,
 }: {
-	initialCoordinates: Coord[];
+	initialCoordinate: Coord; // the center coordinate of the viewport
 	batchSize: number;
 	playerId: number;
 	onSuccessfulFetch: ({
@@ -20,7 +21,7 @@ export const createTileFetcher = ({
 		viewportCoords: Coord[];
 	}) => void;
 }) => {
-	let coordinates = initialCoordinates;
+	let coordinates = getSurroundingCoordinates(initialCoordinate);
 	let currentIndex = 0;
 	let intervalId: number | null = null;
 
@@ -59,10 +60,10 @@ export const createTileFetcher = ({
 		}
 	};
 
-	// Updates the coordinates (current viewport) and reset the batch index to 0, and restart automatically
-	const updateCoordinates = (newCoordinates: Coord[]) => {
+	// Updates the central coordinate (current viewport) and reset the batch index to 0, and restart automatically
+	const updateCoordinates = (newCoordinate: Coord) => {
 		stop();
-		coordinates = newCoordinates;
+		coordinates = getSurroundingCoordinates(newCoordinate);
 		currentIndex = 0;
 		start();
 	};
