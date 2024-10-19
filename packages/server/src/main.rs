@@ -152,7 +152,9 @@ async fn get_player(
 
     info!("processed /get_player request");
 
-    Json(GetPlayerResponse { player_data: player_response })
+    Json(GetPlayerResponse {
+        player_data: player_response,
+    })
 }
 
 #[post("/move", format = "json", data = "<move_request>")]
@@ -315,5 +317,6 @@ async fn rocket() -> _ {
                 get_pk,
                 submit_round_2_key,
             ],
+        )
         .attach(make_cors())
 }
