@@ -4,6 +4,7 @@ import { Coord } from "../game/store";
  * Generates an array of coordinates in a 5x5 grid around a given center coordinate.
  * The center coordinate will be surrounded by coordinates at offsets of -2, -1, 0, 1, and 2.
  * Coordinates with negative values are excluded.
+ * Returns the coordinates ordered by their distance from the center (closest to farthest).
  *
  * @param {number} x - The x coordinate of the center.
  * @param {number} y - The y coordinate of the center.
@@ -23,6 +24,13 @@ export const getSurroundingCoordinates = ({ x, y }: Coord) => {
 			}
 		}
 	}
+
+	// Sort the coordinates by their Taxicab distance to the center (x, y)
+	surroundingCoords.sort((a, b) => {
+		const distA = Math.abs(a.x - x) + Math.abs(a.y - y);
+		const distB = Math.abs(b.x - x) + Math.abs(b.y - y);
+		return distA - distB; // Sort by closest to farthest
+	});
 
 	return surroundingCoords;
 };

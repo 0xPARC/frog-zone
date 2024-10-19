@@ -1,67 +1,91 @@
-import { PLAYER_CONFIG } from "./../../../player.config";
 import { coordToKey, getCenterPixelCoord } from "@smallbraingames/small-phaser";
-import { debounce, debounceTime, distinct } from "rxjs";
+import { completedMoveAnimation } from "../../utils/animations";
+import { fetchPlayer } from "../../utils/fetchPlayer";
+import { getPlayerId } from "../../utils/getPlayerId";
 import { type Api, Direction } from "../createApi";
 import type { PhaserGame } from "../phaser/create/createPhaserGame";
-import type { Coord } from "../store";
+import type { Coord, TileWithCoord } from "../store";
+import useStore, { NEXT_MOVE_TIME_MILLIS } from "../store";
+import { createTileFetcher } from "./create/createTileFetcher";
 import phaserConfig from "./create/phaserConfig";
-import { getPlayerId } from "../../utils/getPlayerId";
-import { completedMoveAnimation } from "../../utils/animations";
-import { getTilesAroundPlayer } from "../../utils/getTilesAroundPlayer";
-import useStore from "../store";
-
-const MOVE_DEBOUNCE_TIME = 1000;
 
 const syncPhaser = async (game: PhaserGame, api: Api) => {
 	const players = new Map<number, Phaser.GameObjects.Image>();
 	const items = new Map<number, Phaser.GameObjects.Image>();
+	const selectedPlayerId = Number(getPlayerId());
+	const player = await fetchPlayer(selectedPlayerId);
+	const initialPlayerCoord = {
+		x: player?.player_data?.loc.x.val,
+		y: player?.player_data?.loc.y.val,
+	};
 	let moveMarker: Phaser.GameObjects.Image | null = null;
 
-	const selectedPlayerId = Number(getPlayerId());
+	const drawTiles = ({
+		tiles,
+		viewportCoords,
+	}: {
+		tiles: TileWithCoord[];
+		viewportCoords: Coord[];
+	}) => {
+		useStore.getState().updateGrid(viewportCoords, tiles);
+		const grid = useStore.getState().grid;
 
-	const drawTilesAroundPlayer = async ({ coord }: { coord: Coord }) => {
-		const tiles = await getTilesAroundPlayer({
-			playerId: selectedPlayerId,
-			coord,
-		});
-
-		tiles.forEach((tile) => {
-			game.tilemap.removeFogAt(tile.coord);
-			if (tile.entity_type.val === "Item") {
-				const itemGameObject = addItem(tile.coord);
-				items.set(tile.entity_id.val, itemGameObject);
-			}
-			if (tile.entity_type.val === "Player") {
-				const id = tile.entity_id.val;
-				const playerImg = players.get(id);
-				if (playerImg) {
-					playerImg.destroy();
+		grid.forEach((tile) => {
+			if (tile.isShown) {
+				game.tilemap.removeFogAt(tile.coord);
+				if (!tile.fetchedAt) {
+					game.tilemap.putFogAt(tile.coord, 0.3);
 				}
-				const playerGameObject = addPlayer({
-					playerId: id,
-					coord: tile.coord,
-				});
-				players.set(id, playerGameObject);
-				useStore.getState().addPlayer({
-					id,
-					hp: tile.hp.val,
-					atk: tile.atk.val,
-					coord: tile.coord,
-				});
+				// if the tile was last fetched more than 3 seconds ago
+				if (tile.fetchedAt && tile.fetchedAt < Date.now() - 2500) {
+					game.tilemap.putFogAt(tile.coord, 0.1);
+				}
+			} else {
+				game.tilemap.putFogAt(tile.coord);
 			}
-			if (tile.entity_type.val === "None") {
-				// remove image at coord
-				const id = coordToKey(tile.coord);
-				const image = players.get(id) || items.get(id);
-				if (image) {
-					image.destroy();
+			if (tile.entity_type.val && tile.entity_id?.val !== undefined) {
+				if (tile.entity_type.val === "Item") {
+					const itemGameObject = addItem(tile.coord);
+					items.set(tile.entity_id.val, itemGameObject);
+				}
+				if (tile.entity_type.val === "Player") {
+					const id = tile.entity_id.val;
+					const playerImg = players.get(id);
+					if (playerImg) {
+						playerImg.destroy();
+					}
+					const playerGameObject = addPlayer({
+						playerId: id,
+						coord: tile.coord,
+					});
+					players.set(id, playerGameObject);
+					useStore.getState().addPlayer({
+						id,
+						hp: tile.hp.val,
+						atk: tile.atk.val,
+						coord: tile.coord,
+					});
+				}
+				if (tile.entity_type.val === "None") {
+					// remove image at coord
+					const id = coordToKey(tile.coord);
+					const image = players.get(id) || items.get(id);
+					if (image) {
+						image.destroy();
+					}
 				}
 			}
 		});
 	};
 
+	const tileFetcher = createTileFetcher({
+		initialCoordinate: initialPlayerCoord,
+		batchSize: 5,
+		playerId: selectedPlayerId,
+		onSuccessfulFetch: drawTiles,
+	});
+
 	const addPlayer = ({
-		playerId,
 		coord,
 	}: {
 		playerId: number;
@@ -86,35 +110,27 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 			phaserConfig.tilemap.tileHeight,
 		);
 		go.setDepth(1);
-		// if (selectedPlayerId === playerId) {
-		// 	// Define the triangle's points
-		// 	const triangleSize = 10; // Adjust this size as needed
-		// 	const triangleX = go.x;
-		// 	const triangleY = 25; // Position above the image
-
-		// 	// Add the triangle above the image
-		// 	const triangle = game.mainScene.add.triangle(
-		// 		triangleX,
-		// 		triangleY,
-		// 		0,
-		// 		triangleSize, // Point 1 (top)
-		// 		-triangleSize,
-		// 		-triangleSize, // Point 2 (bottom left)
-		// 		triangleSize,
-		// 		-triangleSize, // Point 3 (bottom right)
-		// 		0xffd700, // Yellow color in hex
-		// 	);
-
-		// 	// Set the origin to center the triangle
-		// 	triangle.setDepth(2);
-		// 	triangle.setOrigin(0.5, 0.5);
-		// }
 		return go;
+	};
+
+	const positionCamera = (coord: Coord) => {
+		const pixelCoord = getCenterPixelCoord(
+			coord,
+			phaserConfig.tilemap.tileWidth,
+			phaserConfig.tilemap.tileHeight,
+		);
+		const x = pixelCoord.x;
+		const y = pixelCoord.y;
+		game.mainScene.cameras.main.centerOn(x, y);
 	};
 
 	const handleMovePlayer = async (direction: Direction) => {
 		const selectedPlayer = players.get(selectedPlayerId);
 		if (!selectedPlayer) return;
+		// record a move was made
+		useStore.getState().setLastMoveTimeStamp(Date.now());
+		// stop the fetcher so we can show the pending move
+		tileFetcher.stop();
 
 		const tileWidth = phaserConfig.tilemap.tileWidth;
 		const tileHeight = phaserConfig.tilemap.tileHeight;
@@ -163,9 +179,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				x: moveResponse.my_new_coords.x.val,
 				y: moveResponse.my_new_coords.y.val,
 			};
-			await drawTilesAroundPlayer({
-				coord: newCoord,
-			});
+
 			if (selectedPlayer) {
 				const pixelCoord = getCenterPixelCoord(
 					newCoord,
@@ -187,6 +201,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 							moveMarker.destroy();
 							moveMarker = null;
 						}
+						tileFetcher.updateCoordinates(newCoord);
 					},
 				});
 			}
@@ -215,12 +230,18 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		return go;
 	};
 
-	// draw initial tiles around player
-	drawTilesAroundPlayer({ coord: PLAYER_CONFIG[selectedPlayerId] });
+	const setupGame = () => {
+		positionCamera(initialPlayerCoord);
+		tileFetcher.start();
 
-	game.input.keyboard$
-		.pipe(debounceTime(MOVE_DEBOUNCE_TIME))
-		.subscribe(async (key) => {
+		game.input.keyboard$.subscribe(async (key) => {
+			const lastMoveTime = useStore.getState().lastMoveTimeStamp;
+			const now = Date.now();
+			const canMove =
+				!lastMoveTime || now - lastMoveTime >= NEXT_MOVE_TIME_MILLIS;
+			if (!canMove) {
+				return;
+			}
 			if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.LEFT) {
 				handleMovePlayer(Direction.LEFT);
 			} else if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.RIGHT) {
@@ -231,6 +252,8 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				handleMovePlayer(Direction.DOWN);
 			}
 		});
+	};
+	setupGame();
 };
 
 export default syncPhaser;
