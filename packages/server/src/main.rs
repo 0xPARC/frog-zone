@@ -1,6 +1,7 @@
 mod zone;
-
+use phantom::{PhantomEvaluator, PhantomParam, PhantomPk, PhantomRound1Key, PhantomRound2Key};
 use rocket::http::Method;
+use rocket::response::status::NotFound;
 use rocket::serde::{json::Json, Deserialize, Serialize};
 use rocket::State;
 use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors, CorsOptions};
@@ -25,6 +26,10 @@ struct GameState {
     zone: Zone,
     move_queue: VecDeque<(usize, Encrypted<Direction>, Arc<Notify>)>,
     player_last_move_time: [u64; 4],
+    // Phantom
+    evaluator: PhantomEvaluator,
+    player_round_1_key: [Option<PhantomRound1Key>; 4],
+    player_round_2_key: [Option<PhantomRound2Key>; 4],
 }
 
 type SharedState = Arc<Mutex<GameState>>;
@@ -60,6 +65,23 @@ struct MoveRequest {
 struct MoveResponse {
     my_new_coords: EncryptedCoord,
     rate_limited: bool,
+}
+
+#[derive(Deserialize)]
+struct SubmitRound1KeyRequest {
+    player_id: usize,
+    key: PhantomRound1Key,
+}
+
+#[derive(Serialize, Clone)]
+struct GetPkResponse {
+    pk: PhantomPk,
+}
+
+#[derive(Deserialize)]
+struct SubmitRound2KeyRequest {
+    player_id: usize,
+    key: PhantomRound2Key,
 }
 
 fn make_cors() -> Cors {
@@ -215,12 +237,66 @@ async fn process_moves(state: SharedState) {
     }
 }
 
+#[post("/submit_round_1_key", format = "json", data = "<request>")]
+async fn submit_round_1_key(
+    state: &State<SharedState>,
+    request: Json<SubmitRound1KeyRequest>,
+) -> Json<()> {
+    let mut game_state = state.lock().await;
+    game_state.player_round_1_key[request.0.player_id] = Some(request.0.key);
+
+    if game_state.player_round_1_key.iter().all(Option::is_some) {
+        let round_1_keys: Vec<_> = game_state
+            .player_round_1_key
+            .iter()
+            .flatten()
+            .cloned()
+            .collect();
+        game_state.evaluator.aggregate_round_1_keys(&round_1_keys);
+    }
+
+    Json(())
+}
+
+#[post("/get_pk", format = "json")]
+async fn get_pk(state: &State<SharedState>) -> Result<Json<GetPkResponse>, NotFound<String>> {
+    if let Some(pk) = state.lock().await.evaluator.pk().cloned() {
+        Ok(Json(GetPkResponse { pk }))
+    } else {
+        Err(NotFound("Public key not ready yet".to_string()))
+    }
+}
+
+#[post("/submit_round_2_key", format = "json", data = "<request>")]
+async fn submit_round_2_key(
+    state: &State<SharedState>,
+    request: Json<SubmitRound2KeyRequest>,
+) -> Json<()> {
+    let mut game_state = state.lock().await;
+    game_state.player_round_2_key[request.0.player_id] = Some(request.0.key);
+
+    if game_state.player_round_2_key.iter().all(Option::is_some) {
+        let round_2_keys: Vec<_> = game_state
+            .player_round_2_key
+            .iter()
+            .flatten()
+            .cloned()
+            .collect();
+        game_state.evaluator.aggregate_round_2_keys(&round_2_keys);
+    }
+
+    Json(())
+}
+
 #[launch]
 async fn rocket() -> _ {
     let shared_state: Arc<Mutex<GameState>> = Arc::new(Mutex::new(GameState {
         zone: Zone::new(64, 64), // 64x64 zone
         move_queue: VecDeque::new(),
         player_last_move_time: [0, 0, 0, 0],
+        evaluator: PhantomEvaluator::new(PhantomParam::i_4p_60()),
+        player_round_1_key: [None, None, None, None],
+        player_round_2_key: [None, None, None, None],
     }));
 
     let state_clone = shared_state.clone();
@@ -230,6 +306,14 @@ async fn rocket() -> _ {
 
     rocket::build()
         .manage(shared_state.clone())
-        .mount("/", routes![queue_move, get_cells, get_player])
+        .mount(
+            "/",
+            routes![
+                queue_move,
+                get_cells,
+                submit_round_1_key,
+                get_pk,
+                submit_round_2_key,
+            ],
         .attach(make_cors())
 }
