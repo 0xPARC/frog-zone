@@ -11,6 +11,7 @@ import phaserConfig from "./create/phaserConfig";
 
 const syncPhaser = async (game: PhaserGame, api: Api) => {
 	const players = new Map<number, Phaser.GameObjects.Image>();
+	let selectedPlayerImg: Phaser.GameObjects.Image | null = null;
 	const items = new Map<number, Phaser.GameObjects.Image>();
 	const selectedPlayerId = Number(getPlayerId());
 	const player = await fetchPlayer(selectedPlayerId);
@@ -50,15 +51,17 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				}
 				if (tile.entity_type.val === "Player") {
 					const id = tile.entity_id.val;
-					const playerImg = players.get(id);
-					if (playerImg) {
-						playerImg.destroy();
+					if (id !== selectedPlayerId) {
+						const playerImg = players.get(id);
+						if (playerImg) {
+							playerImg.destroy();
+						}
+						const playerGameObject = addPlayer({
+							playerId: id,
+							coord: tile.coord,
+						});
+						players.set(id, playerGameObject);
 					}
-					const playerGameObject = addPlayer({
-						playerId: id,
-						coord: tile.coord,
-					});
-					players.set(id, playerGameObject);
 					useStore.getState().addPlayer({
 						id,
 						hp: tile.hp.val,
@@ -124,9 +127,20 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		game.mainScene.cameras.main.centerOn(x, y);
 	};
 
+	const drawSelectedPlayer = (coord: Coord) => {
+		if (selectedPlayerImg) {
+			selectedPlayerImg?.destroy();
+		}
+		const playerGameObject = addPlayer({
+			playerId: selectedPlayerId,
+			coord: coord,
+		});
+		selectedPlayerImg = playerGameObject;
+	};
+
 	const handleMovePlayer = async (direction: Direction) => {
-		const selectedPlayer = players.get(selectedPlayerId);
-		if (!selectedPlayer) return;
+		if (!selectedPlayerImg) return;
+
 		// record a move was made
 		useStore.getState().setLastMoveTimeStamp(Date.now());
 		// stop the fetcher so we can show the pending move
@@ -135,8 +149,8 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		const tileWidth = phaserConfig.tilemap.tileWidth;
 		const tileHeight = phaserConfig.tilemap.tileHeight;
 
-		let newX = selectedPlayer.x;
-		let newY = selectedPlayer.y;
+		let newX = selectedPlayerImg.x;
+		let newY = selectedPlayerImg.y;
 
 		switch (direction) {
 			case Direction.LEFT:
@@ -179,32 +193,13 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				x: moveResponse.my_new_coords.x.val,
 				y: moveResponse.my_new_coords.y.val,
 			};
-
-			if (selectedPlayer) {
-				const pixelCoord = getCenterPixelCoord(
-					newCoord,
-					phaserConfig.tilemap.tileWidth,
-					phaserConfig.tilemap.tileHeight,
-				);
-				const x = pixelCoord.x;
-				const y = pixelCoord.y;
-				game.mainScene.tweens.add({
-					targets: selectedPlayer,
-					x,
-					y,
-					duration: 200,
-					ease: "Power2",
-					onComplete: () => {
-						game.mainScene.cameras.main.centerOn(x, y);
-						completedMoveAnimation(selectedPlayer);
-						if (moveMarker) {
-							moveMarker.destroy();
-							moveMarker = null;
-						}
-						tileFetcher.updateCoordinates(newCoord);
-					},
-				});
+			drawSelectedPlayer(newCoord);
+			if (moveMarker) {
+				moveMarker.destroy();
+				moveMarker = null;
 			}
+			completedMoveAnimation(selectedPlayerImg);
+			tileFetcher.updateCoordinates(newCoord);
 		}
 	};
 
@@ -232,6 +227,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 
 	const setupGame = () => {
 		positionCamera(initialPlayerCoord);
+		drawSelectedPlayer(initialPlayerCoord);
 		tileFetcher.start();
 
 		game.input.keyboard$.subscribe(async (key) => {
