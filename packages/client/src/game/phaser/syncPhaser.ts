@@ -43,6 +43,11 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				}
 			} else {
 				game.tilemap.putFogAt(tile.coord);
+				const id = coordToKey(tile.coord);
+				const image = players.get(id) || items.get(id);
+				if (image) {
+					image.destroy();
+				}
 			}
 			if (tile.entity_type.val && tile.entity_id?.val !== undefined) {
 				if (tile.entity_type.val === "Item") {
