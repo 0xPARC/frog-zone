@@ -22,14 +22,7 @@ const styles = {
 };
 
 export const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId }) => {
-	const players = useStore((state) => state.players);
-
-	let player: Player | null = null;
-	players.forEach((value) => {
-		if (value.id === playerId) {
-			player = value;
-		}
-	});
+	const player = useStore((state) => state.getPlayerById(playerId));
 
 	if (!player) {
 		return null;
@@ -42,6 +35,9 @@ export const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId }) => {
 			</h4>
 			<p>HP: {player.hp}</p>
 			<p>ATK: {player.atk}</p>
+			<p>
+				x: {player.coord.x} y: {player.coord.y}
+			</p>
 		</div>
 	);
 };

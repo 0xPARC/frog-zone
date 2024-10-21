@@ -2,7 +2,7 @@ const config = {
 	tilemap: {
 		tileWidth: 200,
 		tileHeight: 200,
-		gridSize: 64,
+		gridSize: 128,
 	},
 	assetKeys: {
 		tileset: "tileset",
