@@ -1,12 +1,14 @@
-use phantom::{PhantomParam, PhantomPk, PhantomRound1Key, PhantomRound2Key, PhantomUser};
+mod proxy;
+
+use phantom::{PhantomParam, PhantomUser};
 use rand::{rngs::StdRng, Rng, SeedableRng};
-use reqwest;
-use rocket::http::Method;
+use reqwest::StatusCode;
+use rocket::http::{Method, Status};
+use rocket::response::status::Custom;
 use rocket::serde::{json::Json, Deserialize, Serialize};
 use rocket::Config;
 use rocket::State;
 use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors, CorsOptions};
-use serde_json;
 use std::env;
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -16,48 +18,54 @@ use tracing::info;
 extern crate rocket;
 
 struct AppState {
-    player_id: u8,
+    user: PhantomUser,
+}
+
+impl AppState {
+    fn new(player_id: usize) -> Self {
+        let seed = StdRng::from_entropy().gen::<[u8; 32]>().to_vec();
+        let user = PhantomUser::new(PhantomParam::I_4P_60, player_id, seed);
+        Self { user }
+    }
 }
 
 type SharedState = Arc<Mutex<AppState>>;
 
 #[derive(Deserialize)]
 struct SetIdRequest {
-    player_id: u8,
+    player_id: usize,
+}
+
+#[derive(Serialize)]
+struct SetIdResponse {
+    player_id: usize,
 }
 
 #[derive(Deserialize)]
 struct GetIdRequest {}
 
-#[derive(Serialize, Clone)]
-struct SetIdResponse {
-    player_id: u8,
-}
-
-#[derive(Serialize, Clone)]
+#[derive(Serialize)]
 struct GetIdResponse {
-    player_id: u8,
-}
-
-// copied from server/src/main.rs
-#[derive(Serialize, Deserialize)]
-struct SubmitRound1KeyRequest {
     player_id: usize,
-    key: PhantomRound1Key,
 }
 
-// copied from server/src/main.rs
-#[derive(Serialize, Clone)]
-struct GetPkResponse {
-    pk: PhantomPk,
-}
+#[derive(Deserialize)]
+struct GetPkRequest {}
 
-// copied from server/src/main.rs
-#[derive(Serialize, Deserialize)]
-struct SubmitRound2KeyRequest {
-    player_id: usize,
-    key: PhantomRound2Key,
-}
+#[derive(Serialize)]
+struct GetPkResponse {}
+
+#[derive(Deserialize)]
+struct SubmitRound1KeyRequest {}
+
+#[derive(Serialize)]
+struct SubmitRound1KeyResponse {}
+
+#[derive(Deserialize)]
+struct SubmitRound2KeyRequest {}
+
+#[derive(Serialize)]
+struct SubmitRound2KeyResponse {}
 
 fn make_cors() -> Cors {
     let allowed_origins = AllowedOrigins::some_exact(&[
@@ -93,7 +101,7 @@ async fn get_id(state: &State<SharedState>, _request: Json<GetIdRequest>) -> Jso
 
     info!("processed /get_id request");
     Json(GetIdResponse {
-        player_id: app_state.player_id,
+        player_id: app_state.user.user_id(),
     })
 }
 
@@ -101,47 +109,75 @@ async fn get_id(state: &State<SharedState>, _request: Json<GetIdRequest>) -> Jso
 async fn set_id(state: &State<SharedState>, request: Json<SetIdRequest>) -> Json<SetIdResponse> {
     let mut app_state = state.lock().await;
 
-    app_state.player_id = request.player_id;
+    *app_state = AppState::new(request.player_id);
 
     info!("processed /set_id request");
     Json(SetIdResponse {
-        player_id: app_state.player_id,
+        player_id: app_state.user.user_id(),
     })
 }
 
-async fn submit_r1(player_id: u8) -> Result<(), reqwest::Error> {
-    // Create a client
-    let client = reqwest::Client::new();
+#[post("/submit_r1", format = "json", data = "<_request>")]
+async fn submit_r1(
+    state: &State<SharedState>,
+    _request: Json<SubmitRound1KeyRequest>,
+) -> Result<Json<SubmitRound1KeyResponse>, Custom<String>> {
+    let app_state = state.lock().await;
 
-    let param = PhantomParam::i_4p_60();
-    let seed = StdRng::from_entropy().gen::<[u8; 32]>().to_vec();
-    let user = PhantomUser::new(param, player_id as usize, seed);
-
-    // Prepare the data to send
-    let post_data = SubmitRound1KeyRequest {
-        player_id: player_id as usize,
-        key: user.round_1_key_gen(),
+    let post_data = proxy::SubmitRound1KeyRequest {
+        player_id: app_state.user.user_id(),
+        key: app_state.user.round_1_key_gen(),
     };
 
-    let json = serde_json::to_string_pretty(&post_data).unwrap();
-    println!("Post data: {}", json);
+    let _: Json<proxy::SubmitRound1KeyResponse> = proxy::proxy("/submit_r1", post_data).await?;
 
-    // Send the POST request
-    let response = client
-        .post("http://localhost:8000/submit_round_1_key")
-        .json(&post_data)
-        .send()
-        .await?;
+    Ok(Json(SubmitRound1KeyResponse {}))
+}
 
-    // Check if the request was successful
-    if response.status().is_success() {
-        let body = response.text().await?;
-        println!("Response: {}", body);
-    } else {
-        println!("Request failed with status: {}", response.status());
+#[post("/get_pk", format = "json", data = "<_request>")]
+async fn get_pk(
+    state: &State<SharedState>,
+    _request: Json<GetPkRequest>,
+) -> Result<Json<GetPkResponse>, Custom<String>> {
+    let mut app_state = state.lock().await;
+
+    let response: proxy::GetPkResponse = proxy::proxy("/get_pk", proxy::GetPkRequest {}).await?.0;
+    app_state.user.set_pk(response.pk.clone());
+
+    Ok(Json(GetPkResponse {}))
+}
+
+#[post("/submit_r2", format = "json", data = "<_request>")]
+async fn submit_r2(
+    state: &State<SharedState>,
+    _request: Json<SubmitRound2KeyRequest>,
+) -> Result<Json<SubmitRound2KeyResponse>, Custom<String>> {
+    let app_state = state.lock().await;
+
+    if !app_state.user.has_pk() {
+        return Err(bad_request("pk is not ready yet"));
     }
 
-    Ok(())
+    let post_data = proxy::SubmitRound2KeyRequest {
+        player_id: app_state.user.user_id(),
+        key: app_state.user.round_2_key_gen(),
+    };
+
+    let _: Json<proxy::SubmitRound2KeyResponse> = proxy::proxy("/submit_r2", post_data).await?;
+
+    Ok(Json(SubmitRound2KeyResponse {}))
+}
+
+fn bad_request(err: impl ToString) -> Custom<String> {
+    custom(StatusCode::BAD_REQUEST, err)
+}
+
+fn internal_server_error(err: impl ToString) -> Custom<String> {
+    custom(StatusCode::INTERNAL_SERVER_ERROR, err)
+}
+
+fn custom(stauts: StatusCode, err: impl ToString) -> Custom<String> {
+    Custom(Status::from_code(stauts.as_u16()).unwrap(), err.to_string())
 }
 
 #[rocket::main]
@@ -153,10 +189,7 @@ async fn main() -> Result<(), rocket::Error> {
         .unwrap_or(8000);
 
     let player_id = env::args().nth(2).and_then(|p| p.parse().ok()).unwrap_or(0);
-
-    let shared_state: Arc<Mutex<AppState>> = Arc::new(Mutex::new(AppState { player_id }));
-
-    submit_r1(player_id).await;
+    let shared_state: Arc<Mutex<AppState>> = Arc::new(Mutex::new(AppState::new(player_id)));
 
     // Create a custom configuration
     let config = Config {
@@ -166,7 +199,7 @@ async fn main() -> Result<(), rocket::Error> {
 
     rocket::custom(config)
         .manage(shared_state.clone())
-        .mount("/", routes![get_id, set_id])
+        .mount("/", routes![get_id, set_id, get_pk, submit_r1, submit_r2])
         .attach(make_cors())
         .launch()
         .await

@@ -1,9 +1,10 @@
 mod zone;
 use phantom::{PhantomEvaluator, PhantomParam, PhantomPk, PhantomRound1Key, PhantomRound2Key};
+use rocket::figment::{util::map, Figment};
 use rocket::http::Method;
 use rocket::response::status::NotFound;
 use rocket::serde::{json::Json, Deserialize, Serialize};
-use rocket::State;
+use rocket::{Config, State};
 use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors, CorsOptions};
 use std::collections::VecDeque;
 use std::sync::Arc;
@@ -73,7 +74,13 @@ struct SubmitRound1KeyRequest {
     key: PhantomRound1Key,
 }
 
-#[derive(Serialize, Clone)]
+#[derive(Serialize)]
+struct SubmitRound1KeyResponse {}
+
+#[derive(Deserialize)]
+struct GetPkRequest {}
+
+#[derive(Serialize)]
 struct GetPkResponse {
     pk: PhantomPk,
 }
@@ -83,6 +90,9 @@ struct SubmitRound2KeyRequest {
     player_id: usize,
     key: PhantomRound2Key,
 }
+
+#[derive(Serialize)]
+struct SubmitRound2KeyResponse {}
 
 fn make_cors() -> Cors {
     let allowed_origins = AllowedOrigins::some_exact(&[
@@ -239,11 +249,11 @@ async fn process_moves(state: SharedState) {
     }
 }
 
-#[post("/submit_round_1_key", format = "json", data = "<request>")]
-async fn submit_round_1_key(
+#[post("/submit_r1", format = "json", data = "<request>")]
+async fn submit_r1(
     state: &State<SharedState>,
     request: Json<SubmitRound1KeyRequest>,
-) -> Json<()> {
+) -> Json<SubmitRound1KeyResponse> {
     let mut game_state = state.lock().await;
     game_state.player_round_1_key[request.0.player_id] = Some(request.0.key);
 
@@ -257,11 +267,14 @@ async fn submit_round_1_key(
         game_state.evaluator.aggregate_round_1_keys(&round_1_keys);
     }
 
-    Json(())
+    Json(SubmitRound1KeyResponse {})
 }
 
-#[post("/get_pk", format = "json")]
-async fn get_pk(state: &State<SharedState>) -> Result<Json<GetPkResponse>, NotFound<String>> {
+#[post("/get_pk", format = "json", data = "<_request>")]
+async fn get_pk(
+    state: &State<SharedState>,
+    _request: Json<GetPkRequest>,
+) -> Result<Json<GetPkResponse>, NotFound<String>> {
     if let Some(pk) = state.lock().await.evaluator.pk().cloned() {
         Ok(Json(GetPkResponse { pk }))
     } else {
@@ -269,11 +282,11 @@ async fn get_pk(state: &State<SharedState>) -> Result<Json<GetPkResponse>, NotFo
     }
 }
 
-#[post("/submit_round_2_key", format = "json", data = "<request>")]
-async fn submit_round_2_key(
+#[post("/submit_r2", format = "json", data = "<request>")]
+async fn submit_r2(
     state: &State<SharedState>,
     request: Json<SubmitRound2KeyRequest>,
-) -> Json<()> {
+) -> Json<SubmitRound2KeyResponse> {
     let mut game_state = state.lock().await;
     game_state.player_round_2_key[request.0.player_id] = Some(request.0.key);
 
@@ -287,7 +300,7 @@ async fn submit_round_2_key(
         game_state.evaluator.aggregate_round_2_keys(&round_2_keys);
     }
 
-    Json(())
+    Json(SubmitRound2KeyResponse {})
 }
 
 #[launch]
@@ -306,18 +319,13 @@ async fn rocket() -> _ {
         process_moves(state_clone).await;
     });
 
-    rocket::build()
-        .manage(shared_state.clone())
-        .mount(
-            "/",
-            routes![
-                queue_move,
-                get_cells,
-				get_player,
-                submit_round_1_key,
-                get_pk,
-                submit_round_2_key,
-            ],
-        )
-        .attach(make_cors())
+    rocket::Rocket::custom(
+        Config::figment().merge(Figment::new().join(("limits", map!["json" => "700 MB"]))),
+    )
+    .manage(shared_state.clone())
+    .mount(
+        "/",
+        routes![queue_move, get_cells, get_player, submit_r1, get_pk, submit_r2,],
+    )
+    .attach(make_cors())
 }
