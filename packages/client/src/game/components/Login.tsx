@@ -12,16 +12,23 @@ export const Login: React.FC = () => {
 	const playerId = getPlayerId();
 	const loginUrl = `${LOGIN_SERVER_URL}/login/${playerId}`;
 	const isLoggedIn = useStore((state) => state.isLoggedIn);
+	const game = useStore((state) => state.game);
 
 	useEffect(() => {
 		const checkStatus = async () => {
 			try {
-				if (playerId) {
+				if (playerId && !game) {
 					const data: MachineStatusResponse =
 						await fetchMachineStatus({
 							playerId,
 						});
-					useStore.getState().setIsLoggedIn(data.isLoggedIn);
+					console.log("MACHINE STATUS", data);
+					if (data.isLoggedIn && data.game) {
+						useStore.getState().setIsLoggedIn(data.isLoggedIn);
+						useStore.getState().setGame(data.game);
+					} else {
+						useStore.getState().setIsLoggedIn(false);
+					}
 				}
 			} catch {
 				useStore.getState().setIsLoggedIn(false);
@@ -33,7 +40,7 @@ export const Login: React.FC = () => {
 
 		// Cleanup polling when component unmounts
 		return () => clearInterval(intervalId);
-	}, [playerId]);
+	}, [playerId, game]);
 
 	if (isLoggedIn === true) {
 		return null;

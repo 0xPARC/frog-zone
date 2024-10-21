@@ -4,6 +4,7 @@ import { create } from "zustand";
 enableMapSet();
 import { coordToKey } from "@smallbraingames/small-phaser";
 import { immer } from "zustand/middleware/immer";
+import { GameResponse } from "../utils/fetchGame";
 
 export type TileEntityType = "None" | "Player" | "Item";
 
@@ -44,17 +45,22 @@ export enum GameState {
 	LOADING = "loading",
 }
 
+export type Game = GameResponse["game"];
+
 export const NEXT_MOVE_TIME_MILLIS = 3500;
 
 interface State {
 	gameState: GameState;
 	isLoggedIn: boolean | null;
+	game: Game | null;
 	players: Map<number, Player>;
 	items: Map<number, Item>;
 	grid: Map<number, TileWithCoord>;
 	lastMoveTimeStamp: number; // timestamp for next move
+	forceStart: boolean;
 
 	setIsLoggedIn: (isLoggedIn: boolean | null) => void;
+	setGame: (game: Game | null) => void;
 
 	addPlayer: (player: Player) => void;
 	addItem: (item: Item, coord: Coord) => void;
@@ -69,6 +75,7 @@ interface State {
 	setLastMoveTimeStamp: (time: number) => void;
 	getPlayerById: (id: number) => Player | null;
 	updateGrid: (viewportCoords: Coord[], newTiles: TileWithCoord[]) => void;
+	setForceStart: (forceStart: boolean) => void;
 }
 
 const initializeGrid = (size: number) => {
@@ -90,14 +97,22 @@ const initializeGrid = (size: number) => {
 const useStore = create<State>()(
 	immer((set, get) => ({
 		isLoggedIn: null,
+		game: null,
 		gameState: GameState.LOADING,
 		players: new Map<number, Player>(),
 		items: new Map<number, Item>(),
 		grid: initializeGrid(64),
 		lastMoveTimeStamp: 0, // Store the last move timestamp
-
+		forceStart: false,
+		setForceStart: (forceStart: boolean) => {
+			set({ forceStart });
+		},
 		setIsLoggedIn: (isLoggedIn: boolean | null) => {
 			set({ isLoggedIn });
+		},
+
+		setGame: (game: Game | null) => {
+			set({ game });
 		},
 
 		addPlayer: (player) => {
