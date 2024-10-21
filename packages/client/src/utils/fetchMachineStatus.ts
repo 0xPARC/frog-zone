@@ -1,5 +1,3 @@
-import { LOGIN_SERVER_URL } from "../const/env.const";
-
 export interface MachineStatusResponse {
 	isLoggedIn: boolean;
 }
@@ -10,9 +8,7 @@ export const fetchMachineStatus = async ({
 	playerId: string;
 }): Promise<MachineStatusResponse> => {
 	try {
-		const response = await fetch(
-			`${LOGIN_SERVER_URL}/api/machine-status/${playerId}`,
-		);
+		const response = await fetch(`/api/machine-status/${playerId}`);
 		if (!response.ok) {
 			throw new Error(`Failed to fetch: ${response.statusText}`);
 		}

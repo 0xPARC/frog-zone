@@ -1,4 +1,3 @@
-import { LOGIN_SERVER_URL } from "../const/env.const";
 import { GameResponse } from "./fetchGame";
 
 export interface GameStatusResponse {
@@ -15,14 +14,15 @@ export const updateGameStatus = async ({
 	status: string;
 }) => {
 	try {
-		await fetch(`${LOGIN_SERVER_URL}/api/game/${gameId}`, {
+		const response = await fetch(`/api/game/${gameId}`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 			},
-			mode: "no-cors",
 			body: JSON.stringify({ status }),
 		});
+		const data = await response.json();
+		return data;
 	} catch (error) {
 		console.error("Error updating game status:", error);
 		throw error;
