@@ -313,6 +313,7 @@ async fn rocket() -> _ {
             routes![
                 queue_move,
                 get_cells,
+				get_player,
                 submit_round_1_key,
                 get_pk,
                 submit_round_2_key,
