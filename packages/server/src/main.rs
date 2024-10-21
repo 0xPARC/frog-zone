@@ -1,5 +1,8 @@
 mod zone;
-use phantom::{PhantomEvaluator, PhantomParam, PhantomPk, PhantomRound1Key, PhantomRound2Key};
+use phantom::{
+    PhantomBatchedCt, PhantomEvaluator, PhantomPackedCt, PhantomParam, PhantomPk, PhantomRound1Key,
+    PhantomRound2Key,
+};
 use rocket::figment::{util::map, Figment};
 use rocket::http::Method;
 use rocket::response::status::NotFound;
@@ -10,7 +13,7 @@ use std::collections::VecDeque;
 use std::sync::Arc;
 use tokio::sync::{Mutex, Notify};
 use tracing::info;
-use zone::{CellEncryptedData, Direction, Encrypted, EncryptedCoord, PlayerEncryptedData, Zone};
+use zone::{EncryptedDirection, Zone};
 
 use std::time::Duration;
 use tokio::time;
@@ -24,11 +27,11 @@ const GET_PLAYER_TIME_MILLIS: u64 = 140;
 const MOVE_TIME_RATE_LIMIT_MILLIS: u64 = 3500;
 
 struct GameState {
-    zone: Zone,
-    move_queue: VecDeque<(usize, Encrypted<Direction>, Arc<Notify>)>,
+    zone: Option<Zone>,
+    move_queue: VecDeque<(usize, EncryptedDirection, Arc<Notify>)>,
     player_last_move_time: [u64; 4],
     // Phantom
-    evaluator: PhantomEvaluator,
+    evaluator: Arc<PhantomEvaluator>,
     player_round_1_key: [Option<PhantomRound1Key>; 4],
     player_round_2_key: [Option<PhantomRound2Key>; 4],
 }
@@ -38,12 +41,12 @@ type SharedState = Arc<Mutex<GameState>>;
 #[derive(Deserialize)]
 struct GetCellsRequest {
     player_id: usize,
-    coords: Vec<EncryptedCoord>,
+    coords: PhantomBatchedCt, // Vec<EncryptedCoord>
 }
 
 #[derive(Serialize, Clone)]
 struct GetCellsResponse {
-    cell_data: Vec<CellEncryptedData>,
+    cell_data: PhantomPackedCt, // Vec<CellEncryptedData>,
 }
 
 #[derive(Deserialize)]
@@ -53,18 +56,18 @@ struct GetPlayerRequest {
 
 #[derive(Serialize, Clone)]
 struct GetPlayerResponse {
-    player_data: PlayerEncryptedData,
+    player_data: PhantomPackedCt, // PlayerEncryptedData,
 }
 
 #[derive(Deserialize)]
 struct MoveRequest {
     player_id: usize,
-    direction: Encrypted<Direction>,
+    direction: PhantomBatchedCt, // Encrypted<Direction>
 }
 
 #[derive(Serialize, Clone)]
 struct MoveResponse {
-    my_new_coords: EncryptedCoord,
+    my_new_coords: PhantomPackedCt, // EncryptedCoord
     rate_limited: bool,
 }
 
@@ -127,21 +130,22 @@ async fn get_cells(
     state: &State<SharedState>,
     request: Json<GetCellsRequest>,
 ) -> Json<GetCellsResponse> {
-    let mut cell_data = Vec::new();
+    todo!()
+    // let mut cell_data = Vec::new();
 
-    {
-        let game_state = state.lock().await;
-        let zone = &game_state.zone;
+    // {
+    //     let game_state = state.lock().await;
+    //     let zone = &game_state.zone;
 
-        cell_data = zone.get_cells(request.player_id, request.coords.clone());
-    }
+    //     cell_data = zone.get_cells(request.player_id, request.coords.clone());
+    // }
 
-    let len = request.coords.len();
-    time::sleep(Duration::from_millis(GET_CELL_TIME_MILLIS * (len as u64))).await;
+    // let len = request.coords.len();
+    // time::sleep(Duration::from_millis(GET_CELL_TIME_MILLIS * (len as u64))).await;
 
-    info!("processed /get_cells request");
+    // info!("processed /get_cells request");
 
-    Json(GetCellsResponse { cell_data })
+    // Json(GetCellsResponse { cell_data })
 }
 
 #[post("/get_player", format = "json", data = "<request>")]
@@ -149,22 +153,23 @@ async fn get_player(
     state: &State<SharedState>,
     request: Json<GetPlayerRequest>,
 ) -> Json<GetPlayerResponse> {
-    let mut player_response = PlayerEncryptedData::default();
+    todo!()
+    // let mut player_response = PlayerEncryptedData::default();
 
-    {
-        let game_state = state.lock().await;
-        let zone = &game_state.zone;
+    // {
+    //     let game_state = state.lock().await;
+    //     let zone = &game_state.zone;
 
-        player_response = zone.get_player(request.player_id).clone();
-    }
+    //     player_response = zone.get_player(request.player_id).clone();
+    // }
 
-    time::sleep(Duration::from_millis(GET_PLAYER_TIME_MILLIS)).await;
+    // time::sleep(Duration::from_millis(GET_PLAYER_TIME_MILLIS)).await;
 
-    info!("processed /get_player request");
+    // info!("processed /get_player request");
 
-    Json(GetPlayerResponse {
-        player_data: player_response,
-    })
+    // Json(GetPlayerResponse {
+    //     player_data: player_response,
+    // })
 }
 
 #[post("/move", format = "json", data = "<move_request>")]
@@ -172,53 +177,54 @@ async fn queue_move(
     state: &State<SharedState>,
     move_request: Json<MoveRequest>,
 ) -> Json<MoveResponse> {
-    let can_move = {
-        let current_time = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_millis() as u64;
-        let game_state = state.lock().await;
-        let last_request_time = game_state.player_last_move_time[move_request.player_id];
-        current_time - last_request_time > MOVE_TIME_RATE_LIMIT_MILLIS
-    };
+    todo!()
+    // let can_move = {
+    //     let current_time = std::time::SystemTime::now()
+    //         .duration_since(std::time::UNIX_EPOCH)
+    //         .unwrap()
+    //         .as_millis() as u64;
+    //     let game_state = state.lock().await;
+    //     let last_request_time = game_state.player_last_move_time[move_request.player_id];
+    //     current_time - last_request_time > MOVE_TIME_RATE_LIMIT_MILLIS
+    // };
 
-    if !can_move {
-        return Json(MoveResponse {
-            my_new_coords: EncryptedCoord {
-                x: Encrypted { val: 0 },
-                y: Encrypted { val: 0 },
-            },
-            rate_limited: true,
-        });
-    }
+    // if !can_move {
+    //     return Json(MoveResponse {
+    //         my_new_coords: EncryptedCoord {
+    //             x: Encrypted { val: 0 },
+    //             y: Encrypted { val: 0 },
+    //         },
+    //         rate_limited: true,
+    //     });
+    // }
 
-    let notify = Arc::new(Notify::new());
-    let notify_clone = notify.clone();
+    // let notify = Arc::new(Notify::new());
+    // let notify_clone = notify.clone();
 
-    {
-        let mut game_state = state.lock().await;
-        game_state.move_queue.push_back((
-            move_request.player_id,
-            move_request.direction,
-            notify_clone,
-        ));
-        game_state.player_last_move_time[move_request.player_id] = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_millis() as u64;
-    }
+    // {
+    //     let mut game_state = state.lock().await;
+    //     game_state.move_queue.push_back((
+    //         move_request.player_id,
+    //         move_request.direction,
+    //         notify_clone,
+    //     ));
+    //     game_state.player_last_move_time[move_request.player_id] = std::time::SystemTime::now()
+    //         .duration_since(std::time::UNIX_EPOCH)
+    //         .unwrap()
+    //         .as_millis() as u64;
+    // }
 
-    notify.notified().await;
+    // notify.notified().await;
 
-    let game_state = state.lock().await;
-    let player = &game_state.zone.players[move_request.player_id];
+    // let game_state = state.lock().await;
+    // let player = &game_state.zone.players[move_request.player_id];
 
-    info!("processed /move request");
+    // info!("processed /move request");
 
-    Json(MoveResponse {
-        my_new_coords: player.data.loc,
-        rate_limited: false,
-    })
+    // Json(MoveResponse {
+    //     my_new_coords: player.data.loc,
+    //     rate_limited: false,
+    // })
 }
 
 async fn process_moves(state: SharedState) {
@@ -241,7 +247,7 @@ async fn process_moves(state: SharedState) {
 
         {
             let mut game_state = state.lock().await;
-            let zone = &mut game_state.zone;
+            let zone = game_state.zone.as_mut().unwrap();
             zone.move_player(player_id, direction);
         }
 
@@ -264,7 +270,7 @@ async fn submit_r1(
             .flatten()
             .cloned()
             .collect();
-        game_state.evaluator.aggregate_round_1_keys(&round_1_keys);
+        Arc::make_mut(&mut game_state.evaluator).aggregate_round_1_keys(&round_1_keys);
     }
 
     Json(SubmitRound1KeyResponse {})
@@ -297,7 +303,8 @@ async fn submit_r2(
             .flatten()
             .cloned()
             .collect();
-        game_state.evaluator.aggregate_round_2_keys(&round_2_keys);
+        Arc::make_mut(&mut game_state.evaluator).aggregate_round_2_keys(&round_2_keys);
+        game_state.zone = Some(zone::Zone::new(64, 64, &game_state.evaluator));
     }
 
     Json(SubmitRound2KeyResponse {})
@@ -306,10 +313,10 @@ async fn submit_r2(
 #[launch]
 async fn rocket() -> _ {
     let shared_state: Arc<Mutex<GameState>> = Arc::new(Mutex::new(GameState {
-        zone: Zone::new(64, 64), // 64x64 zone
+        zone: None, // 64x64 zone, will be initialized when keygen is finished.
         move_queue: VecDeque::new(),
         player_last_move_time: [0, 0, 0, 0],
-        evaluator: PhantomEvaluator::new(PhantomParam::I_4P_60),
+        evaluator: Arc::new(PhantomEvaluator::new(PhantomParam::I_4P_60)),
         player_round_1_key: [None, None, None, None],
         player_round_2_key: [None, None, None, None],
     }));
