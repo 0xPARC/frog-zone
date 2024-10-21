@@ -14,6 +14,7 @@ function App() {
 	const gameId = useStore((state) => state.game?.gameId);
 	const gameStatus = useStore((state) => state.game?.status);
 	const gameMachines = useStore((state) => state.game?.machines);
+	const forceStart = useStore((state) => state.forceStart);
 	return (
 		<div>
 			<Login />
@@ -34,10 +35,11 @@ function App() {
 			{gameId &&
 				gameStatus === "ongoing" &&
 				gameMachines &&
-				gameMachines?.length < MIN_PLAYERS && (
+				gameMachines?.length < MIN_PLAYERS &&
+				!forceStart && (
 					<WaitingForPlayersOverlay
 						allowForceStart={
-							gameMachines.length < MIN_PLAYERS_TO_FORCE_START
+							gameMachines.length >= MIN_PLAYERS_TO_FORCE_START
 						}
 					/>
 				)}
