@@ -93,8 +93,7 @@ const useStore = create<State>()(
 		gameState: GameState.LOADING,
 		players: new Map<number, Player>(),
 		items: new Map<number, Item>(),
-		// TODO: look into why the actual rendered grid by phase is 32 when config is 64
-		grid: initializeGrid(32),
+		grid: initializeGrid(64),
 		lastMoveTimeStamp: 0, // Store the last move timestamp
 
 		setIsLoggedIn: (isLoggedIn: boolean | null) => {
