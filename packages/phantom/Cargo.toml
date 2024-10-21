@@ -9,21 +9,6 @@ itertools = "0.13.0"
 phantom-zone-evaluator = { git = "https://github.com/gausslabs/phantom-zone", branch = "rewrite", features = ["serde"] }
 rand = "0.8.5"
 serde = "1.0.210"
-wasm-bindgen = "0.2.95"
-
-[dev-dependencies]
-wasm-bindgen-test = "0.3"
 
 [features]
 default = []
-dev = []
-
-[[test]]
-name = "node"
-path = "./src/test/node.rs"
-required-features = ["dev"]
-
-[[test]]
-name = "browser"
-path = "./src/test/browser.rs"
-required-features = ["dev"]

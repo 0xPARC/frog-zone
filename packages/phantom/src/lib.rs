@@ -3,13 +3,11 @@ use phantom_zone_evaluator::boolean::fhew::{param::I_4P_60, prelude::*};
 use rand::{rngs::StdRng, thread_rng, Rng, SeedableRng};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use wasm_bindgen::prelude::wasm_bindgen;
 
-#[cfg(feature = "dev")]
-pub mod dev;
+#[cfg(test)]
+pub mod test;
 
 /// Parameter shared between server and users.
-#[wasm_bindgen]
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct PhantomParam {
     param: FhewBoolMpiParam,
@@ -18,20 +16,16 @@ pub struct PhantomParam {
     crs: PhantomCrs,
 }
 
-#[wasm_bindgen]
 impl PhantomParam {
-    #[wasm_bindgen]
-    pub fn i_4p_60() -> Self {
-        Self {
-            param: I_4P_60,
-            ring_packing_modulus: Some(Modulus::Prime(2305843009213554689)),
-            ring_packing_auto_decomposition_param: DecompositionParam {
-                log_base: 20,
-                level: 1,
-            },
-            crs: PhantomCrs::new(*b"0xPARC0xPARC0xPARC0xPARC0xPARC0x"),
-        }
-    }
+    pub const I_4P_60: Self = Self {
+        param: I_4P_60,
+        ring_packing_modulus: Some(Modulus::Prime(2305843009213554689)),
+        ring_packing_auto_decomposition_param: DecompositionParam {
+            log_base: 20,
+            level: 1,
+        },
+        crs: PhantomCrs::new(*b"0xPARC0xPARC0xPARC0xPARC0xPARC0x"),
+    };
 }
 
 impl Deref for PhantomParam {
@@ -42,12 +36,11 @@ impl Deref for PhantomParam {
     }
 }
 
-#[wasm_bindgen]
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct PhantomCrs(<StdRng as SeedableRng>::Seed);
 
 impl PhantomCrs {
-    pub fn new(seed: <StdRng as SeedableRng>::Seed) -> Self {
+    pub const fn new(seed: <StdRng as SeedableRng>::Seed) -> Self {
         Self(seed)
     }
 
@@ -69,7 +62,6 @@ pub type PhantomRound1Key = PhantomPkShare;
 
 /// Round 2 key share during key generation, containing ring-packing key share
 /// and bootstrapping key share.
-#[wasm_bindgen]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct PhantomRound2Key {
     rp_key_share: PhantomRpKeyShare,
@@ -79,17 +71,14 @@ pub struct PhantomRound2Key {
 /// [`PhantomUser`] proivdes necessary functionality to do deterministic key
 /// generation given a seed, encryption, decryption share generation, and
 /// decryption shares aggregation.
-#[wasm_bindgen]
 pub struct PhantomUser {
     ops: PhantomOps,
     user_id: usize,
     seed: <StdRng as SeedableRng>::Seed,
 }
 
-#[wasm_bindgen]
 impl PhantomUser {
     /// Returns a new [`PhantomUser`].
-    #[wasm_bindgen]
     pub fn new(param: PhantomParam, user_id: usize, seed: Vec<u8>) -> Self {
         Self {
             ops: PhantomOps::new(param),
@@ -99,26 +88,22 @@ impl PhantomUser {
     }
 
     /// Returns user id.
-    #[wasm_bindgen]
     pub fn user_id(&self) -> usize {
         self.user_id
     }
 
     /// Generates round 1 key.
-    #[wasm_bindgen]
     pub fn round_1_key_gen(&self) -> PhantomRound1Key {
         self.ops
             .pk_share_gen(&self.sk(), self.deterministic_rng(&[1, 0]))
     }
 
     /// Returns if aggregated public key is set or not.
-    #[wasm_bindgen]
     pub fn has_pk(&self) -> bool {
         self.ops.pk.is_some()
     }
 
     /// Sets aggregated public key retrieved from server.
-    #[wasm_bindgen]
     pub fn set_pk(&mut self, pk: PhantomPk) {
         self.ops.pk = Some(pk)
     }
@@ -128,7 +113,6 @@ impl PhantomUser {
     /// # Panics
     ///
     /// Panics if [`PhantomUser::set_pk`] is not called yet.
-    #[wasm_bindgen]
     pub fn round_2_key_gen(&self) -> PhantomRound2Key {
         PhantomRound2Key {
             bs_key_share: self.ops.bs_key_share_gen(
@@ -147,34 +131,23 @@ impl PhantomUser {
     ///
     /// # Panics
     ///
-    /// Panics if [`PhantomUser::set_pk`] is not called yet, or any input `bits`
-    /// is not `0` or `1`.
-    #[wasm_bindgen]
-    pub fn batched_pk_encrypt(&self, bits: Vec<u8>) -> PhantomBatchedCt {
-        self.ops.batched_pk_encrypt(bits.into_iter().map(|bit| {
-            assert!(bit == 0 || bit == 1);
-            bit == 1
-        }))
+    /// Panics if [`PhantomUser::set_pk`] is not called yet.
+    pub fn batched_pk_encrypt(&self, ms: Vec<bool>) -> PhantomBatchedCt {
+        self.ops.batched_pk_encrypt(ms)
     }
 
     /// Generates decryption share.
-    #[wasm_bindgen]
     pub fn decrypt_share(&self, ct_packed: &PhantomPackedCt) -> PhantomPackedCtDecShare {
         self.ops.decrypt_share(&self.sk(), ct_packed)
     }
 
     /// Aggregates decryption share and returns decrypted bits.
-    #[wasm_bindgen]
     pub fn aggregate_dec_shares(
         &self,
         ct_packed: &PhantomPackedCt,
         dec_shares: Vec<PhantomPackedCtDecShare>,
-    ) -> Vec<u8> {
-        self.ops
-            .aggregate_dec_shares(ct_packed, &dec_shares)
-            .into_iter()
-            .map(|bit| bit as u8)
-            .collect()
+    ) -> Vec<bool> {
+        self.ops.aggregate_dec_shares(ct_packed, &dec_shares)
     }
 
     fn sk(&self) -> PhantomSk {
@@ -548,7 +521,7 @@ impl PhantomOps {
 
 macro_rules! wasm_bindgen_wrapper {
     (@ $outer:ident($inner:ty)) => {
-        #[wasm_bindgen]
+
         #[derive(Clone, Debug, Serialize, Deserialize)]
         pub struct $outer($inner);
 

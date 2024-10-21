@@ -6,8 +6,9 @@ use core::{array::from_fn, iter::repeat_with, ops::*};
 use itertools::{izip, Itertools};
 use rand::{rngs::StdRng, Rng, SeedableRng};
 
-pub fn run_e2e() {
-    let param = PhantomParam::i_4p_60();
+#[test]
+fn e2e() {
+    let param = PhantomParam::I_4P_60;
     let mut server = PhantomEvaluator::new(param);
     let mut users: [PhantomUser; 4] = from_fn(|user_id| {
         let seed = StdRng::from_entropy().gen::<[u8; 32]>().to_vec();
@@ -45,8 +46,8 @@ pub fn run_e2e() {
 
     /*  Start to do some FHE computation */
 
-    // Each user generates some random bits (to be compatible with wasm, inputs are in u8 instead of bool).
-    let inputs: [Vec<u8>; 4] = from_fn(|_| random_bits(10));
+    // Each user generates some random bits.
+    let inputs: [Vec<bool>; 4] = from_fn(|_| random_bits(10));
     // Each user encrypts bits in batch and submit to server
     let cts_batched: [PhantomBatchedCt; 4] =
         from_fn(|i| users[i].batched_pk_encrypt(inputs[i].clone()));
@@ -69,9 +70,9 @@ pub fn run_e2e() {
     assert_eq!(outputs, xor_4_bit_vecs(&inputs))
 }
 
-fn random_bits(n: usize) -> Vec<u8> {
+fn random_bits(n: usize) -> Vec<bool> {
     let mut rng = StdRng::from_entropy();
-    repeat_with(|| rng.gen_bool(0.5) as u8).take(n).collect()
+    repeat_with(|| rng.gen_bool(0.5)).take(n).collect()
 }
 
 fn xor_4_bit_vecs<T>(inputs: &[Vec<T>; 4]) -> Vec<T>

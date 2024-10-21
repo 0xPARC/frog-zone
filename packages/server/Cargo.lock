@@ -835,7 +835,6 @@ dependencies = [
  "phantom-zone-evaluator",
  "rand",
  "serde",
- "wasm-bindgen",
 ]
 
 [[package]]

@@ -296,7 +296,7 @@ async fn rocket() -> _ {
         zone: Zone::new(64, 64), // 64x64 zone
         move_queue: VecDeque::new(),
         player_last_move_time: [0, 0, 0, 0],
-        evaluator: PhantomEvaluator::new(PhantomParam::i_4p_60()),
+        evaluator: PhantomEvaluator::new(PhantomParam::I_4P_60),
         player_round_1_key: [None, None, None, None],
         player_round_2_key: [None, None, None, None],
     }));
