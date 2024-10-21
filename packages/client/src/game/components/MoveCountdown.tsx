@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import useStore, { NEXT_MOVE_TIME_MILLIS } from "../store";
+import useStore, { GameState, NEXT_MOVE_TIME_MILLIS } from "../store";
 
 export const MoveCountdownTimer = () => {
 	const lastMoveTime = useStore((state) => state.lastMoveTimeStamp);
 	const [timeRemaining, setTimeRemaining] = useState(0);
 	const [shake, setShake] = useState(false);
-
+	const gameState = useStore((state) => state.gameState);
+	const isLoggedIn = useStore((state) => state.isLoggedIn);
 	useEffect(() => {
 		const updateCountdown = () => {
 			if (lastMoveTime) {
@@ -56,6 +57,10 @@ export const MoveCountdownTimer = () => {
 				: "rgba(0, 128, 0, 0.4)",
 		animation: shake ? "shake 0.3s" : "none",
 	};
+
+	if (gameState !== GameState.READY || !isLoggedIn) {
+		return null;
+	}
 
 	return (
 		<>

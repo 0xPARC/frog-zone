@@ -6,11 +6,12 @@ import {
 	MachineStatusResponse,
 } from "../../utils/fetchMachineStatus";
 import { LOGIN_SERVER_URL } from "../../const/env.const";
+import useStore from "../store";
 
 export const Login: React.FC = () => {
 	const playerId = getPlayerId();
 	const loginUrl = `${LOGIN_SERVER_URL}/login/${playerId}`;
-	const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+	const isLoggedIn = useStore((state) => state.isLoggedIn);
 
 	useEffect(() => {
 		const checkStatus = async () => {
@@ -20,10 +21,10 @@ export const Login: React.FC = () => {
 						await fetchMachineStatus({
 							playerId,
 						});
-					setIsLoggedIn(data.isLoggedIn);
+					useStore.getState().setIsLoggedIn(data.isLoggedIn);
 				}
 			} catch {
-				setIsLoggedIn(false);
+				useStore.getState().setIsLoggedIn(false);
 			}
 		};
 

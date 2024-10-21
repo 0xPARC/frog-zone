@@ -39,13 +39,22 @@ type ItemEffect = {
 	newAtk: number;
 };
 
+export enum GameState {
+	READY = "ready",
+	LOADING = "loading",
+}
+
 export const NEXT_MOVE_TIME_MILLIS = 3500;
 
 interface State {
+	gameState: GameState;
+	isLoggedIn: boolean | null;
 	players: Map<number, Player>;
 	items: Map<number, Item>;
 	grid: Map<number, TileWithCoord>;
 	lastMoveTimeStamp: number; // timestamp for next move
+
+	setIsLoggedIn: (isLoggedIn: boolean | null) => void;
 
 	addPlayer: (player: Player) => void;
 	addItem: (item: Item, coord: Coord) => void;
@@ -56,6 +65,7 @@ interface State {
 		coord: Coord,
 		itemEffect: ItemEffect,
 	) => void;
+	setGameState: (state: GameState) => void;
 	setLastMoveTimeStamp: (time: number) => void;
 	getPlayerById: (id: number) => Player | null;
 	updateGrid: (viewportCoords: Coord[], newTiles: TileWithCoord[]) => void;
@@ -79,11 +89,17 @@ const initializeGrid = (size: number) => {
 
 const useStore = create<State>()(
 	immer((set, get) => ({
+		isLoggedIn: null,
+		gameState: GameState.LOADING,
 		players: new Map<number, Player>(),
 		items: new Map<number, Item>(),
 		// TODO: look into why the actual rendered grid by phase is 32 when config is 64
 		grid: initializeGrid(32),
 		lastMoveTimeStamp: 0, // Store the last move timestamp
+
+		setIsLoggedIn: (isLoggedIn: boolean | null) => {
+			set({ isLoggedIn });
+		},
 
 		addPlayer: (player) => {
 			set((state) => {
@@ -116,6 +132,9 @@ const useStore = create<State>()(
 					console.error("[pickupItem] player or item not found");
 				}
 			});
+		},
+		setGameState: (state: GameState) => {
+			set({ gameState: state });
 		},
 		setLastMoveTimeStamp: (time: number) =>
 			set({ lastMoveTimeStamp: time }),

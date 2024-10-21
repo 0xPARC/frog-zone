@@ -5,7 +5,7 @@ import { getPlayerId } from "../../utils/getPlayerId";
 import { type Api, Direction } from "../createApi";
 import type { PhaserGame } from "../phaser/create/createPhaserGame";
 import type { Coord, TileWithCoord } from "../store";
-import useStore, { NEXT_MOVE_TIME_MILLIS } from "../store";
+import useStore, { GameState, NEXT_MOVE_TIME_MILLIS } from "../store";
 import { createTileFetcher } from "./create/createTileFetcher";
 import phaserConfig from "./create/phaserConfig";
 
@@ -248,6 +248,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				handleMovePlayer(Direction.DOWN);
 			}
 		});
+		useStore.getState().setGameState(GameState.READY);
 	};
 	setupGame();
 };
