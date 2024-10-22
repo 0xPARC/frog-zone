@@ -5,7 +5,6 @@ const NewGameButton: React.FC = () => {
 	const handleNewGame = async () => {
 		useStore.getState().setGame(null);
 		useStore.getState().setIsLoggedIn(false);
-		window.location.reload();
 	};
 
 	return (

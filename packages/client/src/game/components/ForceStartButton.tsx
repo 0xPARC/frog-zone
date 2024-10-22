@@ -1,9 +1,16 @@
 import React from "react";
 import useStore from "../store";
+import { updateGameStatus } from "../../utils/updateGameStatus";
 
 const ForceStartButton: React.FC = () => {
+	const gameId = useStore((state) => state.game?.gameId);
 	const handleForceStart = async () => {
-		useStore.getState().setForceStart(true);
+		if (gameId) {
+			const data = await updateGameStatus({ gameId, status: "ongoing" });
+			if (data.success && data.game) {
+				useStore.getState().setGame(data.game);
+			}
+		}
 	};
 
 	return (

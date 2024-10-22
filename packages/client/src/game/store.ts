@@ -57,8 +57,6 @@ interface State {
 	items: Map<number, Item>;
 	grid: Map<number, TileWithCoord>;
 	lastMoveTimeStamp: number; // timestamp for next move
-	forceStart: boolean;
-
 	setIsLoggedIn: (isLoggedIn: boolean | null) => void;
 	setGame: (game: Game | null) => void;
 
@@ -75,7 +73,6 @@ interface State {
 	setLastMoveTimeStamp: (time: number) => void;
 	getPlayerById: (id: number) => Player | null;
 	updateGrid: (viewportCoords: Coord[], newTiles: TileWithCoord[]) => void;
-	setForceStart: (forceStart: boolean) => void;
 }
 
 const initializeGrid = (size: number) => {
@@ -103,10 +100,6 @@ const useStore = create<State>()(
 		items: new Map<number, Item>(),
 		grid: initializeGrid(64),
 		lastMoveTimeStamp: 0, // Store the last move timestamp
-		forceStart: false,
-		setForceStart: (forceStart: boolean) => {
-			set({ forceStart });
-		},
 		setIsLoggedIn: (isLoggedIn: boolean | null) => {
 			set({ isLoggedIn });
 		},

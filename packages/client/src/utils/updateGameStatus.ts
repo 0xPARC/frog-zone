@@ -12,7 +12,7 @@ export const updateGameStatus = async ({
 }: {
 	gameId: string;
 	status: string;
-}) => {
+}): Promise<GameStatusResponse> => {
 	try {
 		const response = await fetch(`/api/game/${gameId}`, {
 			method: "POST",
@@ -21,7 +21,15 @@ export const updateGameStatus = async ({
 			},
 			body: JSON.stringify({ status }),
 		});
-		const data = await response.json();
+
+		if (!response.ok) {
+			throw new Error(
+				`Failed to update game status: ${response.statusText}`,
+			);
+		}
+
+		const data: GameStatusResponse = await response.json();
+		console.log("Game status updated:", data);
 		return data;
 	} catch (error) {
 		console.error("Error updating game status:", error);
