@@ -211,7 +211,7 @@ async fn get_cells(
 
         game_state
             .evaluator
-            .pack(cells.iter().flat_map(|cell| cell.cts()))
+            .pack(cells.iter().flat_map(|cell| cell.bits()))
     };
 
     info!("processed /get_cells request");
@@ -241,7 +241,7 @@ async fn get_five_cells(
 
         game_state
             .evaluator
-            .pack(cells.iter().flat_map(|cell| cell.cts()))
+            .pack(cells.iter().flat_map(|cell| cell.bits()))
     };
 
     info!("processed /get_five_cells request");
@@ -262,7 +262,7 @@ async fn get_cross_cells(
 
         game_state
             .evaluator
-            .pack(cells.iter().flat_map(|cell| cell.cts()))
+            .pack(cells.iter().flat_map(|cell| cell.bits()))
     };
 
     info!("processed /get_cross_cells request");
@@ -292,7 +292,7 @@ async fn get_vertical_cells(
 
         game_state
             .evaluator
-            .pack(cells.iter().flat_map(|cell| cell.cts()))
+            .pack(cells.iter().flat_map(|cell| cell.bits()))
     };
 
     info!("processed /get_vertical_cells request");
@@ -322,7 +322,7 @@ async fn get_horizontal_cells(
 
         game_state
             .evaluator
-            .pack(cells.iter().flat_map(|cell| cell.cts()))
+            .pack(cells.iter().flat_map(|cell| cell.bits()))
     };
 
     info!("processed /get_horizontal_cells request");
@@ -340,7 +340,7 @@ async fn get_player(
         let zone = game_state.zone()?;
         game_state
             .evaluator
-            .pack(zone.get_player(request.player_id).cts())
+            .pack(zone.get_player(request.player_id).bits())
     };
 
     info!("processed /get_player request");
@@ -398,7 +398,7 @@ async fn queue_move(
         game_state.zone()?.players[move_request.player_id]
             .data
             .loc
-            .cts(),
+            .bits(),
     );
 
     info!("processed /move request");

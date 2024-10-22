@@ -24,7 +24,8 @@ pub struct EncryptedCoord {
 }
 
 impl EncryptedCoord {
-    pub fn cts(&self) -> impl Iterator<Item = &PhantomBool> {
+    /// Returns concatenation of each field as bits in little-endian.
+    pub fn bits(&self) -> impl Iterator<Item = &PhantomBool> {
         chain![&self.x, &self.y]
     }
 }
@@ -37,8 +38,9 @@ pub struct PlayerEncryptedData {
 }
 
 impl PlayerEncryptedData {
-    pub fn cts(&self) -> impl Iterator<Item = &PhantomBool> {
-        chain![self.loc.cts(), &self.hp, &self.atk]
+    /// Returns concatenation of each field as bits in little-endian.
+    pub fn bits(&self) -> impl Iterator<Item = &PhantomBool> {
+        chain![self.loc.bits(), &self.hp, &self.atk]
     }
 }
 
@@ -55,8 +57,9 @@ pub struct PlayerWithEncryptedId {
 }
 
 impl PlayerWithEncryptedId {
-    pub fn cts(&self) -> impl Iterator<Item = &PhantomBool> {
-        chain![&self.id, self.data.cts()]
+    /// Returns concatenation of each field as bits in little-endian.
+    pub fn bits(&self) -> impl Iterator<Item = &PhantomBool> {
+        chain![&self.id, self.data.bits()]
     }
 }
 
@@ -69,8 +72,9 @@ pub struct ItemEncryptedData {
 }
 
 impl ItemEncryptedData {
-    pub fn cts(&self) -> impl Iterator<Item = &PhantomBool> {
-        chain![self.loc.cts(), &self.hp, &self.atk, [&self.is_consumed]]
+    /// Returns concatenation of each field as bits in little-endian.
+    pub fn bits(&self) -> impl Iterator<Item = &PhantomBool> {
+        chain![self.loc.bits(), &self.hp, &self.atk, [&self.is_consumed]]
     }
 }
 
@@ -87,8 +91,9 @@ pub struct ItemWithEncryptedId {
 }
 
 impl ItemWithEncryptedId {
-    pub fn cts(&self) -> impl Iterator<Item = &PhantomBool> {
-        chain![&self.id, self.data.cts()]
+    /// Returns concatenation of each field as bits in little-endian.
+    pub fn bits(&self) -> impl Iterator<Item = &PhantomBool> {
+        chain![&self.id, self.data.bits()]
     }
 }
 
@@ -116,7 +121,8 @@ pub struct CellEncryptedData {
 }
 
 impl CellEncryptedData {
-    pub fn cts(&self) -> impl Iterator<Item = &PhantomBool> {
+    /// Returns concatenation of each field as bits in little-endian.
+    pub fn bits(&self) -> impl Iterator<Item = &PhantomBool> {
         chain![&self.entity_type, &self.entity_id, &self.hp, &self.atk]
     }
 }
@@ -214,15 +220,15 @@ pub fn fhe_apply_move(
         &direction.to_vec(),
         &items
             .iter()
-            .flat_map(|item| item.cts())
+            .flat_map(|item| item.bits())
             .cloned()
             .collect_vec(),
         &obstacles
             .iter()
-            .flat_map(|obstacle| obstacle.cts())
+            .flat_map(|obstacle| obstacle.bits())
             .cloned()
             .collect_vec(),
-        &player_data.cts().cloned().collect_vec(),
+        &player_data.bits().cloned().collect_vec(),
     )
     .into_iter();
     let output = (
@@ -298,16 +304,16 @@ fn fhe_get_cell(
     let mut output_bits = phantom_benchs::frogzone_get_cell_rs_fhe_lib::get_cell(
         &items
             .iter()
-            .flat_map(|item| item.cts())
+            .flat_map(|item| item.bits())
             .cloned()
             .collect_vec(),
-        &player_coord.cts().cloned().collect_vec(),
+        &player_coord.bits().cloned().collect_vec(),
         &players
             .iter()
-            .flat_map(|player| player.cts())
+            .flat_map(|player| player.bits())
             .cloned()
             .collect_vec(),
-        &query_coord.cts().cloned().collect_vec(),
+        &query_coord.bits().cloned().collect_vec(),
     )
     .into_iter();
     let output = CellEncryptedData {
@@ -329,18 +335,18 @@ fn fhe_get_five_cells(
     let mut output_bits = phantom_benchs::frogzone_get_five_cells_rs_fhe_lib::get_five_cells(
         &items
             .iter()
-            .flat_map(|item| item.cts())
+            .flat_map(|item| item.bits())
             .cloned()
             .collect_vec(),
-        &player_coord.cts().cloned().collect_vec(),
+        &player_coord.bits().cloned().collect_vec(),
         &players
             .iter()
-            .flat_map(|player| player.cts())
+            .flat_map(|player| player.bits())
             .cloned()
             .collect_vec(),
         &query_coords
             .iter()
-            .flat_map(|query_coord| query_coord.cts())
+            .flat_map(|query_coord| query_coord.bits())
             .cloned()
             .collect_vec(),
     )
@@ -363,13 +369,13 @@ fn fhe_get_cross_cells(
     let mut output_bits = phantom_benchs::frogzone_get_cross_cells_rs_fhe_lib::get_cross_cells(
         &items
             .iter()
-            .flat_map(|item| item.cts())
+            .flat_map(|item| item.bits())
             .cloned()
             .collect_vec(),
-        &player_coord.cts().cloned().collect_vec(),
+        &player_coord.bits().cloned().collect_vec(),
         &players
             .iter()
-            .flat_map(|player| player.cts())
+            .flat_map(|player| player.bits())
             .cloned()
             .collect_vec(),
     )
@@ -394,16 +400,16 @@ fn fhe_get_vertical_cells(
         phantom_benchs::frogzone_get_vertical_cells_rs_fhe_lib::get_vertical_cells(
             &items
                 .iter()
-                .flat_map(|item| item.cts())
+                .flat_map(|item| item.bits())
                 .cloned()
                 .collect_vec(),
-            &player_coord.cts().cloned().collect_vec(),
+            &player_coord.bits().cloned().collect_vec(),
             &players
                 .iter()
-                .flat_map(|player| player.cts())
+                .flat_map(|player| player.bits())
                 .cloned()
                 .collect_vec(),
-            &query_coord.cts().cloned().collect_vec(),
+            &query_coord.bits().cloned().collect_vec(),
         )
         .into_iter();
     let output = from_fn(|_| CellEncryptedData {
@@ -426,16 +432,16 @@ fn fhe_get_horizontal_cells(
         phantom_benchs::frogzone_get_horizontal_cells_rs_fhe_lib::get_horizontal_cells(
             &items
                 .iter()
-                .flat_map(|item| item.cts())
+                .flat_map(|item| item.bits())
                 .cloned()
                 .collect_vec(),
-            &player_coord.cts().cloned().collect_vec(),
+            &player_coord.bits().cloned().collect_vec(),
             &players
                 .iter()
-                .flat_map(|player| player.cts())
+                .flat_map(|player| player.bits())
                 .cloned()
                 .collect_vec(),
-            &query_coord.cts().cloned().collect_vec(),
+            &query_coord.bits().cloned().collect_vec(),
         )
         .into_iter();
     let output = from_fn(|_| CellEncryptedData {
