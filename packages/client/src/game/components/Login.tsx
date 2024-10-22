@@ -7,17 +7,18 @@ import {
 } from "../../utils/fetchMachineStatus";
 import { LOGIN_SERVER_URL } from "../../const/env.const";
 import useStore from "../store";
+import { fetchGame } from "../../utils/fetchGame";
 
 export const Login: React.FC = () => {
 	const playerId = getPlayerId();
 	const loginUrl = `${LOGIN_SERVER_URL}/login/${playerId}`;
 	const isLoggedIn = useStore((state) => state.isLoggedIn);
-	const game = useStore((state) => state.game);
+	const gameId = useStore((state) => state.game?.gameId);
 
 	useEffect(() => {
 		const checkStatus = async () => {
 			try {
-				if (playerId && !game) {
+				if (playerId && !isLoggedIn) {
 					const data: MachineStatusResponse =
 						await fetchMachineStatus({
 							playerId,
@@ -29,6 +30,10 @@ export const Login: React.FC = () => {
 					} else {
 						useStore.getState().setIsLoggedIn(false);
 					}
+				} else if (playerId && isLoggedIn && gameId) {
+					const data = await fetchGame({ gameId });
+					console.log("GAME STATUS", data.game);
+					useStore.getState().setGame(data.game);
 				}
 			} catch {
 				useStore.getState().setIsLoggedIn(false);
@@ -40,7 +45,7 @@ export const Login: React.FC = () => {
 
 		// Cleanup polling when component unmounts
 		return () => clearInterval(intervalId);
-	}, [playerId, game]);
+	}, [playerId, isLoggedIn, gameId]);
 
 	if (isLoggedIn === true) {
 		return null;

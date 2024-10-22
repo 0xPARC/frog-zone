@@ -23,6 +23,7 @@ function App() {
 	const gameId = useStore((state) => state.game?.gameId);
 	const gameStatus = useStore((state) => state.game?.status);
 	const gameMachines = useStore((state) => state.game?.machines);
+	const isLoggedIn = useStore((state) => state.isLoggedIn);
 	useEffect(() => {
 		if (gameStatus === "ongoing") {
 			confettiReward();
@@ -31,38 +32,49 @@ function App() {
 	return (
 		<div>
 			<Login />
-			<PlayerInfo playerId={Number(playerId)} />
-			<MoveCountdownTimer />
-			<div
-				style={{
-					position: "absolute",
-					top: "10px",
-					right: "10px",
-					minWidth: "200px",
-				}}
-			>
-				{gameId && gameStatus === "ongoing" && (
-					<WinGameButton gameId={gameId} />
-				)}
-				{/* <button onClick={() => confettiReward()}>Confetti</button> */}
-			</div>
-			{gameId &&
-				gameStatus === "waiting_for_players" &&
-				gameMachines &&
-				gameMachines?.length < MIN_PLAYERS && (
-					<WaitingForPlayersOverlay
-						allowForceStart={
-							gameMachines.length >= MIN_PLAYERS_TO_FORCE_START
-						}
-						minPlayers={MIN_PLAYERS}
-						numPlayers={gameMachines.length}
+			{isLoggedIn && (
+				<>
+					<PlayerInfo playerId={Number(playerId)} />
+					<MoveCountdownTimer />
+					<div
+						style={{
+							position: "absolute",
+							top: "10px",
+							right: "10px",
+							minWidth: "200px",
+						}}
+					>
+						{gameId && gameStatus === "ongoing" && (
+							<WinGameButton gameId={gameId} />
+						)}
+						{/* <button onClick={() => confettiReward()}>Confetti</button> */}
+					</div>
+					{gameId &&
+						gameStatus === "waiting_for_players" &&
+						gameMachines &&
+						gameMachines?.length < MIN_PLAYERS && (
+							<WaitingForPlayersOverlay
+								allowForceStart={
+									gameMachines.length >=
+									MIN_PLAYERS_TO_FORCE_START
+								}
+								minPlayers={MIN_PLAYERS}
+								numPlayers={gameMachines.length}
+							/>
+						)}
+					{gameId && gameStatus === "completed" && (
+						<GameFinishedOverlay />
+					)}
+					<div
+						id="confettiReward"
+						style={{
+							position: "absolute",
+							top: "-60px",
+							left: "50%",
+						}}
 					/>
-				)}
-			{gameId && gameStatus === "completed" && <GameFinishedOverlay />}
-			<div
-				id="confettiReward"
-				style={{ position: "absolute", top: "-60px", left: "50%" }}
-			/>
+				</>
+			)}
 		</div>
 	);
 }

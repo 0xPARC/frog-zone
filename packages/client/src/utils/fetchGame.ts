@@ -1,5 +1,3 @@
-import { LOGIN_SERVER_URL } from "../const/env.const";
-
 export interface GameResponse {
 	success: boolean;
 	message: string;
@@ -26,7 +24,7 @@ export const fetchGame = async ({
 	gameId: string;
 }): Promise<GameResponse> => {
 	try {
-		const response = await fetch(`${LOGIN_SERVER_URL}/api/game/${gameId}`);
+		const response = await fetch(`/api/game/${gameId}`);
 
 		if (!response.ok) {
 			throw new Error(`Failed to fetch game: ${response.statusText}`);

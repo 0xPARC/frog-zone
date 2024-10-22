@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { updateGameStatus } from "../../utils/updateGameStatus";
 import useStore from "../store";
-import { fetchGame } from "../../utils/fetchGame";
 
 interface WinGameButtonProps {
 	gameId: string;
