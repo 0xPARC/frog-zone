@@ -61,24 +61,24 @@ curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o
 
 echo "Getting player data..."
 
-echo "  Player 1: " $(curl -sS --header "Content-Type: application/json" --request POST --data '{}' http://localhost:8001/get_player)
-echo "  Player 2: " $(curl -sS --header "Content-Type: application/json" --request POST --data '{}' http://localhost:8002/get_player)
-echo "  Player 3: " $(curl -sS --header "Content-Type: application/json" --request POST --data '{}' http://localhost:8003/get_player)
-echo "  Player 4: " $(curl -sS --header "Content-Type: application/json" --request POST --data '{}' http://localhost:8004/get_player)
+echo "  Player 1:" $(curl -sS --header "Content-Type: application/json" --request POST --data '{}' http://localhost:8001/get_player)
+echo "  Player 2:" $(curl -sS --header "Content-Type: application/json" --request POST --data '{}' http://localhost:8002/get_player)
+echo "  Player 3:" $(curl -sS --header "Content-Type: application/json" --request POST --data '{}' http://localhost:8003/get_player)
+echo "  Player 4:" $(curl -sS --header "Content-Type: application/json" --request POST --data '{}' http://localhost:8004/get_player)
 
 echo "Moving around..."
 
-echo "  Player 1 (Up): " $(curl -sS --header "Content-Type: application/json" --request POST --data '{"direction":"Up"}'    http://localhost:8001/move)
-echo "  Player 2 (Down): " $(curl -sS --header "Content-Type: application/json" --request POST --data '{"direction":"Down"}'  http://localhost:8002/move)
+echo "  Player 1 (Down): " $(curl -sS --header "Content-Type: application/json" --request POST --data '{"direction":"Down"}'  http://localhost:8001/move)
+echo "  Player 2 (Up):   " $(curl -sS --header "Content-Type: application/json" --request POST --data '{"direction":"Up"}'    http://localhost:8002/move)
 echo "  Player 3 (Left): " $(curl -sS --header "Content-Type: application/json" --request POST --data '{"direction":"Left"}'  http://localhost:8003/move)
-echo "  Player 4 (Right): " $(curl -sS --header "Content-Type: application/json" --request POST --data '{"direction":"Right"}' http://localhost:8004/move)
+echo "  Player 4 (Right):" $(curl -sS --header "Content-Type: application/json" --request POST --data '{"direction":"Right"}' http://localhost:8004/move)
 
 echo "Getting updated player data..."
 
-echo "  Player 1: " $(curl -sS --header "Content-Type: application/json" --request POST --data '{}' http://localhost:8001/get_player)
-echo "  Player 2: " $(curl -sS --header "Content-Type: application/json" --request POST --data '{}' http://localhost:8002/get_player)
-echo "  Player 3: " $(curl -sS --header "Content-Type: application/json" --request POST --data '{}' http://localhost:8003/get_player)
-echo "  Player 4: " $(curl -sS --header "Content-Type: application/json" --request POST --data '{}' http://localhost:8004/get_player)
+echo "  Player 1:" $(curl -sS --header "Content-Type: application/json" --request POST --data '{}' http://localhost:8001/get_player)
+echo "  Player 2:" $(curl -sS --header "Content-Type: application/json" --request POST --data '{}' http://localhost:8002/get_player)
+echo "  Player 3:" $(curl -sS --header "Content-Type: application/json" --request POST --data '{}' http://localhost:8003/get_player)
+echo "  Player 4:" $(curl -sS --header "Content-Type: application/json" --request POST --data '{}' http://localhost:8004/get_player)
 
 echo "All work!"
 
