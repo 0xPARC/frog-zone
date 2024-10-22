@@ -54,6 +54,12 @@ pub struct PlayerWithEncryptedId {
     pub data: PlayerEncryptedData,
 }
 
+impl PlayerWithEncryptedId {
+    pub fn cts(&self) -> impl Iterator<Item = &PhantomBool> {
+        chain![&self.id, self.data.cts()]
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct ItemEncryptedData {
     pub loc: EncryptedCoord,
@@ -80,13 +86,19 @@ pub struct ItemWithEncryptedId {
     pub data: ItemEncryptedData,
 }
 
+impl ItemWithEncryptedId {
+    pub fn cts(&self) -> impl Iterator<Item = &PhantomBool> {
+        chain![&self.id, self.data.cts()]
+    }
+}
+
 #[derive(Clone, Debug)]
 pub enum EntityType {
-    None,
+    Invalid,
     Player,
     Item,
     Monster,
-    Invalid,
+    None,
 }
 
 impl Default for EntityType {
@@ -283,20 +295,29 @@ fn fhe_get_cell(
     items: [ItemWithEncryptedId; NUM_ITEMS],
     players: [PlayerWithEncryptedId; 4],
 ) -> CellEncryptedData {
-    todo!()
-    // // coord's x and y values must be within [-2, +2] of player's x and y values
-    // // can ignore this check if necessary for performance
-    // if query_coord.x.val.abs_diff(player_coord.x.val) > 2
-    //     || query_coord.y.val.abs_diff(player_coord.y.val) > 2
-    // {
-    //     let mut ret = CellEncryptedData::default();
-    //     ret.entity_type = Encrypted::<EntityType> {
-    //         val: EntityType::Invalid,
-    //     };
-    //     return ret;
-    // }
-
-    // fhe_get_cell_no_check(query_coord, items, players)
+    let mut output_bits = phantom_benchs::frogzone_get_cell_rs_fhe_lib::get_cell(
+        &items
+            .iter()
+            .flat_map(|item| item.cts())
+            .cloned()
+            .collect_vec(),
+        &player_coord.cts().cloned().collect_vec(),
+        &players
+            .iter()
+            .flat_map(|player| player.cts())
+            .cloned()
+            .collect_vec(),
+        &query_coord.cts().cloned().collect_vec(),
+    )
+    .into_iter();
+    let output = CellEncryptedData {
+        entity_type: from_fn(|_| output_bits.next().unwrap()),
+        entity_id: from_fn(|_| output_bits.next().unwrap()),
+        hp: from_fn(|_| output_bits.next().unwrap()),
+        atk: from_fn(|_| output_bits.next().unwrap()),
+    };
+    assert!(output_bits.next().is_none());
+    output
 }
 
 fn fhe_get_five_cells(
@@ -305,26 +326,33 @@ fn fhe_get_five_cells(
     items: [ItemWithEncryptedId; NUM_ITEMS],
     players: [PlayerWithEncryptedId; 4],
 ) -> [CellEncryptedData; 5] {
-    todo!()
-    // let mut cells = [CellEncryptedData::default(); 5];
-
-    // for (idx, query_coord) in query_coords.iter().enumerate() {
-    //     // coord's x and y values must be within [-2, +2] of player's x and y values
-    //     // can ignore this check if necessary for performance
-    //     if query_coord.x.val.abs_diff(player_coord.x.val) > 2
-    //         || query_coord.y.val.abs_diff(player_coord.y.val) > 2
-    //     {
-    //         let mut ret = CellEncryptedData::default();
-    //         ret.entity_type = Encrypted::<EntityType> {
-    //             val: EntityType::Invalid,
-    //         };
-    //         cells[idx] = ret;
-    //     } else {
-    //         cells[idx] = fhe_get_cell_no_check(query_coord.clone(), items, players);
-    //     }
-    // }
-
-    // cells
+    let mut output_bits = phantom_benchs::frogzone_get_five_cells_rs_fhe_lib::get_five_cells(
+        &items
+            .iter()
+            .flat_map(|item| item.cts())
+            .cloned()
+            .collect_vec(),
+        &player_coord.cts().cloned().collect_vec(),
+        &players
+            .iter()
+            .flat_map(|player| player.cts())
+            .cloned()
+            .collect_vec(),
+        &query_coords
+            .iter()
+            .flat_map(|query_coord| query_coord.cts())
+            .cloned()
+            .collect_vec(),
+    )
+    .into_iter();
+    let output = from_fn(|_| CellEncryptedData {
+        entity_type: from_fn(|_| output_bits.next().unwrap()),
+        entity_id: from_fn(|_| output_bits.next().unwrap()),
+        hp: from_fn(|_| output_bits.next().unwrap()),
+        atk: from_fn(|_| output_bits.next().unwrap()),
+    });
+    assert!(output_bits.next().is_none());
+    output
 }
 
 fn fhe_get_cross_cells(
@@ -332,42 +360,28 @@ fn fhe_get_cross_cells(
     items: [ItemWithEncryptedId; NUM_ITEMS],
     players: [PlayerWithEncryptedId; 4],
 ) -> [CellEncryptedData; 5] {
-    todo!()
-    // let mut cells = [CellEncryptedData::default(); 5];
-
-    // let query_coords = [
-    //     player_coord,
-    //     EncryptedCoord {
-    //         x: player_coord.x,
-    //         y: Encrypted::<u8> {
-    //             val: player_coord.y.val + 1,
-    //         },
-    //     },
-    //     EncryptedCoord {
-    //         x: player_coord.x,
-    //         y: Encrypted::<u8> {
-    //             val: player_coord.y.val - 1,
-    //         },
-    //     },
-    //     EncryptedCoord {
-    //         x: Encrypted::<u8> {
-    //             val: player_coord.x.val + 1,
-    //         },
-    //         y: player_coord.y,
-    //     },
-    //     EncryptedCoord {
-    //         x: Encrypted::<u8> {
-    //             val: player_coord.x.val - 1,
-    //         },
-    //         y: player_coord.y,
-    //     },
-    // ];
-
-    // for (idx, query_coord) in query_coords.iter().enumerate() {
-    //     cells[idx] = fhe_get_cell_no_check(query_coord.clone(), items, players);
-    // }
-
-    // cells
+    let mut output_bits = phantom_benchs::frogzone_get_cross_cells_rs_fhe_lib::get_cross_cells(
+        &items
+            .iter()
+            .flat_map(|item| item.cts())
+            .cloned()
+            .collect_vec(),
+        &player_coord.cts().cloned().collect_vec(),
+        &players
+            .iter()
+            .flat_map(|player| player.cts())
+            .cloned()
+            .collect_vec(),
+    )
+    .into_iter();
+    let output = from_fn(|_| CellEncryptedData {
+        entity_type: from_fn(|_| output_bits.next().unwrap()),
+        entity_id: from_fn(|_| output_bits.next().unwrap()),
+        hp: from_fn(|_| output_bits.next().unwrap()),
+        atk: from_fn(|_| output_bits.next().unwrap()),
+    });
+    assert!(output_bits.next().is_none());
+    output
 }
 
 fn fhe_get_vertical_cells(
@@ -376,53 +390,30 @@ fn fhe_get_vertical_cells(
     items: [ItemWithEncryptedId; NUM_ITEMS],
     players: [PlayerWithEncryptedId; 4],
 ) -> [CellEncryptedData; 5] {
-    todo!()
-    // let mut cells = [CellEncryptedData::default(); 5];
-
-    // // can ignore this check if necessary for performance
-    // if query_coord.y.val != player_coord.y.val || query_coord.x.val.abs_diff(player_coord.x.val) > 2
-    // {
-    //     for i in 0..5 {
-    //         cells[i].entity_type = Encrypted::<EntityType> {
-    //             val: EntityType::Invalid,
-    //         };
-    //     }
-    //     return cells;
-    // }
-
-    // let query_coords = [
-    //     EncryptedCoord {
-    //         x: query_coord.x,
-    //         y: Encrypted::<u8> {
-    //             val: query_coord.y.val - 2,
-    //         },
-    //     },
-    //     EncryptedCoord {
-    //         x: query_coord.x,
-    //         y: Encrypted::<u8> {
-    //             val: query_coord.y.val - 1,
-    //         },
-    //     },
-    //     query_coord,
-    //     EncryptedCoord {
-    //         x: query_coord.x,
-    //         y: Encrypted::<u8> {
-    //             val: query_coord.y.val + 1,
-    //         },
-    //     },
-    //     EncryptedCoord {
-    //         x: query_coord.x,
-    //         y: Encrypted::<u8> {
-    //             val: query_coord.y.val + 2,
-    //         },
-    //     },
-    // ];
-
-    // for (idx, query_coord) in query_coords.iter().enumerate() {
-    //     cells[idx] = fhe_get_cell_no_check(query_coord.clone(), items, players);
-    // }
-
-    // cells
+    let mut output_bits =
+        phantom_benchs::frogzone_get_vertical_cells_rs_fhe_lib::get_vertical_cells(
+            &items
+                .iter()
+                .flat_map(|item| item.cts())
+                .cloned()
+                .collect_vec(),
+            &player_coord.cts().cloned().collect_vec(),
+            &players
+                .iter()
+                .flat_map(|player| player.cts())
+                .cloned()
+                .collect_vec(),
+            &query_coord.cts().cloned().collect_vec(),
+        )
+        .into_iter();
+    let output = from_fn(|_| CellEncryptedData {
+        entity_type: from_fn(|_| output_bits.next().unwrap()),
+        entity_id: from_fn(|_| output_bits.next().unwrap()),
+        hp: from_fn(|_| output_bits.next().unwrap()),
+        atk: from_fn(|_| output_bits.next().unwrap()),
+    });
+    assert!(output_bits.next().is_none());
+    output
 }
 
 fn fhe_get_horizontal_cells(
@@ -431,53 +422,30 @@ fn fhe_get_horizontal_cells(
     items: [ItemWithEncryptedId; NUM_ITEMS],
     players: [PlayerWithEncryptedId; 4],
 ) -> [CellEncryptedData; 5] {
-    todo!()
-    // let mut cells = [CellEncryptedData::default(); 5];
-
-    // // can ignore this check if necessary for performance
-    // if query_coord.x.val != player_coord.x.val || query_coord.y.val.abs_diff(player_coord.y.val) > 2
-    // {
-    //     for i in 0..5 {
-    //         cells[i].entity_type = Encrypted::<EntityType> {
-    //             val: EntityType::Invalid,
-    //         };
-    //     }
-    //     return cells;
-    // }
-
-    // let query_coords = [
-    //     EncryptedCoord {
-    //         x: Encrypted::<u8> {
-    //             val: query_coord.x.val - 2,
-    //         },
-    //         y: query_coord.y,
-    //     },
-    //     EncryptedCoord {
-    //         x: Encrypted::<u8> {
-    //             val: query_coord.x.val - 1,
-    //         },
-    //         y: query_coord.y,
-    //     },
-    //     query_coord,
-    //     EncryptedCoord {
-    //         x: Encrypted::<u8> {
-    //             val: query_coord.x.val + 1,
-    //         },
-    //         y: query_coord.y,
-    //     },
-    //     EncryptedCoord {
-    //         x: Encrypted::<u8> {
-    //             val: query_coord.x.val + 2,
-    //         },
-    //         y: query_coord.y,
-    //     },
-    // ];
-
-    // for (idx, query_coord) in query_coords.iter().enumerate() {
-    //     cells[idx] = fhe_get_cell_no_check(query_coord.clone(), items, players);
-    // }
-
-    // cells
+    let mut output_bits =
+        phantom_benchs::frogzone_get_horizontal_cells_rs_fhe_lib::get_horizontal_cells(
+            &items
+                .iter()
+                .flat_map(|item| item.cts())
+                .cloned()
+                .collect_vec(),
+            &player_coord.cts().cloned().collect_vec(),
+            &players
+                .iter()
+                .flat_map(|player| player.cts())
+                .cloned()
+                .collect_vec(),
+            &query_coord.cts().cloned().collect_vec(),
+        )
+        .into_iter();
+    let output = from_fn(|_| CellEncryptedData {
+        entity_type: from_fn(|_| output_bits.next().unwrap()),
+        entity_id: from_fn(|_| output_bits.next().unwrap()),
+        hp: from_fn(|_| output_bits.next().unwrap()),
+        atk: from_fn(|_| output_bits.next().unwrap()),
+    });
+    assert!(output_bits.next().is_none());
+    output
 }
 
 fn pk_encrypt<const N: usize>(evaluator: &Arc<PhantomEvaluator>, value: u8) -> [EncryptedBool; N] {

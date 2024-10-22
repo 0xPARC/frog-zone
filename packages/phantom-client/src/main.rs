@@ -93,11 +93,11 @@ pub struct PlayerData {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum EntityType {
-    None,
+    Invalid,
     Player,
     Item,
     Monster,
-    Invalid,
+    None,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -251,11 +251,11 @@ async fn get_cells(
     let cell_data = repeat_with(|| {
         Ok(CellData {
             entity_type: match try_from_le_bits::<3>(&mut bits)? {
-                0 => EntityType::None,
+                0 => EntityType::Invalid,
                 1 => EntityType::Player,
                 2 => EntityType::Item,
                 3 => EntityType::Monster,
-                4 => EntityType::Invalid,
+                4 => EntityType::None,
                 _ => return Err(internal_server_error("")),
             },
             entity_id: try_from_le_bits::<8>(&mut bits)?,
@@ -263,7 +263,7 @@ async fn get_cells(
             atk: try_from_le_bits::<8>(&mut bits)?,
         })
     })
-    .take(cell_data.n() / 16)
+    .take(cell_data.n() / 27)
     .try_collect()?;
 
     Ok(Json(GetCellsResponse { cell_data }))
