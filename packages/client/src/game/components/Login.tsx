@@ -7,21 +7,33 @@ import {
 } from "../../utils/fetchMachineStatus";
 import { LOGIN_SERVER_URL } from "../../const/env.const";
 import useStore from "../store";
+import { fetchGame } from "../../utils/fetchGame";
 
 export const Login: React.FC = () => {
 	const playerId = getPlayerId();
 	const loginUrl = `${LOGIN_SERVER_URL}/login/${playerId}`;
 	const isLoggedIn = useStore((state) => state.isLoggedIn);
+	const gameId = useStore((state) => state.game?.gameId);
 
 	useEffect(() => {
 		const checkStatus = async () => {
 			try {
-				if (playerId) {
+				if (playerId && !isLoggedIn) {
 					const data: MachineStatusResponse =
 						await fetchMachineStatus({
 							playerId,
 						});
-					useStore.getState().setIsLoggedIn(data.isLoggedIn);
+					console.log("MACHINE STATUS", data);
+					if (data.isLoggedIn && data.game) {
+						useStore.getState().setIsLoggedIn(data.isLoggedIn);
+						useStore.getState().setGame(data.game);
+					} else {
+						useStore.getState().setIsLoggedIn(false);
+					}
+				} else if (playerId && isLoggedIn && gameId) {
+					const data = await fetchGame({ gameId });
+					console.log("GAME STATUS", data.game);
+					useStore.getState().setGame(data.game);
 				}
 			} catch {
 				useStore.getState().setIsLoggedIn(false);
@@ -33,7 +45,7 @@ export const Login: React.FC = () => {
 
 		// Cleanup polling when component unmounts
 		return () => clearInterval(intervalId);
-	}, [playerId]);
+	}, [playerId, isLoggedIn, gameId]);
 
 	if (isLoggedIn === true) {
 		return null;
@@ -78,7 +90,7 @@ const styles = {
 		left: 0,
 		width: "100vw",
 		height: "100vh",
-		backgroundColor: "rgba(0, 0, 0, 0.7)",
+		backgroundColor: "rgba(0, 0, 0, 1)",
 		display: "flex",
 		flexDirection: "column" as "column",
 		justifyContent: "center",
