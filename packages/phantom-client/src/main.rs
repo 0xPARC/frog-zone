@@ -47,13 +47,17 @@ static OTHER_PLAYER_URIS: LazyLock<[String; 3]> = LazyLock::new(|| {
 
 struct AppState {
     user: PhantomUser,
+    player_coord: Coord,
 }
 
 impl AppState {
     fn new(player_id: usize) -> Self {
         let seed = StdRng::from_entropy().gen::<[u8; 32]>().to_vec();
         let user = PhantomUser::new(PhantomParam::I_4P_60, player_id, seed);
-        Self { user }
+        Self {
+            user,
+            player_coord: Coord { x: 0, y: 0 },
+        }
     }
 
     fn decrypt(&self, ct: &PhantomPackedCt, dec_shares: [PhantomPackedCtDecShare; 3]) -> Vec<bool> {
@@ -78,7 +82,25 @@ fn try_from_le_bits<const N: usize>(
         .ok_or(internal_server_error(""))
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+fn cell_try_from_le_bits(
+    bits: &mut impl Iterator<Item = bool>,
+) -> Result<CellData, Custom<String>> {
+    Ok(CellData {
+        entity_type: match try_from_le_bits::<3>(bits)? {
+            0 => EntityType::Invalid,
+            1 => EntityType::Player,
+            2 => EntityType::Item,
+            3 => EntityType::Monster,
+            4 => EntityType::None,
+            _ => return Err(internal_server_error("")),
+        },
+        entity_id: try_from_le_bits::<8>(bits)?,
+        hp: try_from_le_bits::<8>(bits)?,
+        atk: try_from_le_bits::<8>(bits)?,
+    })
+}
+
+#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct Coord {
     pub x: u8,
     pub y: u8,
@@ -124,6 +146,40 @@ struct GetCellsRequest {
 #[derive(Debug, Serialize, Deserialize)]
 struct GetCellsResponse {
     cell_data: Vec<CellData>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct GetFiveCellsRequest {
+    coords: [Coord; 5],
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct GetFiveCellsResponse {
+    cell_data: [CellData; 5],
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct GetCrossCellsRequest {}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct GetCrossCellsResponse {
+    cell_data: [CellData; 5], // [(x,y), (x,y+1), (x,y-1), (x+1,y), (x-1,y)]
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct GetVerticalCellsRequest {}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct GetVerticalCellsResponse {
+    cell_data: [CellData; 5], // [(x,y-2), (x,y-1), (x,y), (x,y+1), (x,y+2)]
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct GetHorizontalCellsRequest {}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct GetHorizontalCellsResponse {
+    cell_data: [CellData; 5], // [(x-2,y), (x-1,y), (x,y), (x+1,y), (x+2,y)]
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -248,25 +304,163 @@ async fn get_cells(
         .await
         .decrypt(&cell_data, dec_shares)
         .into_iter();
-    let cell_data = repeat_with(|| {
-        Ok(CellData {
-            entity_type: match try_from_le_bits::<3>(&mut bits)? {
-                0 => EntityType::Invalid,
-                1 => EntityType::Player,
-                2 => EntityType::Item,
-                3 => EntityType::Monster,
-                4 => EntityType::None,
-                _ => return Err(internal_server_error("")),
-            },
-            entity_id: try_from_le_bits::<8>(&mut bits)?,
-            hp: try_from_le_bits::<8>(&mut bits)?,
-            atk: try_from_le_bits::<8>(&mut bits)?,
-        })
-    })
-    .take(cell_data.n() / 27)
-    .try_collect()?;
+    let cell_data = repeat_with(|| cell_try_from_le_bits(&mut bits))
+        .take(cell_data.n() / 27)
+        .try_collect()?;
 
     Ok(Json(GetCellsResponse { cell_data }))
+}
+
+#[post("/get_five_cells", format = "json", data = "<request>")]
+async fn get_five_cells(
+    state: &State<SharedState>,
+    request: Json<GetFiveCellsRequest>,
+) -> Result<Json<GetFiveCellsResponse>, Custom<String>> {
+    let post_data = {
+        let app_state = state.lock().await;
+
+        let coords = app_state.user.batched_pk_encrypt(
+            request
+                .coords
+                .iter()
+                .flat_map(|coord| chain![to_le_bits(coord.x), to_le_bits(coord.y)]),
+        );
+
+        proxy::GetFiveCellsRequest {
+            player_id: app_state.user.user_id(),
+            coords,
+        }
+    };
+
+    let proxy::GetFiveCellsResponse { cell_data } =
+        proxy::proxy("/get_five_cells", post_data).await?.0;
+
+    let dec_shares = get_dec_shares(&cell_data).await?;
+    let mut bits = state
+        .lock()
+        .await
+        .decrypt(&cell_data, dec_shares)
+        .into_iter();
+    let cell_data = [
+        cell_try_from_le_bits(&mut bits)?,
+        cell_try_from_le_bits(&mut bits)?,
+        cell_try_from_le_bits(&mut bits)?,
+        cell_try_from_le_bits(&mut bits)?,
+        cell_try_from_le_bits(&mut bits)?,
+    ];
+
+    Ok(Json(GetFiveCellsResponse { cell_data }))
+}
+
+#[post("/get_cross_cells", format = "json", data = "<_request>")]
+async fn get_cross_cells(
+    state: &State<SharedState>,
+    _request: Json<GetCrossCellsRequest>,
+) -> Result<Json<GetCrossCellsResponse>, Custom<String>> {
+    let post_data = {
+        let app_state = state.lock().await;
+
+        proxy::GetCrossCellsRequest {
+            player_id: app_state.user.user_id(),
+        }
+    };
+
+    let proxy::GetCrossCellsResponse { cell_data } =
+        proxy::proxy("/get_cross_cells", post_data).await?.0;
+
+    let dec_shares = get_dec_shares(&cell_data).await?;
+    let mut bits = state
+        .lock()
+        .await
+        .decrypt(&cell_data, dec_shares)
+        .into_iter();
+    let cell_data = [
+        cell_try_from_le_bits(&mut bits)?,
+        cell_try_from_le_bits(&mut bits)?,
+        cell_try_from_le_bits(&mut bits)?,
+        cell_try_from_le_bits(&mut bits)?,
+        cell_try_from_le_bits(&mut bits)?,
+    ];
+
+    Ok(Json(GetCrossCellsResponse { cell_data }))
+}
+
+#[post("/get_vertical_cells", format = "json", data = "<_request>")]
+async fn get_vertical_cells(
+    state: &State<SharedState>,
+    _request: Json<GetVerticalCellsRequest>,
+) -> Result<Json<GetVerticalCellsResponse>, Custom<String>> {
+    let post_data = {
+        let app_state = state.lock().await;
+
+        let coord = app_state.user.batched_pk_encrypt(chain![
+            to_le_bits(app_state.player_coord.x),
+            to_le_bits(app_state.player_coord.y)
+        ]);
+
+        proxy::GetVerticalCellsRequest {
+            player_id: app_state.user.user_id(),
+            coord,
+        }
+    };
+
+    let proxy::GetVerticalCellsResponse { cell_data } =
+        proxy::proxy("/get_vertical_cells", post_data).await?.0;
+
+    let dec_shares = get_dec_shares(&cell_data).await?;
+    let mut bits = state
+        .lock()
+        .await
+        .decrypt(&cell_data, dec_shares)
+        .into_iter();
+    let cell_data = [
+        cell_try_from_le_bits(&mut bits)?,
+        cell_try_from_le_bits(&mut bits)?,
+        cell_try_from_le_bits(&mut bits)?,
+        cell_try_from_le_bits(&mut bits)?,
+        cell_try_from_le_bits(&mut bits)?,
+    ];
+
+    Ok(Json(GetVerticalCellsResponse { cell_data }))
+}
+
+#[post("/get_horizontal_cells", format = "json", data = "<_request>")]
+async fn get_horizontal_cells(
+    state: &State<SharedState>,
+    _request: Json<GetHorizontalCellsRequest>,
+) -> Result<Json<GetHorizontalCellsResponse>, Custom<String>> {
+    let post_data = {
+        let app_state = state.lock().await;
+
+        let coord = app_state.user.batched_pk_encrypt(chain![
+            to_le_bits(app_state.player_coord.x),
+            to_le_bits(app_state.player_coord.y)
+        ]);
+
+        proxy::GetHorizontalCellsRequest {
+            player_id: app_state.user.user_id(),
+            coord,
+        }
+    };
+
+    let proxy::GetHorizontalCellsResponse { cell_data } =
+        proxy::proxy("/get_horizontal_cells", post_data).await?.0;
+
+    let dec_shares = get_dec_shares(&cell_data).await?;
+    let mut bits = state
+        .lock()
+        .await
+        .decrypt(&cell_data, dec_shares)
+        .into_iter();
+    let cell_data = [
+        cell_try_from_le_bits(&mut bits)?,
+        cell_try_from_le_bits(&mut bits)?,
+        cell_try_from_le_bits(&mut bits)?,
+        cell_try_from_le_bits(&mut bits)?,
+        cell_try_from_le_bits(&mut bits)?,
+    ];
+
+    Ok(Json(GetHorizontalCellsResponse { cell_data }))
 }
 
 #[post("/get_player", format = "json", data = "<_request>")]
@@ -299,6 +493,8 @@ async fn get_player(
         atk: try_from_le_bits::<8>(&mut bits)?,
     };
 
+    state.lock().await.player_coord = player_data.loc;
+
     Ok(Json(GetPlayerResponse { player_data }))
 }
 
@@ -330,15 +526,14 @@ async fn queue_move(
 
     let my_new_coords = if let Some(my_new_coords) = my_new_coords {
         let dec_shares = get_dec_shares(&my_new_coords).await?;
-        let mut bits = state
-            .lock()
-            .await
-            .decrypt(&my_new_coords, dec_shares)
-            .into_iter();
-        Some(Coord {
+        let mut app_state = state.lock().await;
+        let mut bits = app_state.decrypt(&my_new_coords, dec_shares).into_iter();
+        let coord = Coord {
             x: try_from_le_bits::<8>(&mut bits)?,
             y: try_from_le_bits::<8>(&mut bits)?,
-        })
+        };
+        app_state.player_coord = coord;
+        Some(coord)
     } else {
         None
     };
@@ -496,6 +691,10 @@ async fn main() -> Result<(), rocket::Error> {
             routes![
                 queue_move,
                 get_cells,
+                get_five_cells,
+                get_cross_cells,
+                get_vertical_cells,
+                get_horizontal_cells,
                 get_player,
                 get_id,
                 set_id,

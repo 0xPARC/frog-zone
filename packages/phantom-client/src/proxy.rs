@@ -16,6 +16,49 @@ pub struct GetCellsResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct GetFiveCellsRequest {
+    pub player_id: usize,
+    pub coords: PhantomBatchedCt, // [EncryptedCoord; 5]
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GetFiveCellsResponse {
+    pub cell_data: PhantomPackedCt, // [CellEncryptedData; 5],
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GetCrossCellsRequest {
+    pub player_id: usize,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GetCrossCellsResponse {
+    pub cell_data: PhantomPackedCt, // [CellEncryptedData; 5],
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GetVerticalCellsRequest {
+    pub player_id: usize,
+    pub coord: PhantomBatchedCt, // EncryptedCoord
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GetVerticalCellsResponse {
+    pub cell_data: PhantomPackedCt, // [CellEncryptedData; 5],
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GetHorizontalCellsRequest {
+    pub player_id: usize,
+    pub coord: PhantomBatchedCt, // EncryptedCoord
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GetHorizontalCellsResponse {
+    pub cell_data: PhantomPackedCt, // [CellEncryptedData; 5],
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct GetPlayerRequest {
     pub player_id: usize,
 }

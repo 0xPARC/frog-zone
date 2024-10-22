@@ -67,6 +67,49 @@ struct GetCellsResponse {
 }
 
 #[derive(Deserialize)]
+struct GetFiveCellsRequest {
+    player_id: usize,
+    coords: PhantomBatchedCt, // [EncryptedCoord; 5]
+}
+
+#[derive(Serialize, Clone)]
+struct GetFiveCellsResponse {
+    cell_data: PhantomPackedCt, // [CellEncryptedData; 5],
+}
+
+#[derive(Deserialize)]
+struct GetCrossCellsRequest {
+    player_id: usize,
+}
+
+#[derive(Serialize, Clone)]
+struct GetCrossCellsResponse {
+    cell_data: PhantomPackedCt, // [CellEncryptedData; 5],
+}
+
+#[derive(Deserialize)]
+struct GetVerticalCellsRequest {
+    player_id: usize,
+    coord: PhantomBatchedCt, // EncryptedCoord
+}
+
+#[derive(Serialize, Clone)]
+struct GetVerticalCellsResponse {
+    cell_data: PhantomPackedCt, // [CellEncryptedData; 5],
+}
+
+#[derive(Deserialize)]
+struct GetHorizontalCellsRequest {
+    player_id: usize,
+    coord: PhantomBatchedCt, // EncryptedCoord
+}
+
+#[derive(Serialize, Clone)]
+struct GetHorizontalCellsResponse {
+    cell_data: PhantomPackedCt, // [CellEncryptedData; 5],
+}
+
+#[derive(Deserialize)]
 struct GetPlayerRequest {
     player_id: usize,
 }
@@ -171,12 +214,120 @@ async fn get_cells(
             .pack(cells.iter().flat_map(|cell| cell.cts()))
     };
 
-    let len = request.coords.n() / 16;
-    time::sleep(Duration::from_millis(GET_CELL_TIME_MILLIS * (len as u64))).await;
-
     info!("processed /get_cells request");
 
     Ok(Json(GetCellsResponse { cell_data }))
+}
+
+#[post("/get_five_cells", format = "json", data = "<request>")]
+async fn get_five_cells(
+    state: &State<SharedState>,
+    request: Json<GetFiveCellsRequest>,
+) -> Result<Json<GetFiveCellsResponse>, Custom<String>> {
+    let cell_data = {
+        let game_state = state.lock().await;
+        let zone = game_state.zone()?;
+
+        let bits = game_state.evaluator.unbatch(&request.coords);
+        if bits.len() != 5 * 16 {
+            return Err(bad_request("invalid coordinates"));
+        }
+        let mut bits = bits.into_iter();
+        let coords = from_fn(|_| EncryptedCoord {
+            x: from_fn(|_| bits.next().unwrap()),
+            y: from_fn(|_| bits.next().unwrap()),
+        });
+        let cells = zone.get_five_cells(request.player_id, coords);
+
+        game_state
+            .evaluator
+            .pack(cells.iter().flat_map(|cell| cell.cts()))
+    };
+
+    info!("processed /get_five_cells request");
+
+    Ok(Json(GetFiveCellsResponse { cell_data }))
+}
+
+#[post("/get_cross_cells", format = "json", data = "<request>")]
+async fn get_cross_cells(
+    state: &State<SharedState>,
+    request: Json<GetCrossCellsRequest>,
+) -> Result<Json<GetCrossCellsResponse>, Custom<String>> {
+    let cell_data = {
+        let game_state = state.lock().await;
+        let zone = game_state.zone()?;
+
+        let cells = zone.get_cross_cells(request.player_id);
+
+        game_state
+            .evaluator
+            .pack(cells.iter().flat_map(|cell| cell.cts()))
+    };
+
+    info!("processed /get_cross_cells request");
+
+    Ok(Json(GetCrossCellsResponse { cell_data }))
+}
+
+#[post("/get_vertical_cells", format = "json", data = "<request>")]
+async fn get_vertical_cells(
+    state: &State<SharedState>,
+    request: Json<GetVerticalCellsRequest>,
+) -> Result<Json<GetVerticalCellsResponse>, Custom<String>> {
+    let cell_data = {
+        let game_state = state.lock().await;
+        let zone = game_state.zone()?;
+
+        let bits = game_state.evaluator.unbatch(&request.coord);
+        if bits.len() != 16 {
+            return Err(bad_request("invalid coordinate"));
+        }
+        let mut bits = bits.into_iter();
+        let coord = EncryptedCoord {
+            x: from_fn(|_| bits.next().unwrap()),
+            y: from_fn(|_| bits.next().unwrap()),
+        };
+        let cells = zone.get_vertical_cells(request.player_id, coord);
+
+        game_state
+            .evaluator
+            .pack(cells.iter().flat_map(|cell| cell.cts()))
+    };
+
+    info!("processed /get_vertical_cells request");
+
+    Ok(Json(GetVerticalCellsResponse { cell_data }))
+}
+
+#[post("/get_horizontal_cells", format = "json", data = "<request>")]
+async fn get_horizontal_cells(
+    state: &State<SharedState>,
+    request: Json<GetHorizontalCellsRequest>,
+) -> Result<Json<GetHorizontalCellsResponse>, Custom<String>> {
+    let cell_data = {
+        let game_state = state.lock().await;
+        let zone = game_state.zone()?;
+
+        let bits = game_state.evaluator.unbatch(&request.coord);
+        if bits.len() != 16 {
+            return Err(bad_request("invalid coordinate"));
+        }
+        let mut bits = bits.into_iter();
+        let coord = EncryptedCoord {
+            x: from_fn(|_| bits.next().unwrap()),
+            y: from_fn(|_| bits.next().unwrap()),
+        };
+        let cells = zone.get_horizontal_cells(request.player_id, coord);
+
+        game_state
+            .evaluator
+            .pack(cells.iter().flat_map(|cell| cell.cts()))
+    };
+
+    info!("processed /get_horizontal_cells request");
+
+    Ok(Json(GetHorizontalCellsResponse { cell_data }))
 }
 
 #[post("/get_player", format = "json", data = "<request>")]
@@ -191,8 +342,6 @@ async fn get_player(
             .evaluator
             .pack(zone.get_player(request.player_id).cts())
     };
-
-    time::sleep(Duration::from_millis(GET_PLAYER_TIME_MILLIS)).await;
 
     info!("processed /get_player request");
 
@@ -376,7 +525,18 @@ async fn rocket() -> _ {
     .manage(shared_state.clone())
     .mount(
         "/",
-        routes![queue_move, get_cells, get_player, submit_r1, get_pk, submit_r2,],
+        routes![
+            queue_move,
+            get_cells,
+            get_five_cells,
+            get_cross_cells,
+            get_vertical_cells,
+            get_horizontal_cells,
+            get_player,
+            submit_r1,
+            get_pk,
+            submit_r2,
+        ],
     )
     .attach(make_cors())
 }
