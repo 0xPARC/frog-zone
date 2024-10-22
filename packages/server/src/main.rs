@@ -34,7 +34,7 @@ struct GameState {
     move_queue: VecDeque<(usize, EncryptedDirection, Arc<Notify>)>,
     player_last_move_time: [u64; 4],
     // Phantom
-    evaluator: Arc<PhantomEvaluator>,
+    evaluator: PhantomEvaluator,
     player_round_1_key: [Option<PhantomRound1Key>; 4],
     player_round_2_key: [Option<PhantomRound2Key>; 4],
 }
@@ -450,7 +450,7 @@ async fn submit_r1(
             .flatten()
             .cloned()
             .collect();
-        Arc::make_mut(&mut game_state.evaluator).aggregate_round_1_keys(&round_1_keys);
+        game_state.evaluator.aggregate_round_1_keys(&round_1_keys);
     }
 
     Json(SubmitRound1KeyResponse {})
@@ -483,8 +483,8 @@ async fn submit_r2(
             .flatten()
             .cloned()
             .collect();
-        Arc::make_mut(&mut game_state.evaluator).aggregate_round_2_keys(&round_2_keys);
-        game_state.zone = Some(zone::Zone::new(64, 64, &game_state.evaluator));
+        game_state.evaluator.aggregate_round_2_keys(&round_2_keys);
+        game_state.zone = Some(Zone::new(64, 64, &game_state.evaluator));
     }
 
     Json(SubmitRound2KeyResponse {})
@@ -509,7 +509,7 @@ async fn rocket() -> _ {
         zone: None, // 64x64 zone, will be initialized when keygen is finished.
         move_queue: VecDeque::new(),
         player_last_move_time: [0, 0, 0, 0],
-        evaluator: Arc::new(PhantomEvaluator::new(PhantomParam::I_4P_60)),
+        evaluator: PhantomEvaluator::new(PhantomParam::I_4P_60),
         player_round_1_key: [None, None, None, None],
         player_round_2_key: [None, None, None, None],
     }));

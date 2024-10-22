@@ -448,7 +448,7 @@ fn fhe_get_horizontal_cells(
     output
 }
 
-fn pk_encrypt<const N: usize>(evaluator: &Arc<PhantomEvaluator>, value: u8) -> [EncryptedBool; N] {
+fn pk_encrypt<const N: usize>(evaluator: &PhantomEvaluator, value: u8) -> [EncryptedBool; N] {
     evaluator
         .unbatch(&evaluator.batched_pk_encrypt((0..N).map(|i| (value >> i) & 1 == 1)))
         .try_into()
@@ -456,7 +456,7 @@ fn pk_encrypt<const N: usize>(evaluator: &Arc<PhantomEvaluator>, value: u8) -> [
 }
 
 impl Zone {
-    pub fn new(width: u8, height: u8, evaluator: &Arc<PhantomEvaluator>) -> Self {
+    pub fn new(width: u8, height: u8, evaluator: &PhantomEvaluator) -> Self {
         let players = [
             Player {
                 id: 0,
