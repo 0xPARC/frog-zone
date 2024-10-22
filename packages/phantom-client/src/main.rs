@@ -31,9 +31,16 @@ static PORT: LazyLock<u16> = LazyLock::new(|| {
 static PLAYER_ID: LazyLock<usize> =
     LazyLock::new(|| env::args().nth(2).and_then(|p| p.parse().ok()).unwrap_or(0));
 
-static OTHER_PLAYER_URIS: LazyLock<[String; 3]> = LazyLock::new(|| {
+static SERVER_URI: LazyLock<String> = LazyLock::new(|| {
     env::args()
         .nth(3)
+        .map(|p| p.to_string())
+        .unwrap_or_else(|| panic!("missing server's uri"))
+});
+
+static OTHER_PLAYER_URIS: LazyLock<[String; 3]> = LazyLock::new(|| {
+    env::args()
+        .nth(4)
         .and_then(|p| {
             let mut p = p.split(",");
             Some([
@@ -296,7 +303,8 @@ async fn get_cells(
         }
     };
 
-    let proxy::GetCellsResponse { cell_data } = proxy::proxy("/get_cells", post_data).await?.0;
+    let proxy::GetCellsResponse { cell_data } =
+        proxy::proxy(&*SERVER_URI, "/get_cells", post_data).await?.0;
 
     let dec_shares = get_dec_shares(&cell_data).await?;
     let mut bits = state
@@ -333,7 +341,9 @@ async fn get_five_cells(
     };
 
     let proxy::GetFiveCellsResponse { cell_data } =
-        proxy::proxy("/get_five_cells", post_data).await?.0;
+        proxy::proxy(&*SERVER_URI, "/get_five_cells", post_data)
+            .await?
+            .0;
 
     let dec_shares = get_dec_shares(&cell_data).await?;
     let mut bits = state
@@ -366,7 +376,9 @@ async fn get_cross_cells(
     };
 
     let proxy::GetCrossCellsResponse { cell_data } =
-        proxy::proxy("/get_cross_cells", post_data).await?.0;
+        proxy::proxy(&*SERVER_URI, "/get_cross_cells", post_data)
+            .await?
+            .0;
 
     let dec_shares = get_dec_shares(&cell_data).await?;
     let mut bits = state
@@ -405,7 +417,9 @@ async fn get_vertical_cells(
     };
 
     let proxy::GetVerticalCellsResponse { cell_data } =
-        proxy::proxy("/get_vertical_cells", post_data).await?.0;
+        proxy::proxy(&*SERVER_URI, "/get_vertical_cells", post_data)
+            .await?
+            .0;
 
     let dec_shares = get_dec_shares(&cell_data).await?;
     let mut bits = state
@@ -444,7 +458,9 @@ async fn get_horizontal_cells(
     };
 
     let proxy::GetHorizontalCellsResponse { cell_data } =
-        proxy::proxy("/get_horizontal_cells", post_data).await?.0;
+        proxy::proxy(&*SERVER_URI, "/get_horizontal_cells", post_data)
+            .await?
+            .0;
 
     let dec_shares = get_dec_shares(&cell_data).await?;
     let mut bits = state
@@ -476,7 +492,10 @@ async fn get_player(
         }
     };
 
-    let proxy::GetPlayerResponse { player_data } = proxy::proxy("/get_player", post_data).await?.0;
+    let proxy::GetPlayerResponse { player_data } =
+        proxy::proxy(&*SERVER_URI, "/get_player", post_data)
+            .await?
+            .0;
 
     let dec_shares = get_dec_shares(&player_data).await?;
     let mut bits = state
@@ -522,7 +541,7 @@ async fn queue_move(
     let proxy::MoveResponse {
         my_new_coords,
         rate_limited,
-    } = proxy::proxy("/move", post_data).await?.0;
+    } = proxy::proxy(&*SERVER_URI, "/move", post_data).await?.0;
 
     let my_new_coords = if let Some(my_new_coords) = my_new_coords {
         let dec_shares = get_dec_shares(&my_new_coords).await?;
@@ -578,7 +597,8 @@ async fn submit_r1(
         key: app_state.user.round_1_key_gen(),
     };
 
-    let _: Json<proxy::SubmitRound1KeyResponse> = proxy::proxy("/submit_r1", post_data).await?;
+    let _: Json<proxy::SubmitRound1KeyResponse> =
+        proxy::proxy(&*SERVER_URI, "/submit_r1", post_data).await?;
 
     Ok(Json(SubmitRound1KeyResponse {}))
 }
@@ -590,7 +610,10 @@ async fn get_pk(
 ) -> Result<Json<GetPkResponse>, Custom<String>> {
     let mut app_state = state.lock().await;
 
-    let response: proxy::GetPkResponse = proxy::proxy("/get_pk", proxy::GetPkRequest {}).await?.0;
+    let response: proxy::GetPkResponse =
+        proxy::proxy(&*SERVER_URI, "/get_pk", proxy::GetPkRequest {})
+            .await?
+            .0;
     app_state.user.set_pk(response.pk.clone());
 
     Ok(Json(GetPkResponse {}))
@@ -612,7 +635,8 @@ async fn submit_r2(
         key: app_state.user.round_2_key_gen(),
     };
 
-    let _: Json<proxy::SubmitRound2KeyResponse> = proxy::proxy("/submit_r2", post_data).await?;
+    let _: Json<proxy::SubmitRound2KeyResponse> =
+        proxy::proxy(&*SERVER_URI, "/submit_r2", post_data).await?;
 
     Ok(Json(SubmitRound2KeyResponse {}))
 }

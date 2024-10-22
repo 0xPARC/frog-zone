@@ -1,7 +1,6 @@
 use core::array::from_fn;
 use itertools::{chain, Itertools};
-use phantom::{PhantomBool, PhantomEvaluator};
-use std::sync::Arc;
+use phantom::{PhantomBool, PhantomCt, PhantomEvaluator};
 
 const NUM_ITEMS: usize = 16;
 
@@ -28,6 +27,20 @@ impl EncryptedCoord {
     pub fn bits(&self) -> impl Iterator<Item = &PhantomBool> {
         chain![&self.x, &self.y]
     }
+
+    pub fn cts(&self) -> impl Iterator<Item = &PhantomCt> {
+        self.bits().map(|bit| bit.ct())
+    }
+
+    pub fn from_cts(
+        cts: &mut impl Iterator<Item = PhantomCt>,
+        evaluator: &PhantomEvaluator,
+    ) -> Self {
+        Self {
+            x: from_fn(|_| evaluator.wrap(cts.next().unwrap())),
+            y: from_fn(|_| evaluator.wrap(cts.next().unwrap())),
+        }
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -41,6 +54,21 @@ impl PlayerEncryptedData {
     /// Returns concatenation of each field as bits in little-endian.
     pub fn bits(&self) -> impl Iterator<Item = &PhantomBool> {
         chain![self.loc.bits(), &self.hp, &self.atk]
+    }
+
+    pub fn cts(&self) -> impl Iterator<Item = &PhantomCt> {
+        self.bits().map(|bit| bit.ct())
+    }
+
+    pub fn from_cts(
+        cts: &mut impl Iterator<Item = PhantomCt>,
+        evaluator: &PhantomEvaluator,
+    ) -> Self {
+        Self {
+            loc: EncryptedCoord::from_cts(cts, evaluator),
+            hp: from_fn(|_| evaluator.wrap(cts.next().unwrap())),
+            atk: from_fn(|_| evaluator.wrap(cts.next().unwrap())),
+        }
     }
 }
 
@@ -61,6 +89,10 @@ impl PlayerWithEncryptedId {
     pub fn bits(&self) -> impl Iterator<Item = &PhantomBool> {
         chain![&self.id, self.data.bits()]
     }
+
+    pub fn cts(&self) -> impl Iterator<Item = &PhantomCt> {
+        self.bits().map(|bit| bit.ct())
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -75,6 +107,22 @@ impl ItemEncryptedData {
     /// Returns concatenation of each field as bits in little-endian.
     pub fn bits(&self) -> impl Iterator<Item = &PhantomBool> {
         chain![self.loc.bits(), &self.hp, &self.atk, [&self.is_consumed]]
+    }
+
+    pub fn cts(&self) -> impl Iterator<Item = &PhantomCt> {
+        self.bits().map(|bit| bit.ct())
+    }
+
+    pub fn from_cts(
+        cts: &mut impl Iterator<Item = PhantomCt>,
+        evaluator: &PhantomEvaluator,
+    ) -> Self {
+        Self {
+            loc: EncryptedCoord::from_cts(cts, evaluator),
+            hp: from_fn(|_| evaluator.wrap(cts.next().unwrap())),
+            atk: from_fn(|_| evaluator.wrap(cts.next().unwrap())),
+            is_consumed: evaluator.wrap(cts.next().unwrap()),
+        }
     }
 }
 
@@ -94,6 +142,10 @@ impl ItemWithEncryptedId {
     /// Returns concatenation of each field as bits in little-endian.
     pub fn bits(&self) -> impl Iterator<Item = &PhantomBool> {
         chain![&self.id, self.data.bits()]
+    }
+
+    pub fn cts(&self) -> impl Iterator<Item = &PhantomCt> {
+        self.bits().map(|bit| bit.ct())
     }
 }
 
@@ -124,6 +176,10 @@ impl CellEncryptedData {
     /// Returns concatenation of each field as bits in little-endian.
     pub fn bits(&self) -> impl Iterator<Item = &PhantomBool> {
         chain![&self.entity_type, &self.entity_id, &self.hp, &self.atk]
+    }
+
+    pub fn cts(&self) -> impl Iterator<Item = &PhantomCt> {
+        self.bits().map(|bit| bit.ct())
     }
 }
 
@@ -693,4 +749,71 @@ impl Zone {
             self.fully_encrypted_players(),
         )
     }
+
+    // For syncing with workers
+
+    pub fn cts(&self) -> Vec<PhantomCt> {
+        chain![
+            self.players.iter().flat_map(|player| player.data.cts()),
+            self.items.iter().flat_map(|item| item.data.cts()),
+            self.obstacles.iter().flat_map(|obstacle| obstacle.cts())
+        ]
+        .cloned()
+        .collect()
+    }
+
+    pub fn from_cts(
+        width: u8,
+        height: u8,
+        cts: Vec<PhantomCt>,
+        evaluator: &PhantomEvaluator,
+    ) -> Self {
+        let mut cts = cts.into_iter();
+        Zone {
+            width,
+            height,
+            players: from_fn(|id| Player {
+                id,
+                data: PlayerEncryptedData::from_cts(&mut cts, evaluator),
+            }),
+            items: from_fn(|id| Item {
+                id,
+                data: ItemEncryptedData::from_cts(&mut cts, evaluator),
+            }),
+            obstacles: from_fn(|_| EncryptedCoord::from_cts(&mut cts, evaluator)),
+            precomputed_ids: from_fn(|id| pk_encrypt(evaluator, id as _)),
+        }
+    }
+
+    pub fn cts_diff(&self, flags: [bool; 4]) -> ZoneDiff {
+        (
+            from_fn(|id| flags[id].then(|| self.players[id].data.cts().cloned().collect())),
+            self.items
+                .iter()
+                .flat_map(|item| item.data.cts())
+                .cloned()
+                .collect(),
+        )
+    }
+
+    pub fn apply_diff(&mut self, (players, items): ZoneDiff, evaluator: &PhantomEvaluator) {
+        for (id, player) in players.into_iter().enumerate() {
+            if let Some(player) = player {
+                self.players[id] = Player {
+                    id,
+                    data: PlayerEncryptedData::from_cts(&mut player.into_iter(), evaluator),
+                };
+            }
+        }
+        let mut items = items.into_iter();
+        self.items = from_fn(|id| Item {
+            id,
+            data: ItemEncryptedData::from_cts(&mut items, evaluator),
+        })
+    }
 }
+
+/// Diff of `players` and concatenation of `items` bits after some
+/// `Zone::move_player`, used to sync with workers. If player is not updated
+/// during the time, `players[id]` will be `None`.
+pub type ZoneDiff = ([Option<Vec<PhantomCt>>; 4], Vec<PhantomCt>);
