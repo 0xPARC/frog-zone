@@ -39,6 +39,8 @@ function App() {
 						allowForceStart={
 							gameMachines.length >= MIN_PLAYERS_TO_FORCE_START
 						}
+						minPlayers={MIN_PLAYERS}
+						numPlayers={gameMachines.length}
 					/>
 				)}
 			{gameId && gameStatus === "completed" && <GameFinishedOverlay />}

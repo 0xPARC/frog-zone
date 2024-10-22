@@ -3,17 +3,24 @@ import ForceStartButton from "./ForceStartButton";
 
 type WaitingForPlayersOverlayProps = {
 	allowForceStart: boolean;
+	numPlayers: number;
+	minPlayers: number;
 };
 
 export const WaitingForPlayersOverlay: React.FC<
 	WaitingForPlayersOverlayProps
-> = ({ allowForceStart }: WaitingForPlayersOverlayProps) => {
+> = ({
+	allowForceStart,
+	numPlayers,
+	minPlayers,
+}: WaitingForPlayersOverlayProps) => {
 	return (
 		<div style={styles.overlay}>
 			<div>
 				<h1>Waiting for other players...</h1>
+				<p>Please wait for other players to join the game.</p>
 				<p>
-					Please wait for other players to sign into to the machines
+					So far we have {numPlayers} out of {minPlayers} players.
 				</p>
 			</div>
 			<div>{allowForceStart && <ForceStartButton />}</div>
