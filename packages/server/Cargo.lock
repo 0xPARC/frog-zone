@@ -875,7 +875,7 @@ dependencies = [
 [[package]]
 name = "phantom-benchs"
 version = "0.1.0"
-source = "git+https://github.com/ed255/phantom-benchs?branch=feature/export-circuit-as-lib#04e2de0dcb08f32dafe0fefb3fa9a0377f1751ce"
+source = "git+https://github.com/ed255/phantom-benchs?branch=feat/frog-bench-rewrite#0647b8390eb10f5fc1004d9309001cf14ce5eddb"
 dependencies = [
  "bincode",
  "itertools",

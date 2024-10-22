@@ -12,4 +12,4 @@ tracing = "0.1.40"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 itertools = "0.13.0"
 phantom = { path = "../phantom" }
-phantom-benchs = { git = "https://github.com/ed255/phantom-benchs", branch = "feature/export-circuit-as-lib" }
+phantom-benchs = { git = "https://github.com/ed255/phantom-benchs", branch = "feat/frog-bench-rewrite" }
