@@ -1,4 +1,3 @@
-mod zone;
 use itertools::Itertools;
 use phantom::{
     PhantomBatchedCt, PhantomEvaluator, PhantomPackedCt, PhantomParam, PhantomPk, PhantomRound1Key,
@@ -10,13 +9,13 @@ use rocket::response::status::{Custom, NotFound};
 use rocket::serde::{json::Json, Deserialize, Serialize};
 use rocket::{Config, State};
 use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors, CorsOptions};
+use server::zone::{EncryptedCoord, EncryptedDirection, Zone};
 use std::array::from_fn;
 use std::collections::VecDeque;
 use std::sync::Arc;
 use tokio::sync::{Mutex, Notify};
 use tracing::info;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
-use zone::{EncryptedCoord, EncryptedDirection, Zone};
 
 use std::time::Duration;
 use tokio::time;
