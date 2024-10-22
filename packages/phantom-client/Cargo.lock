@@ -1065,6 +1065,7 @@ dependencies = [
 name = "phantom-client"
 version = "0.1.0"
 dependencies = [
+ "itertools",
  "phantom",
  "rand",
  "reqwest",
@@ -1079,7 +1080,7 @@ dependencies = [
 [[package]]
 name = "phantom-zone-crypto"
 version = "0.1.0"
-source = "git+https://github.com/gausslabs/phantom-zone?branch=rewrite#67c89a3ef6051112600378133bad7117e476b628"
+source = "git+https://github.com/gausslabs/phantom-zone?branch=rewrite#7cfd1d877c3bb360af25bc9daa957d396beaf44f"
 dependencies = [
  "itertools",
  "num-traits",
@@ -1092,7 +1093,7 @@ dependencies = [
 [[package]]
 name = "phantom-zone-derive"
 version = "0.1.0"
-source = "git+https://github.com/gausslabs/phantom-zone?branch=rewrite#67c89a3ef6051112600378133bad7117e476b628"
+source = "git+https://github.com/gausslabs/phantom-zone?branch=rewrite#7cfd1d877c3bb360af25bc9daa957d396beaf44f"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1102,7 +1103,7 @@ dependencies = [
 [[package]]
 name = "phantom-zone-evaluator"
 version = "0.1.0"
-source = "git+https://github.com/gausslabs/phantom-zone?branch=rewrite#67c89a3ef6051112600378133bad7117e476b628"
+source = "git+https://github.com/gausslabs/phantom-zone?branch=rewrite#7cfd1d877c3bb360af25bc9daa957d396beaf44f"
 dependencies = [
  "auto_impl",
  "itertools",
@@ -1117,7 +1118,7 @@ dependencies = [
 [[package]]
 name = "phantom-zone-math"
 version = "0.1.0"
-source = "git+https://github.com/gausslabs/phantom-zone?branch=rewrite#67c89a3ef6051112600378133bad7117e476b628"
+source = "git+https://github.com/gausslabs/phantom-zone?branch=rewrite#7cfd1d877c3bb360af25bc9daa957d396beaf44f"
 dependencies = [
  "itertools",
  "num-bigint-dig",

@@ -1,6 +1,9 @@
 use core::array::from_fn;
+use itertools::{chain, Itertools};
 use phantom::{PhantomBool, PhantomEvaluator};
 use std::sync::Arc;
+
+const NUM_ITEMS: usize = 16;
 
 /// Encrypted [`bool`]
 pub type EncryptedBool = PhantomBool;
@@ -20,11 +23,23 @@ pub struct EncryptedCoord {
     pub y: EncryptedU8,
 }
 
+impl EncryptedCoord {
+    pub fn cts(&self) -> impl Iterator<Item = &PhantomBool> {
+        chain![&self.x, &self.y]
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct PlayerEncryptedData {
     pub loc: EncryptedCoord,
     pub hp: EncryptedU8,
     pub atk: EncryptedU8,
+}
+
+impl PlayerEncryptedData {
+    pub fn cts(&self) -> impl Iterator<Item = &PhantomBool> {
+        chain![self.loc.cts(), &self.hp, &self.atk]
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -45,6 +60,12 @@ pub struct ItemEncryptedData {
     pub hp: EncryptedU8,
     pub atk: EncryptedU8,
     pub is_consumed: EncryptedBool,
+}
+
+impl ItemEncryptedData {
+    pub fn cts(&self) -> impl Iterator<Item = &PhantomBool> {
+        chain![self.loc.cts(), &self.hp, &self.atk, [&self.is_consumed]]
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -82,6 +103,12 @@ pub struct CellEncryptedData {
     pub atk: EncryptedU8,
 }
 
+impl CellEncryptedData {
+    pub fn cts(&self) -> impl Iterator<Item = &PhantomBool> {
+        chain![&self.entity_type, &self.entity_id, &self.hp, &self.atk]
+    }
+}
+
 #[derive(Clone, Debug)]
 pub enum Direction {
     Up,
@@ -95,7 +122,7 @@ pub struct Zone {
     pub width: u8,
     pub height: u8,
     pub players: [Player; 4],
-    pub items: [Item; 2],
+    pub items: [Item; NUM_ITEMS],
     pub obstacles: [EncryptedCoord; 96],
     pub precomputed_ids: [EncryptedU8; 20],
 }
@@ -169,30 +196,49 @@ pub fn fhe_apply_move(
     height: u8,
     width: u8,
     obstacles: [EncryptedCoord; 100],
-    items: [ItemEncryptedData; 2],
-) -> (PlayerEncryptedData, [ItemEncryptedData; 2]) {
-    todo!()
-    // let new_coords =
-    //     fhe_apply_move_check_collisions(player_data.loc, direction, height, width, obstacles);
-
-    // let mut new_player_data = player_data;
-    // new_player_data.loc = new_coords;
-    // let mut new_item_data = items;
-
-    // for (idx, item) in items.iter().enumerate() {
-    //     if new_coords == item.loc && !item.is_consumed.val {
-    //         new_item_data[idx].is_consumed.val = true;
-    //         new_player_data.atk.val += new_item_data[idx].atk.val;
-    //         new_player_data.hp.val += new_item_data[idx].hp.val;
-    //     }
-    // }
-
-    // (new_player_data, new_item_data)
+    items: [ItemEncryptedData; NUM_ITEMS],
+) -> (PlayerEncryptedData, [ItemEncryptedData; NUM_ITEMS]) {
+    let mut output_bits = phantom_benchs::frogzone_apply_move_rs_fhe_lib::apply_move(
+        &direction.to_vec(),
+        &items
+            .iter()
+            .flat_map(|item| item.cts())
+            .cloned()
+            .collect_vec(),
+        &obstacles
+            .iter()
+            .flat_map(|obstacle| obstacle.cts())
+            .cloned()
+            .collect_vec(),
+        &player_data.cts().cloned().collect_vec(),
+    )
+    .into_iter();
+    let output = (
+        PlayerEncryptedData {
+            loc: EncryptedCoord {
+                x: from_fn(|_| output_bits.next().unwrap()),
+                y: from_fn(|_| output_bits.next().unwrap()),
+            },
+            hp: from_fn(|_| output_bits.next().unwrap()),
+            atk: from_fn(|_| output_bits.next().unwrap()),
+        },
+        from_fn(|_| ItemEncryptedData {
+            loc: EncryptedCoord {
+                x: from_fn(|_| output_bits.next().unwrap()),
+                y: from_fn(|_| output_bits.next().unwrap()),
+            },
+            hp: from_fn(|_| output_bits.next().unwrap()),
+            atk: from_fn(|_| output_bits.next().unwrap()),
+            is_consumed: output_bits.next().unwrap(),
+        }),
+    );
+    assert!(output_bits.next().is_none());
+    output
 }
 
 fn fhe_get_cell_no_check(
     coord: EncryptedCoord,
-    items: [ItemWithEncryptedId; 2],
+    items: [ItemWithEncryptedId; NUM_ITEMS],
     players: [PlayerWithEncryptedId; 4],
 ) -> CellEncryptedData {
     todo!()
@@ -234,7 +280,7 @@ fn fhe_get_cell_no_check(
 fn fhe_get_cell(
     player_coord: EncryptedCoord,
     query_coord: EncryptedCoord,
-    items: [ItemWithEncryptedId; 2],
+    items: [ItemWithEncryptedId; NUM_ITEMS],
     players: [PlayerWithEncryptedId; 4],
 ) -> CellEncryptedData {
     todo!()
@@ -256,7 +302,7 @@ fn fhe_get_cell(
 fn fhe_get_five_cells(
     player_coord: EncryptedCoord,
     query_coords: [EncryptedCoord; 5],
-    items: [ItemWithEncryptedId; 2],
+    items: [ItemWithEncryptedId; NUM_ITEMS],
     players: [PlayerWithEncryptedId; 4],
 ) -> [CellEncryptedData; 5] {
     todo!()
@@ -283,7 +329,7 @@ fn fhe_get_five_cells(
 
 fn fhe_get_cross_cells(
     player_coord: EncryptedCoord,
-    items: [ItemWithEncryptedId; 2],
+    items: [ItemWithEncryptedId; NUM_ITEMS],
     players: [PlayerWithEncryptedId; 4],
 ) -> [CellEncryptedData; 5] {
     todo!()
@@ -327,7 +373,7 @@ fn fhe_get_cross_cells(
 fn fhe_get_vertical_cells(
     player_coord: EncryptedCoord,
     query_coord: EncryptedCoord,
-    items: [ItemWithEncryptedId; 2],
+    items: [ItemWithEncryptedId; NUM_ITEMS],
     players: [PlayerWithEncryptedId; 4],
 ) -> [CellEncryptedData; 5] {
     todo!()
@@ -382,7 +428,7 @@ fn fhe_get_vertical_cells(
 fn fhe_get_horizontal_cells(
     player_coord: EncryptedCoord,
     query_coord: EncryptedCoord,
-    items: [ItemWithEncryptedId; 2],
+    items: [ItemWithEncryptedId; NUM_ITEMS],
     players: [PlayerWithEncryptedId; 4],
 ) -> [CellEncryptedData; 5] {
     todo!()
@@ -490,32 +536,18 @@ impl Zone {
             },
         ];
 
-        let items = [
-            Item {
-                id: 0,
-                data: ItemEncryptedData {
-                    loc: EncryptedCoord {
-                        x: pk_encrypt(evaluator, 5),
-                        y: pk_encrypt(evaluator, 5),
-                    },
-                    hp: pk_encrypt(evaluator, 1),
-                    atk: pk_encrypt(evaluator, 1),
-                    is_consumed: pk_encrypt::<1>(evaluator, 0)[0].clone(),
+        let items = from_fn(|i| Item {
+            id: 0,
+            data: ItemEncryptedData {
+                loc: EncryptedCoord {
+                    x: pk_encrypt(evaluator, i as _),
+                    y: pk_encrypt(evaluator, i as _),
                 },
+                hp: pk_encrypt(evaluator, 1),
+                atk: pk_encrypt(evaluator, 1),
+                is_consumed: pk_encrypt::<1>(evaluator, 0)[0].clone(),
             },
-            Item {
-                id: 1,
-                data: ItemEncryptedData {
-                    loc: EncryptedCoord {
-                        x: pk_encrypt(evaluator, 15),
-                        y: pk_encrypt(evaluator, 15),
-                    },
-                    hp: pk_encrypt(evaluator, 1),
-                    atk: pk_encrypt(evaluator, 1),
-                    is_consumed: pk_encrypt::<1>(evaluator, 0)[0].clone(),
-                },
-            },
-        ];
+        });
 
         let filler_coord = EncryptedCoord {
             x: pk_encrypt(evaluator, 255),
@@ -565,51 +597,36 @@ impl Zone {
         player_id: usize,
         direction: EncryptedDirection,
     ) -> EncryptedCoord {
-        todo!()
-        // if player_id >= self.players.len() {
-        //     return EncryptedCoord {
-        //         x: Encrypted { val: 255 },
-        //         y: Encrypted { val: 255 },
-        //     };
-        // }
+        assert!(player_id < self.players.len());
 
-        // let player = self.players[player_id];
-        // let player_data = player.data;
+        let player_data = self.players[player_id].data.clone();
 
-        // let item_data = self.items.map(|i| i.data);
+        let item_data = self.items.each_ref().map(|i| i.data.clone());
 
-        // let filler_coord = EncryptedCoord {
-        //     x: Encrypted { val: 255 },
-        //     y: Encrypted { val: 255 },
-        // };
-        // let mut obstacles = [filler_coord; 100];
+        let obstacles: [_; 100] = from_fn(|i| {
+            if i < 96 {
+                self.obstacles[i].clone()
+            } else {
+                self.players[i - 96].data.loc.clone()
+            }
+        });
 
-        // let mut count = 0;
-        // for obstacle in self.obstacles {
-        //     obstacles[count] = obstacle;
-        //     count += 1;
-        // }
-        // for test_player in self.players {
-        //     obstacles[count] = test_player.data.loc;
-        //     count += 1;
-        // }
+        let (new_player_data, new_item_data) = fhe_apply_move(
+            player_data,
+            direction,
+            self.height,
+            self.width,
+            obstacles,
+            item_data,
+        );
 
-        // let (new_player_data, new_item_data) = fhe_apply_move(
-        //     player_data,
-        //     direction,
-        //     self.height,
-        //     self.width,
-        //     obstacles,
-        //     item_data,
-        // );
+        self.players[player_id].data = new_player_data;
 
-        // self.players[player_id].data = new_player_data;
+        for i in 0..self.items.len() {
+            self.items[i].data = new_item_data[i].clone();
+        }
 
-        // for i in 0..self.items.len() {
-        //     self.items[i].data = new_item_data[i];
-        // }
-
-        // return player.data.loc;
+        self.players[player_id].data.loc.clone()
     }
 
     fn fully_encrypted_players(&self) -> [PlayerWithEncryptedId; 4] {
@@ -622,7 +639,7 @@ impl Zone {
         })
     }
 
-    fn fully_encrypted_items(&self) -> [ItemWithEncryptedId; 2] {
+    fn fully_encrypted_items(&self) -> [ItemWithEncryptedId; NUM_ITEMS] {
         from_fn(|i| {
             let item = self.items[i].clone();
             ItemWithEncryptedId {

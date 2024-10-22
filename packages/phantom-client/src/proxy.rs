@@ -1,8 +1,41 @@
 use crate::{custom, internal_server_error};
 use core::fmt::Debug;
-use phantom::{PhantomPk, PhantomRound1Key, PhantomRound2Key};
+use phantom::{PhantomBatchedCt, PhantomPackedCt, PhantomPk, PhantomRound1Key, PhantomRound2Key};
 use rocket::{response::status::Custom, serde::json::Json};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GetCellsRequest {
+    pub player_id: usize,
+    pub coords: PhantomBatchedCt, // Vec<EncryptedCoord>
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GetCellsResponse {
+    pub cell_data: PhantomPackedCt, // Vec<CellEncryptedData>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GetPlayerRequest {
+    pub player_id: usize,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GetPlayerResponse {
+    pub player_data: PhantomPackedCt, // PlayerEncryptedData,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct MoveRequest {
+    pub player_id: usize,
+    pub direction: PhantomBatchedCt, // Encrypted<Direction>
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct MoveResponse {
+    pub my_new_coords: Option<PhantomPackedCt>, // EncryptedCoord
+    pub rate_limited: bool,
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SubmitRound1KeyRequest {

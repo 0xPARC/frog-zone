@@ -1,8 +1,11 @@
 mod proxy;
 
-use phantom::{PhantomParam, PhantomUser};
+use itertools::{chain, Itertools};
+use phantom::{PhantomPackedCt, PhantomPackedCtDecShare, PhantomParam, PhantomUser};
 use rand::{rngs::StdRng, Rng, SeedableRng};
 use reqwest::StatusCode;
+use rocket::futures::stream::FuturesUnordered;
+use rocket::futures::TryStreamExt;
 use rocket::http::{Method, Status};
 use rocket::response::status::Custom;
 use rocket::serde::{json::Json, Deserialize, Serialize};
@@ -10,12 +13,37 @@ use rocket::Config;
 use rocket::State;
 use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors, CorsOptions};
 use std::env;
-use std::sync::Arc;
+use std::iter::repeat_with;
+use std::sync::{Arc, LazyLock};
 use tokio::sync::Mutex;
 use tracing::info;
 
 #[macro_use]
 extern crate rocket;
+
+static PORT: LazyLock<u16> = LazyLock::new(|| {
+    env::args()
+        .nth(1)
+        .and_then(|p| p.parse().ok())
+        .unwrap_or(8000)
+});
+
+static PLAYER_ID: LazyLock<usize> =
+    LazyLock::new(|| env::args().nth(2).and_then(|p| p.parse().ok()).unwrap_or(0));
+
+static OTHER_PLAYER_URIS: LazyLock<[String; 3]> = LazyLock::new(|| {
+    env::args()
+        .nth(3)
+        .and_then(|p| {
+            let mut p = p.split(",");
+            Some([
+                p.next()?.to_string(),
+                p.next()?.to_string(),
+                p.next()?.to_string(),
+            ])
+        })
+        .unwrap_or_else(|| panic!("missing other 3 players' uris"))
+});
 
 struct AppState {
     user: PhantomUser,
@@ -27,9 +55,95 @@ impl AppState {
         let user = PhantomUser::new(PhantomParam::I_4P_60, player_id, seed);
         Self { user }
     }
+
+    fn decrypt(&self, ct: &PhantomPackedCt, dec_shares: [PhantomPackedCtDecShare; 3]) -> Vec<bool> {
+        self.user.aggregate_dec_shares(
+            ct,
+            chain![dec_shares, [self.user.decrypt_share(ct)]].collect(),
+        )
+    }
 }
 
 type SharedState = Arc<Mutex<AppState>>;
+
+fn to_le_bits(value: u8) -> impl Iterator<Item = bool> {
+    (0..8).map(move |i| (value >> i) & 1 == 1)
+}
+
+fn try_from_le_bits<const N: usize>(
+    bits: &mut impl Iterator<Item = bool>,
+) -> Result<u8, Custom<String>> {
+    (0..N)
+        .try_fold(0, |value, i| Some(value ^ ((bits.next()? as u8) << i)))
+        .ok_or(internal_server_error(""))
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Coord {
+    pub x: u8,
+    pub y: u8,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct PlayerData {
+    pub loc: Coord,
+    pub hp: u8,
+    pub atk: u8,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum EntityType {
+    None,
+    Player,
+    Item,
+    Monster,
+    Invalid,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CellData {
+    pub entity_type: EntityType,
+    pub entity_id: u8,
+    pub hp: u8,
+    pub atk: u8,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum Direction {
+    Up,
+    Down,
+    Left,
+    Right,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct GetCellsRequest {
+    coords: Vec<Coord>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct GetCellsResponse {
+    cell_data: Vec<CellData>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct GetPlayerRequest {}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct GetPlayerResponse {
+    player_data: PlayerData,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct MoveRequest {
+    direction: Direction,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct MoveResponse {
+    my_new_coords: Option<Coord>,
+    rate_limited: bool,
+}
 
 #[derive(Deserialize)]
 struct SetIdRequest {
@@ -67,6 +181,16 @@ struct SubmitRound2KeyRequest {}
 #[derive(Serialize)]
 struct SubmitRound2KeyResponse {}
 
+#[derive(Serialize, Deserialize)]
+struct GetDecShareRequest {
+    ct: PhantomPackedCt,
+}
+
+#[derive(Serialize, Deserialize)]
+struct GetDecShareResponse {
+    dec_share: PhantomPackedCtDecShare,
+}
+
 fn make_cors() -> Cors {
     let allowed_origins = AllowedOrigins::some_exact(&[
         "http://localhost:5173",
@@ -93,6 +217,136 @@ fn make_cors() -> Cors {
     }
     .to_cors()
     .expect("[main] error while building CORS")
+}
+
+#[post("/get_cells", format = "json", data = "<request>")]
+async fn get_cells(
+    state: &State<SharedState>,
+    request: Json<GetCellsRequest>,
+) -> Result<Json<GetCellsResponse>, Custom<String>> {
+    let post_data = {
+        let app_state = state.lock().await;
+
+        let coords = app_state.user.batched_pk_encrypt(
+            request
+                .coords
+                .iter()
+                .flat_map(|coord| chain![to_le_bits(coord.x), to_le_bits(coord.y)]),
+        );
+
+        proxy::GetCellsRequest {
+            player_id: app_state.user.user_id(),
+            coords,
+        }
+    };
+
+    let proxy::GetCellsResponse { cell_data } = proxy::proxy("/get_cells", post_data).await?.0;
+
+    let dec_shares = get_dec_shares(&cell_data).await?;
+    let mut bits = state
+        .lock()
+        .await
+        .decrypt(&cell_data, dec_shares)
+        .into_iter();
+    let cell_data = repeat_with(|| {
+        Ok(CellData {
+            entity_type: match try_from_le_bits::<3>(&mut bits)? {
+                0 => EntityType::None,
+                1 => EntityType::Player,
+                2 => EntityType::Item,
+                3 => EntityType::Monster,
+                4 => EntityType::Invalid,
+                _ => return Err(internal_server_error("")),
+            },
+            entity_id: try_from_le_bits::<8>(&mut bits)?,
+            hp: try_from_le_bits::<8>(&mut bits)?,
+            atk: try_from_le_bits::<8>(&mut bits)?,
+        })
+    })
+    .take(cell_data.n() / 16)
+    .try_collect()?;
+
+    Ok(Json(GetCellsResponse { cell_data }))
+}
+
+#[post("/get_player", format = "json", data = "<_request>")]
+async fn get_player(
+    state: &State<SharedState>,
+    _request: Json<GetPlayerRequest>,
+) -> Result<Json<GetPlayerResponse>, Custom<String>> {
+    let post_data = {
+        let app_state = state.lock().await;
+
+        proxy::GetPlayerRequest {
+            player_id: app_state.user.user_id(),
+        }
+    };
+
+    let proxy::GetPlayerResponse { player_data } = proxy::proxy("/get_player", post_data).await?.0;
+
+    let dec_shares = get_dec_shares(&player_data).await?;
+    let mut bits = state
+        .lock()
+        .await
+        .decrypt(&player_data, dec_shares)
+        .into_iter();
+    let player_data = PlayerData {
+        loc: Coord {
+            x: try_from_le_bits::<8>(&mut bits)?,
+            y: try_from_le_bits::<8>(&mut bits)?,
+        },
+        hp: try_from_le_bits::<8>(&mut bits)?,
+        atk: try_from_le_bits::<8>(&mut bits)?,
+    };
+
+    Ok(Json(GetPlayerResponse { player_data }))
+}
+
+#[post("/move", format = "json", data = "<request>")]
+async fn queue_move(
+    state: &State<SharedState>,
+    request: Json<MoveRequest>,
+) -> Result<Json<MoveResponse>, Custom<String>> {
+    let post_data = {
+        let app_state = state.lock().await;
+
+        let direction = app_state.user.batched_pk_encrypt(match request.direction {
+            Direction::Up => [false, false],
+            Direction::Down => [true, false],
+            Direction::Left => [false, true],
+            Direction::Right => [true, true],
+        });
+
+        proxy::MoveRequest {
+            player_id: app_state.user.user_id(),
+            direction,
+        }
+    };
+
+    let proxy::MoveResponse {
+        my_new_coords,
+        rate_limited,
+    } = proxy::proxy("/move", post_data).await?.0;
+
+    let my_new_coords = if let Some(my_new_coords) = my_new_coords {
+        let dec_shares = get_dec_shares(&my_new_coords).await?;
+        let mut bits = state
+            .lock()
+            .await
+            .decrypt(&my_new_coords, dec_shares)
+            .into_iter();
+        Some(Coord {
+            x: try_from_le_bits::<8>(&mut bits)?,
+            y: try_from_le_bits::<8>(&mut bits)?,
+        })
+    } else {
+        None
+    };
+
+    Ok(Json(MoveResponse {
+        my_new_coords,
+        rate_limited,
+    }))
 }
 
 #[post("/get_id", format = "json", data = "<_request>")]
@@ -168,6 +422,49 @@ async fn submit_r2(
     Ok(Json(SubmitRound2KeyResponse {}))
 }
 
+#[post("/get_dec_share", format = "json", data = "<request>")]
+async fn get_dec_share(
+    state: &State<SharedState>,
+    request: Json<GetDecShareRequest>,
+) -> Json<GetDecShareResponse> {
+    let app_state = state.lock().await;
+
+    let dec_share = app_state.user.decrypt_share(&request.ct);
+
+    Json(GetDecShareResponse { dec_share })
+}
+
+async fn get_dec_shares(
+    ct: &PhantomPackedCt,
+) -> Result<[PhantomPackedCtDecShare; 3], Custom<String>> {
+    let body = &GetDecShareRequest { ct: ct.clone() };
+    OTHER_PLAYER_URIS
+        .iter()
+        .map(move |uri| async move {
+            let client = reqwest::Client::new();
+            let response = client
+                .post(format!("{uri}/get_dec_share"))
+                .json(body)
+                .send()
+                .await
+                .map_err(internal_server_error)?;
+            if response.status().is_success() {
+                let body: GetDecShareResponse =
+                    response.json().await.map_err(internal_server_error)?;
+                Ok(body.dec_share)
+            } else {
+                let status = response.status();
+                let body = response.text().await.map_err(internal_server_error)?;
+                tracing::error!("Request failed with status: {status} body: {body}");
+                Err(custom(status, body))
+            }
+        })
+        .collect::<FuturesUnordered<_>>()
+        .try_collect::<Vec<_>>()
+        .await
+        .map(|dec_shares| dec_shares.try_into().unwrap())
+}
+
 fn bad_request(err: impl ToString) -> Custom<String> {
     custom(StatusCode::BAD_REQUEST, err)
 }
@@ -182,24 +479,32 @@ fn custom(stauts: StatusCode, err: impl ToString) -> Custom<String> {
 
 #[rocket::main]
 async fn main() -> Result<(), rocket::Error> {
-    // Get the port from command line arguments
-    let port = env::args()
-        .nth(1)
-        .and_then(|p| p.parse().ok())
-        .unwrap_or(8000);
-
-    let player_id = env::args().nth(2).and_then(|p| p.parse().ok()).unwrap_or(0);
-    let shared_state: Arc<Mutex<AppState>> = Arc::new(Mutex::new(AppState::new(player_id)));
+    let shared_state: Arc<Mutex<AppState>> = Arc::new(Mutex::new(AppState::new(*PLAYER_ID)));
 
     // Create a custom configuration
     let config = Config {
-        port,
+        port: *PORT,
         ..Config::default()
     };
 
+    let _ = &*OTHER_PLAYER_URIS;
+
     rocket::custom(config)
         .manage(shared_state.clone())
-        .mount("/", routes![get_id, set_id, get_pk, submit_r1, submit_r2])
+        .mount(
+            "/",
+            routes![
+                queue_move,
+                get_cells,
+                get_player,
+                get_id,
+                set_id,
+                get_pk,
+                submit_r1,
+                submit_r2,
+                get_dec_share
+            ],
+        )
         .attach(make_cors())
         .launch()
         .await
