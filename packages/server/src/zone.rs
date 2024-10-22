@@ -505,7 +505,7 @@ impl Zone {
         ];
 
         let items = from_fn(|i| Item {
-            id: 0,
+            id: i,
             data: ItemEncryptedData {
                 loc: EncryptedCoord {
                     x: pk_encrypt(evaluator, i as _),
