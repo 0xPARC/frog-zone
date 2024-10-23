@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import useStore from "../store";
 import { Button } from "../../components/Button";
+import { Scoreboard } from "./Scoreboard";
 
 const TIME_TO_AUTO_START_NEW_GAME = 60 * 1000;
 
@@ -34,9 +35,7 @@ export const GameFinishedOverlay: React.FC = () => {
 
 	return (
 		<div style={styles.overlay}>
-			<div>
-				<h1>Thank you for playing FROG ZONE!</h1>
-			</div>
+			<Scoreboard />
 			<div>
 				<Button onClick={handleNewGame}>Start New Game Now</Button>
 				<p style={styles.countdownMessage}>
