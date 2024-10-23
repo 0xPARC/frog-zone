@@ -15,6 +15,12 @@ export interface GameResponse {
 			createdAt: string;
 			updatedAt: string;
 		}[];
+		players: {
+			id: string;
+			publicKey: string;
+			score: number;
+			machineId: string;
+		}[];
 	};
 }
 

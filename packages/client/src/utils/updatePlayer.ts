@@ -1,5 +1,3 @@
-import { GameResponse } from "./fetchGame";
-
 interface PlayerGame {
 	id: number;
 	gameId: number; // Foreign key to Game
@@ -11,41 +9,36 @@ interface PlayerGame {
 	updatedAt: Date; // Timestamp when the PlayerGame record was last updated
 }
 
-export interface PlayerScoreResponse {
+export interface PlayerResponse {
 	success: boolean;
 	message?: string;
 	playerGame?: PlayerGame;
 }
 
-export const updatePlayerScore = async ({
-	gameId,
-	publicKey,
-	score,
-}: {
+export const updatePlayer = async (args: {
 	gameId: string;
 	publicKey: string; // identifies the player
-	score: number;
-}): Promise<PlayerScoreResponse> => {
+	score?: number;
+}): Promise<PlayerResponse> => {
 	try {
+		const { gameId, publicKey, ...rest } = args;
 		const response = await fetch(`/api/game/${gameId}/player`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 			},
-			body: JSON.stringify({ score, publicKey }),
+			body: JSON.stringify({ ...rest, publicKey }),
 		});
 
 		if (!response.ok) {
-			throw new Error(
-				`Failed to update game status: ${response.statusText}`,
-			);
+			throw new Error(`Failed to update player: ${response.statusText}`);
 		}
 
-		const data: PlayerScoreResponse = await response.json();
-		console.log("Player score updated:", data);
+		const data: PlayerResponse = await response.json();
+		console.log("Player updated:", data);
 		return data;
 	} catch (error) {
-		console.error("Error updating game status:", error);
+		console.error("Error updating player:", error);
 		throw error;
 	}
 };

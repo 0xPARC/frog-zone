@@ -1,32 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
 import useStore from "../store";
 import { updateGameStatus } from "../../utils/updateGameStatus";
+import { Button } from "../../components/Button";
 
 const ForceStartButton: React.FC = () => {
+	const [forceStartRequested, setForceStartRequested] = useState(false);
 	const gameId = useStore((state) => state.game?.gameId);
 	const handleForceStart = async () => {
 		if (gameId) {
-			const data = await updateGameStatus({ gameId, status: "ongoing" });
-			if (data.success && data.game) {
-				useStore.getState().setGame(data.game);
-			}
+			setForceStartRequested(true);
+			await updateGameStatus({ gameId, status: "ongoing" });
 		}
 	};
 
 	return (
-		<button
-			onClick={handleForceStart}
-			style={{
-				background: "blue",
-				color: "white",
-				fontFamily: "monospace",
-				borderRadius: "5px",
-				padding: "10px 15px",
-				border: "none",
-			}}
-		>
-			Start Anyway
-		</button>
+		<Button onClick={handleForceStart}>
+			{forceStartRequested ? "Starting..." : "Start Anyway"}
+		</Button>
 	);
 };
 
