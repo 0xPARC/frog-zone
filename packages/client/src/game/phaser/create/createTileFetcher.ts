@@ -25,7 +25,7 @@ export const createTileFetcher = ({
 }) => {
 	let coordinates = getSurroundingCoordinates(initialCoordinate);
 	let currentIndex = 0;
-	let intervalId: number | null = null;
+	let intervalId: ReturnType<typeof setInterval> | null = null;
 
 	const fetchNextBatch = async () => {
 		const nextBatch = coordinates.slice(
