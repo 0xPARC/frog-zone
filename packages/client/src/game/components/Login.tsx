@@ -74,7 +74,7 @@ export const Login: React.FC = () => {
 			{!isGameOngoing ? (
 				<>
 					<div>
-						<h1>Welcome to FROG ZONE!</h1>
+						<h1>Welcome to FROG ZONE! 🐸</h1>
 						<p>Scan the QR code to login</p>
 					</div>
 					<div style={styles.qrContainer}>
@@ -95,7 +95,7 @@ export const Login: React.FC = () => {
 				</>
 			) : (
 				<div>
-					<h1>Welcome to FROG ZONE!</h1>
+					<h1>Welcome to FROG ZONE! 🐸</h1>
 					<p>Please wait.</p>
 					<p>
 						There is an ongoing game... But you will be able to join
