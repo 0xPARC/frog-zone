@@ -8,6 +8,7 @@ import { GameFinishedOverlay } from "./game/components/GameFinishedOverlay";
 import { WaitingForPlayersOverlay } from "./game/components/WaitingForPlayersOverlay";
 import { useReward } from "react-rewards";
 import { useEffect } from "react";
+import { AreYouThere } from "./game/components/AreYouThere";
 
 const MIN_PLAYERS = 4;
 const MIN_PLAYERS_TO_FORCE_START = 1;
@@ -45,7 +46,10 @@ function App() {
 						}}
 					>
 						{gameId && gameStatus === "ongoing" && (
-							<WinGameButton gameId={gameId} />
+							<>
+								<WinGameButton gameId={gameId} />
+								<AreYouThere />
+							</>
 						)}
 						{/* <button onClick={() => confettiReward()}>Confetti</button> */}
 					</div>
