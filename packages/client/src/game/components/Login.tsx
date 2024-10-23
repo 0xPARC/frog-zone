@@ -25,10 +25,16 @@ export const Login: React.FC = () => {
 						});
 					console.log("MACHINE STATUS", data);
 					if (data.isLoggedIn && data.game) {
-						useStore.getState().setIsLoggedIn(data.isLoggedIn);
+						useStore.getState().setIsLoggedIn({
+							isLoggedIn: data.isLoggedIn,
+							publicKey: data.publicKey,
+						});
 						useStore.getState().setGame(data.game);
 					} else {
-						useStore.getState().setIsLoggedIn(false);
+						useStore.getState().setIsLoggedIn({
+							isLoggedIn: false,
+							publicKey: null,
+						});
 					}
 				} else if (playerId && isLoggedIn && gameId) {
 					const data = await fetchGame({ gameId });
@@ -36,7 +42,10 @@ export const Login: React.FC = () => {
 					useStore.getState().setGame(data.game);
 				}
 			} catch {
-				useStore.getState().setIsLoggedIn(false);
+				useStore.getState().setIsLoggedIn({
+					isLoggedIn: false,
+					publicKey: null,
+				});
 			}
 		};
 

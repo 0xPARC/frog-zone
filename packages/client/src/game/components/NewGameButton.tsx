@@ -4,7 +4,10 @@ import useStore from "../store";
 const NewGameButton: React.FC = () => {
 	const handleNewGame = async () => {
 		useStore.getState().setGame(null);
-		useStore.getState().setIsLoggedIn(false);
+		useStore.getState().setIsLoggedIn({
+			isLoggedIn: false,
+			publicKey: null,
+		});
 	};
 
 	return (

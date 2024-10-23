@@ -52,12 +52,16 @@ export const NEXT_MOVE_TIME_MILLIS = 3500;
 interface State {
 	gameState: GameState;
 	isLoggedIn: boolean | null;
+	publicKey: string | null;
 	game: Game | null;
 	players: Map<number, Player>;
 	items: Map<number, Item>;
 	grid: Map<number, TileWithCoord>;
 	lastMoveTimeStamp: number; // timestamp for next move
-	setIsLoggedIn: (isLoggedIn: boolean | null) => void;
+	setIsLoggedIn: (s: {
+		isLoggedIn: boolean | null;
+		publicKey: string | null;
+	}) => void;
 	setGame: (game: Game | null) => void;
 
 	addPlayer: (player: Player) => void;
@@ -94,14 +98,22 @@ const initializeGrid = (size: number) => {
 const useStore = create<State>()(
 	immer((set, get) => ({
 		isLoggedIn: null,
+		publicKey: null,
 		game: null,
 		gameState: GameState.LOADING,
 		players: new Map<number, Player>(),
 		items: new Map<number, Item>(),
 		grid: initializeGrid(64),
 		lastMoveTimeStamp: 0, // Store the last move timestamp
-		setIsLoggedIn: (isLoggedIn: boolean | null) => {
+		setIsLoggedIn: ({
+			isLoggedIn,
+			publicKey,
+		}: {
+			isLoggedIn: boolean | null;
+			publicKey: string | null;
+		}) => {
 			set({ isLoggedIn });
+			set({ publicKey });
 		},
 
 		setGame: (game: Game | null) => {

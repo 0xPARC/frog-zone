@@ -8,6 +8,7 @@ import type { Coord, TileWithCoord } from "../store";
 import useStore, { GameState, NEXT_MOVE_TIME_MILLIS } from "../store";
 import { createTileFetcher } from "./create/createTileFetcher";
 import phaserConfig from "./create/phaserConfig";
+import { updatePlayerScore } from "../../utils/updatePlayerScore";
 
 const syncPhaser = async (game: PhaserGame, api: Api) => {
 	const players = new Map<number, Phaser.GameObjects.Image>();
@@ -205,6 +206,13 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 			}
 			completedMoveAnimation(selectedPlayerImg);
 			tileFetcher.updateCoordinates(newCoord);
+			const publicKey = useStore.getState().publicKey as string;
+			const gameId = useStore.getState().game?.gameId as string;
+			updatePlayerScore({
+				publicKey,
+				score: Math.floor(Math.random() * 89), // TODO: implement real score, for now this is random between 0 - 88
+				gameId,
+			});
 		}
 	};
 
