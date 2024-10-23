@@ -6,6 +6,16 @@
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
     <link rel="icon" type="image/png" href="/randomfrog.png" />
     <title>FROG ZONE</title>
+	<script>
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    const id = getQueryParam('id');
+   
+    document.title = "FROG ZONE" + " " + id;
+  </script>
 
     <style>
       body {

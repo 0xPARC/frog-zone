@@ -1,5 +1,9 @@
+import { GameResponse } from "./fetchGame";
+
 export interface MachineStatusResponse {
 	isLoggedIn: boolean;
+	publicKey: string | null;
+	game: GameResponse["game"] | null;
 }
 
 export const fetchMachineStatus = async ({
