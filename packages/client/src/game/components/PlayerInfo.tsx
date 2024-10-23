@@ -1,5 +1,5 @@
 import React from "react";
-import useStore, { Player } from "../store";
+import useStore from "../store";
 
 type PlayerInfoProps = {
 	playerId: number;
