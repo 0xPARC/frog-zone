@@ -1,19 +1,20 @@
-import React, { useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { getPlayerId } from "../../utils/getPlayerId";
+import React, { useEffect } from "react";
+import { LOGIN_SERVER_URL } from "../../const/env.const";
+import { fetchGame } from "../../utils/fetchGame";
 import {
 	fetchMachineStatus,
 	MachineStatusResponse,
 } from "../../utils/fetchMachineStatus";
-import { LOGIN_SERVER_URL } from "../../const/env.const";
+import { getPlayerId } from "../../utils/getPlayerId";
 import useStore from "../store";
-import { fetchGame } from "../../utils/fetchGame";
 
 export const Login: React.FC = () => {
 	const playerId = getPlayerId();
 	const loginUrl = `${LOGIN_SERVER_URL}/login/${playerId}`;
 	const isLoggedIn = useStore((state) => state.isLoggedIn);
 	const gameId = useStore((state) => state.game?.gameId);
+	const gameStatus = useStore((state) => state.game?.status);
 
 	useEffect(() => {
 		const checkStatus = async () => {
@@ -24,18 +25,18 @@ export const Login: React.FC = () => {
 							playerId,
 						});
 					console.log("MACHINE STATUS", data);
-					if (data.isLoggedIn && data.game) {
+					if (data.isLoggedIn) {
 						useStore.getState().setIsLoggedIn({
 							isLoggedIn: data.isLoggedIn,
 							publicKey: data.publicKey,
 						});
-						useStore.getState().setGame(data.game);
 					} else {
 						useStore.getState().setIsLoggedIn({
 							isLoggedIn: false,
 							publicKey: null,
 						});
 					}
+					useStore.getState().setGame(data?.game || null);
 				} else if (playerId && isLoggedIn && gameId) {
 					const data = await fetchGame({ gameId });
 					console.log("GAME STATUS", data.game);
@@ -67,27 +68,41 @@ export const Login: React.FC = () => {
 			</div>
 		);
 	}
+	const isGameOngoing = gameStatus === "ongoing";
 	return (
 		<div style={styles.overlay}>
-			<div>
-				<h1>Welcome to FROG ZONE!</h1>
-				<p>Scan the QR code to login</p>
-			</div>
-			<div style={styles.qrContainer}>
-				<QRCodeSVG value={loginUrl} size={300} />
-			</div>
-			<div>
-				<p>
-					Or follow the{" "}
-					<a
-						href={loginUrl}
-						target="_blank"
-						style={{ color: "#0099e0" }}
-					>
-						link
-					</a>
-				</p>
-			</div>
+			{!isGameOngoing ? (
+				<>
+					<div>
+						<h1>Welcome to FROG ZONE!</h1>
+						<p>Scan the QR code to login</p>
+					</div>
+					<div style={styles.qrContainer}>
+						<QRCodeSVG value={loginUrl} size={300} />
+					</div>
+					<div>
+						<p>
+							Or follow the{" "}
+							<a
+								href={loginUrl}
+								target="_blank"
+								style={{ color: "#0099e0" }}
+							>
+								link
+							</a>
+						</p>
+					</div>
+				</>
+			) : (
+				<div>
+					<h1>Welcome to FROG ZONE!</h1>
+					<p>Please wait.</p>
+					<p>
+						There is an ongoing game... But you will be able to join
+						once it finishes.
+					</p>
+				</div>
+			)}
 		</div>
 	);
 };
