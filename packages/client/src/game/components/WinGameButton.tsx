@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { updateGameStatus } from "../../utils/updateGameStatus";
 import useStore from "../store";
+import { updatePlayer } from "../../utils/updatePlayer";
 
 interface WinGameButtonProps {
 	gameId: string;
@@ -10,11 +11,17 @@ const WinGameButton: React.FC<WinGameButtonProps> = ({ gameId }) => {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [successMessage, setSuccessMessage] = useState<string | null>(null);
+	const publicKey = useStore.getState().publicKey as string;
 
 	const handleWinGame = async () => {
 		setLoading(true);
 		setError(null);
 		setSuccessMessage(null);
+		await updatePlayer({
+			score: 100,
+			publicKey,
+			gameId,
+		});
 		await updateGameStatus({
 			gameId,
 			status: "completed",
