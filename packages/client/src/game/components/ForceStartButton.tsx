@@ -6,10 +6,7 @@ const ForceStartButton: React.FC = () => {
 	const gameId = useStore((state) => state.game?.gameId);
 	const handleForceStart = async () => {
 		if (gameId) {
-			const data = await updateGameStatus({ gameId, status: "ongoing" });
-			if (data.success && data.game) {
-				useStore.getState().setGame(data.game);
-			}
+			await updateGameStatus({ gameId, status: "ongoing" });
 		}
 	};
 

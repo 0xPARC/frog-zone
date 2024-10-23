@@ -15,13 +15,10 @@ const WinGameButton: React.FC<WinGameButtonProps> = ({ gameId }) => {
 		setLoading(true);
 		setError(null);
 		setSuccessMessage(null);
-		const data = await updateGameStatus({
+		await updateGameStatus({
 			gameId,
 			status: "completed",
 		});
-		if (data.success && data.game) {
-			useStore.getState().setGame(data.game);
-		}
 		setLoading(false);
 	};
 
