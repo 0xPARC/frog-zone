@@ -1,12 +1,10 @@
 {
-    "name": "frog-zone",
-    "workspaces": [
-        "packages/*"
-    ],
-    "private": true,
-    "scripts": {},
-    "engines": {},
-    "dependencies": {
-        "qrcode.react": "^4.0.1"
-    }
+	"name": "frog-zone",
+	"workspaces": [
+		"packages/*"
+	],
+	"private": true,
+	"scripts": {},
+	"engines": {},
+	"dependencies": {}
 }
