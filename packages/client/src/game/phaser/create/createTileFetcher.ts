@@ -48,6 +48,7 @@ export const createTileFetcher = ({
 
 	const start = () => {
 		if (intervalId === null) {
+		fetchNextBatch();
 			intervalId = setInterval(() => {
 				fetchNextBatch();
 			}, FETCH_INTERVAL);
