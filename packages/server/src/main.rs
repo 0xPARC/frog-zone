@@ -1,28 +1,34 @@
-mod zone;
-use itertools::Itertools;
-use phantom::{
-    PhantomBatchedCt, PhantomEvaluator, PhantomPackedCt, PhantomParam, PhantomPk, PhantomRound1Key,
-    PhantomRound2Key,
-};
+use phantom::{PhantomEvaluator, PhantomParam, PhantomRound1Key, PhantomRound2Key};
 use rocket::figment::{util::map, Figment};
+use rocket::futures::stream::FuturesUnordered;
+use rocket::futures::TryStreamExt;
 use rocket::http::{Method, Status};
 use rocket::response::status::{Custom, NotFound};
-use rocket::serde::{json::Json, Deserialize, Serialize};
+use rocket::serde::{json::Json, Serialize};
 use rocket::{Config, State};
 use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors, CorsOptions};
-use std::array::from_fn;
+use server::zone::{EncryptedDirection, Zone, ZoneDiff};
+use server::{
+    bad_request,
+    client::*,
+    worker::{self, *},
+};
 use std::collections::VecDeque;
-use std::sync::Arc;
+use std::sync::{Arc, LazyLock};
+use std::{env, mem};
 use tokio::sync::{Mutex, Notify};
 use tracing::info;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
-use zone::{EncryptedCoord, EncryptedDirection, Zone};
-
-use std::time::Duration;
-use tokio::time;
 
 #[macro_use]
 extern crate rocket;
+
+static WORKER_URIS: LazyLock<Vec<String>> = LazyLock::new(|| {
+    env::args()
+        .nth(1)
+        .map(|p| p.split(",").map(ToString::to_string).collect())
+        .unwrap_or_else(|| panic!("missing workers' uris"))
+});
 
 const MOVE_TIME_MILLIS: u64 = 500;
 const GET_CELL_TIME_MILLIS: u64 = 140; // based on benchmark of 700ms for 5 cells
@@ -37,6 +43,9 @@ struct GameState {
     evaluator: PhantomEvaluator,
     player_round_1_key: [Option<PhantomRound1Key>; 4],
     player_round_2_key: [Option<PhantomRound2Key>; 4],
+    work_counter: usize,
+    // For each worker, store flags indicating whether to sync players data or not.
+    worker_diff: Vec<[bool; 4]>,
 }
 
 impl GameState {
@@ -51,108 +60,23 @@ impl GameState {
             .as_mut()
             .ok_or_else(|| Custom(Status::BadRequest, "Game is not ready yet".to_string()))
     }
+
+    fn next_worker_uri_and_diff(&mut self) -> Result<(&'static str, ZoneDiff), Custom<String>> {
+        self.zone
+            .as_ref()
+            .map(|zone| {
+                let next = self.work_counter % WORKER_URIS.len();
+                self.work_counter += 1;
+                (
+                    WORKER_URIS[next].as_str(),
+                    zone.cts_diff(mem::take(&mut self.worker_diff[next])),
+                )
+            })
+            .ok_or_else(|| Custom(Status::BadRequest, "Game is not ready yet".to_string()))
+    }
 }
 
 type SharedState = Arc<Mutex<GameState>>;
-
-#[derive(Deserialize)]
-struct GetCellsRequest {
-    player_id: usize,
-    coords: PhantomBatchedCt, // Vec<EncryptedCoord>
-}
-
-#[derive(Serialize, Clone)]
-struct GetCellsResponse {
-    cell_data: PhantomPackedCt, // Vec<CellEncryptedData>,
-}
-
-#[derive(Deserialize)]
-struct GetFiveCellsRequest {
-    player_id: usize,
-    coords: PhantomBatchedCt, // [EncryptedCoord; 5]
-}
-
-#[derive(Serialize, Clone)]
-struct GetFiveCellsResponse {
-    cell_data: PhantomPackedCt, // [CellEncryptedData; 5],
-}
-
-#[derive(Deserialize)]
-struct GetCrossCellsRequest {
-    player_id: usize,
-}
-
-#[derive(Serialize, Clone)]
-struct GetCrossCellsResponse {
-    cell_data: PhantomPackedCt, // [CellEncryptedData; 5],
-}
-
-#[derive(Deserialize)]
-struct GetVerticalCellsRequest {
-    player_id: usize,
-    coord: PhantomBatchedCt, // EncryptedCoord
-}
-
-#[derive(Serialize, Clone)]
-struct GetVerticalCellsResponse {
-    cell_data: PhantomPackedCt, // [CellEncryptedData; 5],
-}
-
-#[derive(Deserialize)]
-struct GetHorizontalCellsRequest {
-    player_id: usize,
-    coord: PhantomBatchedCt, // EncryptedCoord
-}
-
-#[derive(Serialize, Clone)]
-struct GetHorizontalCellsResponse {
-    cell_data: PhantomPackedCt, // [CellEncryptedData; 5],
-}
-
-#[derive(Deserialize)]
-struct GetPlayerRequest {
-    player_id: usize,
-}
-
-#[derive(Serialize, Clone)]
-struct GetPlayerResponse {
-    player_data: PhantomPackedCt, // PlayerEncryptedData,
-}
-
-#[derive(Deserialize)]
-struct MoveRequest {
-    player_id: usize,
-    direction: PhantomBatchedCt, // Encrypted<Direction>
-}
-
-#[derive(Serialize, Clone)]
-struct MoveResponse {
-    my_new_coords: Option<PhantomPackedCt>, // EncryptedCoord
-    rate_limited: bool,
-}
-
-#[derive(Deserialize)]
-struct SubmitRound1KeyRequest {
-    player_id: usize,
-    key: PhantomRound1Key,
-}
-
-#[derive(Serialize)]
-struct SubmitRound1KeyResponse {}
-
-#[derive(Deserialize)]
-struct GetPkRequest {}
-
-#[derive(Serialize)]
-struct GetPkResponse {
-    pk: PhantomPk,
-}
-
-#[derive(Deserialize)]
-struct SubmitRound2KeyRequest {
-    player_id: usize,
-    key: PhantomRound2Key,
-}
 
 #[derive(Serialize)]
 struct SubmitRound2KeyResponse {}
@@ -190,33 +114,12 @@ async fn get_cells(
     state: &State<SharedState>,
     request: Json<GetCellsRequest>,
 ) -> Result<Json<GetCellsResponse>, Custom<String>> {
-    let cell_data = {
-        let game_state = state.lock().await;
-        let zone = game_state.zone()?;
-
-        let bits = game_state.evaluator.unbatch(&request.coords);
-        if bits.len() % 16 != 0 {
-            return Err(bad_request("invalid coordinates"));
-        }
-        let coords = bits
-            .into_iter()
-            .chunks(16)
-            .into_iter()
-            .map(|mut chunk| EncryptedCoord {
-                x: from_fn(|_| chunk.next().unwrap()),
-                y: from_fn(|_| chunk.next().unwrap()),
-            })
-            .collect();
-        let cells = zone.get_cells(request.player_id, coords);
-
-        game_state
-            .evaluator
-            .pack(cells.iter().flat_map(|cell| cell.bits()))
+    let (worker_uri, diff) = state.lock().await.next_worker_uri_and_diff()?;
+    let request = RequestWithDiff {
+        request: request.0,
+        diff,
     };
-
-    info!("processed /get_cells request");
-
-    Ok(Json(GetCellsResponse { cell_data }))
+    worker::request(worker_uri, "/get_cells", request).await
 }
 
 #[post("/get_five_cells", format = "json", data = "<request>")]
@@ -224,29 +127,12 @@ async fn get_five_cells(
     state: &State<SharedState>,
     request: Json<GetFiveCellsRequest>,
 ) -> Result<Json<GetFiveCellsResponse>, Custom<String>> {
-    let cell_data = {
-        let game_state = state.lock().await;
-        let zone = game_state.zone()?;
-
-        let bits = game_state.evaluator.unbatch(&request.coords);
-        if bits.len() != 5 * 16 {
-            return Err(bad_request("invalid coordinates"));
-        }
-        let mut bits = bits.into_iter();
-        let coords = from_fn(|_| EncryptedCoord {
-            x: from_fn(|_| bits.next().unwrap()),
-            y: from_fn(|_| bits.next().unwrap()),
-        });
-        let cells = zone.get_five_cells(request.player_id, coords);
-
-        game_state
-            .evaluator
-            .pack(cells.iter().flat_map(|cell| cell.bits()))
+    let (worker_uri, diff) = state.lock().await.next_worker_uri_and_diff()?;
+    let request = RequestWithDiff {
+        request: request.0,
+        diff,
     };
-
-    info!("processed /get_five_cells request");
-
-    Ok(Json(GetFiveCellsResponse { cell_data }))
+    worker::request(worker_uri, "/get_five_cells", request).await
 }
 
 #[post("/get_cross_cells", format = "json", data = "<request>")]
@@ -254,20 +140,12 @@ async fn get_cross_cells(
     state: &State<SharedState>,
     request: Json<GetCrossCellsRequest>,
 ) -> Result<Json<GetCrossCellsResponse>, Custom<String>> {
-    let cell_data = {
-        let game_state = state.lock().await;
-        let zone = game_state.zone()?;
-
-        let cells = zone.get_cross_cells(request.player_id);
-
-        game_state
-            .evaluator
-            .pack(cells.iter().flat_map(|cell| cell.bits()))
+    let (worker_uri, diff) = state.lock().await.next_worker_uri_and_diff()?;
+    let request = RequestWithDiff {
+        request: request.0,
+        diff,
     };
-
-    info!("processed /get_cross_cells request");
-
-    Ok(Json(GetCrossCellsResponse { cell_data }))
+    worker::request(worker_uri, "/get_cross_cells", request).await
 }
 
 #[post("/get_vertical_cells", format = "json", data = "<request>")]
@@ -275,29 +153,12 @@ async fn get_vertical_cells(
     state: &State<SharedState>,
     request: Json<GetVerticalCellsRequest>,
 ) -> Result<Json<GetVerticalCellsResponse>, Custom<String>> {
-    let cell_data = {
-        let game_state = state.lock().await;
-        let zone = game_state.zone()?;
-
-        let bits = game_state.evaluator.unbatch(&request.coord);
-        if bits.len() != 16 {
-            return Err(bad_request("invalid coordinate"));
-        }
-        let mut bits = bits.into_iter();
-        let coord = EncryptedCoord {
-            x: from_fn(|_| bits.next().unwrap()),
-            y: from_fn(|_| bits.next().unwrap()),
-        };
-        let cells = zone.get_vertical_cells(request.player_id, coord);
-
-        game_state
-            .evaluator
-            .pack(cells.iter().flat_map(|cell| cell.bits()))
+    let (worker_uri, diff) = state.lock().await.next_worker_uri_and_diff()?;
+    let request = RequestWithDiff {
+        request: request.0,
+        diff,
     };
-
-    info!("processed /get_vertical_cells request");
-
-    Ok(Json(GetVerticalCellsResponse { cell_data }))
+    worker::request(worker_uri, "/get_vertical_cells", request).await
 }
 
 #[post("/get_horizontal_cells", format = "json", data = "<request>")]
@@ -305,29 +166,12 @@ async fn get_horizontal_cells(
     state: &State<SharedState>,
     request: Json<GetHorizontalCellsRequest>,
 ) -> Result<Json<GetHorizontalCellsResponse>, Custom<String>> {
-    let cell_data = {
-        let game_state = state.lock().await;
-        let zone = game_state.zone()?;
-
-        let bits = game_state.evaluator.unbatch(&request.coord);
-        if bits.len() != 16 {
-            return Err(bad_request("invalid coordinate"));
-        }
-        let mut bits = bits.into_iter();
-        let coord = EncryptedCoord {
-            x: from_fn(|_| bits.next().unwrap()),
-            y: from_fn(|_| bits.next().unwrap()),
-        };
-        let cells = zone.get_horizontal_cells(request.player_id, coord);
-
-        game_state
-            .evaluator
-            .pack(cells.iter().flat_map(|cell| cell.bits()))
+    let (worker_uri, diff) = state.lock().await.next_worker_uri_and_diff()?;
+    let request = RequestWithDiff {
+        request: request.0,
+        diff,
     };
-
-    info!("processed /get_horizontal_cells request");
-
-    Ok(Json(GetHorizontalCellsResponse { cell_data }))
+    worker::request(worker_uri, "/get_horizontal_cells", request).await
 }
 
 #[post("/get_player", format = "json", data = "<request>")]
@@ -429,6 +273,12 @@ async fn process_moves(state: SharedState) {
             let start = std::time::Instant::now();
             zone.move_player(player_id, direction);
             info!("zone.move_player takes: {:?}", start.elapsed());
+
+            // For each worker, mark the flag of `player_id` to be true.
+            game_state
+                .worker_diff
+                .iter_mut()
+                .for_each(|flag| flag[player_id] = true);
         }
 
         notify.notify_one();
@@ -472,7 +322,7 @@ async fn get_pk(
 async fn submit_r2(
     state: &State<SharedState>,
     request: Json<SubmitRound2KeyRequest>,
-) -> Json<SubmitRound2KeyResponse> {
+) -> Result<Json<SubmitRound2KeyResponse>, Custom<String>> {
     let mut game_state = state.lock().await;
     game_state.player_round_2_key[request.0.player_id] = Some(request.0.key);
 
@@ -485,17 +335,27 @@ async fn submit_r2(
             .collect();
         game_state.evaluator.aggregate_round_2_keys(&round_2_keys);
         game_state.zone = Some(Zone::new(64, 64, &game_state.evaluator));
+
+        // Call /init to all workers
+        let request = InitRequest {
+            zone_width: 64,
+            zone_height: 64,
+            zone_cts: game_state.zone.as_ref().unwrap().cts(),
+            pk: game_state.evaluator.pk().unwrap().clone(),
+            bs_key: game_state.evaluator.bs_key().unwrap().clone(),
+            rp_key: game_state.evaluator.rp_key().unwrap().clone(),
+        };
+        WORKER_URIS
+            .iter()
+            .map(|worker_uri| {
+                worker::request::<_, InitResponse>(worker_uri, "/init", request.clone())
+            })
+            .collect::<FuturesUnordered<_>>()
+            .try_collect::<Vec<_>>()
+            .await?;
     }
 
-    Json(SubmitRound2KeyResponse {})
-}
-
-fn bad_request(err: impl ToString) -> Custom<String> {
-    custom(Status::BadRequest, err)
-}
-
-fn custom(status: Status, err: impl ToString) -> Custom<String> {
-    Custom(status, err.to_string())
+    Ok(Json(SubmitRound2KeyResponse {}))
 }
 
 #[launch]
@@ -512,6 +372,8 @@ async fn rocket() -> _ {
         evaluator: PhantomEvaluator::new(PhantomParam::I_4P_60),
         player_round_1_key: [None, None, None, None],
         player_round_2_key: [None, None, None, None],
+        work_counter: 0,
+        worker_diff: vec![Default::default(); WORKER_URIS.len()],
     }));
 
     let state_clone = shared_state.clone();
