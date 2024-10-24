@@ -132,7 +132,7 @@ impl PhantomUser {
     /// # Panics
     ///
     /// Panics if [`PhantomUser::set_pk`] is not called yet.
-    pub fn batched_pk_encrypt(&self, ms: Vec<bool>) -> PhantomBatchedCt {
+    pub fn batched_pk_encrypt(&self, ms: impl IntoIterator<Item = bool>) -> PhantomBatchedCt {
         self.ops.batched_pk_encrypt(ms)
     }
 
@@ -324,6 +324,18 @@ wasm_bindgen_wrapper!(
     PhantomPackedCt(FhewBoolPackedCiphertextOwned<Elem<PackingRing>>),
     PhantomPackedCtDecShare(RlweDecryptionShareListOwned<Elem<Ring>>),
 );
+
+impl PhantomBatchedCt {
+    pub fn n(&self) -> usize {
+        self.0.n()
+    }
+}
+
+impl PhantomPackedCt {
+    pub fn n(&self) -> usize {
+        self.0.n()
+    }
+}
 
 #[derive(Clone, Debug)]
 pub struct PhantomOps {

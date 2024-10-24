@@ -113,6 +113,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "383d29d513d8764dcdc42ea295d979eb99c3c9f00607b3692cf68a431f7dca72"
 
 [[package]]
+name = "bincode"
+version = "1.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b1f45e9417d87227c7a56d22e471c6206462cba514c7590c09aff4cf6d1ddcad"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "bitflags"
 version = "2.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -167,6 +176,31 @@ dependencies = [
  "time",
  "version_check",
 ]
+
+[[package]]
+name = "crossbeam-deque"
+version = "0.8.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "613f8cc01fe9cf1a3eb3d7f488fd2fa8388403e97039e2f73692932e291a770d"
+dependencies = [
+ "crossbeam-epoch",
+ "crossbeam-utils",
+]
+
+[[package]]
+name = "crossbeam-epoch"
+version = "0.9.18"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5b82ac4a3c2ca9c3460964f020e1402edd5753411d7737aa39c3714ad1b5420e"
+dependencies = [
+ "crossbeam-utils",
+]
+
+[[package]]
+name = "crossbeam-utils"
+version = "0.8.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "22ec99545bb0ed0ea7bb9b8e1e9122ea386ff8a48c0922e43f36d45ab09e0e80"
 
 [[package]]
 name = "deranged"
@@ -688,6 +722,7 @@ dependencies = [
  "num-integer",
  "num-iter",
  "num-traits",
+ "rand",
  "smallvec",
 ]
 
@@ -838,9 +873,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "phantom-benchs"
+version = "0.1.0"
+source = "git+https://github.com/ed255/phantom-benchs?branch=feat/frog-bench-rewrite#0647b8390eb10f5fc1004d9309001cf14ce5eddb"
+dependencies = [
+ "bincode",
+ "itertools",
+ "phantom-zone-evaluator",
+ "rand",
+ "rayon",
+ "serde",
+]
+
+[[package]]
 name = "phantom-zone-crypto"
 version = "0.1.0"
-source = "git+https://github.com/gausslabs/phantom-zone?branch=rewrite#67c89a3ef6051112600378133bad7117e476b628"
+source = "git+https://github.com/gausslabs/phantom-zone?branch=rewrite#7cfd1d877c3bb360af25bc9daa957d396beaf44f"
 dependencies = [
  "itertools",
  "num-traits",
@@ -853,7 +901,7 @@ dependencies = [
 [[package]]
 name = "phantom-zone-derive"
 version = "0.1.0"
-source = "git+https://github.com/gausslabs/phantom-zone?branch=rewrite#67c89a3ef6051112600378133bad7117e476b628"
+source = "git+https://github.com/gausslabs/phantom-zone?branch=rewrite#7cfd1d877c3bb360af25bc9daa957d396beaf44f"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -863,7 +911,7 @@ dependencies = [
 [[package]]
 name = "phantom-zone-evaluator"
 version = "0.1.0"
-source = "git+https://github.com/gausslabs/phantom-zone?branch=rewrite#67c89a3ef6051112600378133bad7117e476b628"
+source = "git+https://github.com/gausslabs/phantom-zone?branch=rewrite#7cfd1d877c3bb360af25bc9daa957d396beaf44f"
 dependencies = [
  "auto_impl",
  "itertools",
@@ -878,8 +926,9 @@ dependencies = [
 [[package]]
 name = "phantom-zone-math"
 version = "0.1.0"
-source = "git+https://github.com/gausslabs/phantom-zone?branch=rewrite#67c89a3ef6051112600378133bad7117e476b628"
+source = "git+https://github.com/gausslabs/phantom-zone?branch=rewrite#7cfd1d877c3bb360af25bc9daa957d396beaf44f"
 dependencies = [
+ "bincode",
  "itertools",
  "num-bigint-dig",
  "num-complex",
@@ -998,6 +1047,26 @@ checksum = "32cb0b9bc82b0a0876c2dd994a7e7a2683d3e7390ca40e6886785ef0c7e3ee31"
 dependencies = [
  "num-traits",
  "rand",
+]
+
+[[package]]
+name = "rayon"
+version = "1.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b418a60154510ca1a002a752ca9714984e21e4241e804d32555251faf8b78ffa"
+dependencies = [
+ "either",
+ "rayon-core",
+]
+
+[[package]]
+name = "rayon-core"
+version = "1.12.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1465873a3dfdaa8ae7cb14b4383657caab0b3e8a0aa9ae8e04b044854c8dfce2"
+dependencies = [
+ "crossbeam-deque",
+ "crossbeam-utils",
 ]
 
 [[package]]
@@ -1284,12 +1353,15 @@ dependencies = [
 name = "server"
 version = "0.1.0"
 dependencies = [
+ "itertools",
  "phantom",
+ "phantom-benchs",
  "rocket",
  "rocket_cors",
  "serde",
  "tokio",
  "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]

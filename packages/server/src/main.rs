@@ -1,16 +1,22 @@
 mod zone;
-use phantom::{PhantomEvaluator, PhantomParam, PhantomPk, PhantomRound1Key, PhantomRound2Key};
+use itertools::Itertools;
+use phantom::{
+    PhantomBatchedCt, PhantomEvaluator, PhantomPackedCt, PhantomParam, PhantomPk, PhantomRound1Key,
+    PhantomRound2Key,
+};
 use rocket::figment::{util::map, Figment};
-use rocket::http::Method;
-use rocket::response::status::NotFound;
+use rocket::http::{Method, Status};
+use rocket::response::status::{Custom, NotFound};
 use rocket::serde::{json::Json, Deserialize, Serialize};
 use rocket::{Config, State};
 use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors, CorsOptions};
+use std::array::from_fn;
 use std::collections::VecDeque;
 use std::sync::Arc;
 use tokio::sync::{Mutex, Notify};
 use tracing::info;
-use zone::{CellEncryptedData, Direction, Encrypted, EncryptedCoord, PlayerEncryptedData, Zone};
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use zone::{EncryptedCoord, EncryptedDirection, Zone};
 
 use std::time::Duration;
 use tokio::time;
@@ -24,8 +30,8 @@ const GET_PLAYER_TIME_MILLIS: u64 = 140;
 const MOVE_TIME_RATE_LIMIT_MILLIS: u64 = 3500;
 
 struct GameState {
-    zone: Zone,
-    move_queue: VecDeque<(usize, Encrypted<Direction>, Arc<Notify>)>,
+    zone: Option<Zone>,
+    move_queue: VecDeque<(usize, EncryptedDirection, Arc<Notify>)>,
     player_last_move_time: [u64; 4],
     // Phantom
     evaluator: PhantomEvaluator,
@@ -33,17 +39,74 @@ struct GameState {
     player_round_2_key: [Option<PhantomRound2Key>; 4],
 }
 
+impl GameState {
+    fn zone(&self) -> Result<&Zone, Custom<String>> {
+        self.zone
+            .as_ref()
+            .ok_or_else(|| Custom(Status::BadRequest, "Game is not ready yet".to_string()))
+    }
+
+    fn zone_mut(&mut self) -> Result<&mut Zone, Custom<String>> {
+        self.zone
+            .as_mut()
+            .ok_or_else(|| Custom(Status::BadRequest, "Game is not ready yet".to_string()))
+    }
+}
+
 type SharedState = Arc<Mutex<GameState>>;
 
 #[derive(Deserialize)]
 struct GetCellsRequest {
     player_id: usize,
-    coords: Vec<EncryptedCoord>,
+    coords: PhantomBatchedCt, // Vec<EncryptedCoord>
 }
 
 #[derive(Serialize, Clone)]
 struct GetCellsResponse {
-    cell_data: Vec<CellEncryptedData>,
+    cell_data: PhantomPackedCt, // Vec<CellEncryptedData>,
+}
+
+#[derive(Deserialize)]
+struct GetFiveCellsRequest {
+    player_id: usize,
+    coords: PhantomBatchedCt, // [EncryptedCoord; 5]
+}
+
+#[derive(Serialize, Clone)]
+struct GetFiveCellsResponse {
+    cell_data: PhantomPackedCt, // [CellEncryptedData; 5],
+}
+
+#[derive(Deserialize)]
+struct GetCrossCellsRequest {
+    player_id: usize,
+}
+
+#[derive(Serialize, Clone)]
+struct GetCrossCellsResponse {
+    cell_data: PhantomPackedCt, // [CellEncryptedData; 5],
+}
+
+#[derive(Deserialize)]
+struct GetVerticalCellsRequest {
+    player_id: usize,
+    coord: PhantomBatchedCt, // EncryptedCoord
+}
+
+#[derive(Serialize, Clone)]
+struct GetVerticalCellsResponse {
+    cell_data: PhantomPackedCt, // [CellEncryptedData; 5],
+}
+
+#[derive(Deserialize)]
+struct GetHorizontalCellsRequest {
+    player_id: usize,
+    coord: PhantomBatchedCt, // EncryptedCoord
+}
+
+#[derive(Serialize, Clone)]
+struct GetHorizontalCellsResponse {
+    cell_data: PhantomPackedCt, // [CellEncryptedData; 5],
 }
 
 #[derive(Deserialize)]
@@ -53,18 +116,18 @@ struct GetPlayerRequest {
 
 #[derive(Serialize, Clone)]
 struct GetPlayerResponse {
-    player_data: PlayerEncryptedData,
+    player_data: PhantomPackedCt, // PlayerEncryptedData,
 }
 
 #[derive(Deserialize)]
 struct MoveRequest {
     player_id: usize,
-    direction: Encrypted<Direction>,
+    direction: PhantomBatchedCt, // Encrypted<Direction>
 }
 
 #[derive(Serialize, Clone)]
 struct MoveResponse {
-    my_new_coords: EncryptedCoord,
+    my_new_coords: Option<PhantomPackedCt>, // EncryptedCoord
     rate_limited: bool,
 }
 
@@ -126,52 +189,172 @@ fn make_cors() -> Cors {
 async fn get_cells(
     state: &State<SharedState>,
     request: Json<GetCellsRequest>,
-) -> Json<GetCellsResponse> {
-    let mut cell_data = Vec::new();
-
-    {
+) -> Result<Json<GetCellsResponse>, Custom<String>> {
+    let cell_data = {
         let game_state = state.lock().await;
-        let zone = &game_state.zone;
+        let zone = game_state.zone()?;
 
-        cell_data = zone.get_cells(request.player_id, request.coords.clone());
-    }
+        let bits = game_state.evaluator.unbatch(&request.coords);
+        if bits.len() % 16 != 0 {
+            return Err(bad_request("invalid coordinates"));
+        }
+        let coords = bits
+            .into_iter()
+            .chunks(16)
+            .into_iter()
+            .map(|mut chunk| EncryptedCoord {
+                x: from_fn(|_| chunk.next().unwrap()),
+                y: from_fn(|_| chunk.next().unwrap()),
+            })
+            .collect();
+        let cells = zone.get_cells(request.player_id, coords);
 
-    let len = request.coords.len();
-    time::sleep(Duration::from_millis(GET_CELL_TIME_MILLIS * (len as u64))).await;
+        game_state
+            .evaluator
+            .pack(cells.iter().flat_map(|cell| cell.bits()))
+    };
 
     info!("processed /get_cells request");
 
-    Json(GetCellsResponse { cell_data })
+    Ok(Json(GetCellsResponse { cell_data }))
+}
+
+#[post("/get_five_cells", format = "json", data = "<request>")]
+async fn get_five_cells(
+    state: &State<SharedState>,
+    request: Json<GetFiveCellsRequest>,
+) -> Result<Json<GetFiveCellsResponse>, Custom<String>> {
+    let cell_data = {
+        let game_state = state.lock().await;
+        let zone = game_state.zone()?;
+
+        let bits = game_state.evaluator.unbatch(&request.coords);
+        if bits.len() != 5 * 16 {
+            return Err(bad_request("invalid coordinates"));
+        }
+        let mut bits = bits.into_iter();
+        let coords = from_fn(|_| EncryptedCoord {
+            x: from_fn(|_| bits.next().unwrap()),
+            y: from_fn(|_| bits.next().unwrap()),
+        });
+        let cells = zone.get_five_cells(request.player_id, coords);
+
+        game_state
+            .evaluator
+            .pack(cells.iter().flat_map(|cell| cell.bits()))
+    };
+
+    info!("processed /get_five_cells request");
+
+    Ok(Json(GetFiveCellsResponse { cell_data }))
+}
+
+#[post("/get_cross_cells", format = "json", data = "<request>")]
+async fn get_cross_cells(
+    state: &State<SharedState>,
+    request: Json<GetCrossCellsRequest>,
+) -> Result<Json<GetCrossCellsResponse>, Custom<String>> {
+    let cell_data = {
+        let game_state = state.lock().await;
+        let zone = game_state.zone()?;
+
+        let cells = zone.get_cross_cells(request.player_id);
+
+        game_state
+            .evaluator
+            .pack(cells.iter().flat_map(|cell| cell.bits()))
+    };
+
+    info!("processed /get_cross_cells request");
+
+    Ok(Json(GetCrossCellsResponse { cell_data }))
+}
+
+#[post("/get_vertical_cells", format = "json", data = "<request>")]
+async fn get_vertical_cells(
+    state: &State<SharedState>,
+    request: Json<GetVerticalCellsRequest>,
+) -> Result<Json<GetVerticalCellsResponse>, Custom<String>> {
+    let cell_data = {
+        let game_state = state.lock().await;
+        let zone = game_state.zone()?;
+
+        let bits = game_state.evaluator.unbatch(&request.coord);
+        if bits.len() != 16 {
+            return Err(bad_request("invalid coordinate"));
+        }
+        let mut bits = bits.into_iter();
+        let coord = EncryptedCoord {
+            x: from_fn(|_| bits.next().unwrap()),
+            y: from_fn(|_| bits.next().unwrap()),
+        };
+        let cells = zone.get_vertical_cells(request.player_id, coord);
+
+        game_state
+            .evaluator
+            .pack(cells.iter().flat_map(|cell| cell.bits()))
+    };
+
+    info!("processed /get_vertical_cells request");
+
+    Ok(Json(GetVerticalCellsResponse { cell_data }))
+}
+
+#[post("/get_horizontal_cells", format = "json", data = "<request>")]
+async fn get_horizontal_cells(
+    state: &State<SharedState>,
+    request: Json<GetHorizontalCellsRequest>,
+) -> Result<Json<GetHorizontalCellsResponse>, Custom<String>> {
+    let cell_data = {
+        let game_state = state.lock().await;
+        let zone = game_state.zone()?;
+
+        let bits = game_state.evaluator.unbatch(&request.coord);
+        if bits.len() != 16 {
+            return Err(bad_request("invalid coordinate"));
+        }
+        let mut bits = bits.into_iter();
+        let coord = EncryptedCoord {
+            x: from_fn(|_| bits.next().unwrap()),
+            y: from_fn(|_| bits.next().unwrap()),
+        };
+        let cells = zone.get_horizontal_cells(request.player_id, coord);
+
+        game_state
+            .evaluator
+            .pack(cells.iter().flat_map(|cell| cell.bits()))
+    };
+
+    info!("processed /get_horizontal_cells request");
+
+    Ok(Json(GetHorizontalCellsResponse { cell_data }))
 }
 
 #[post("/get_player", format = "json", data = "<request>")]
 async fn get_player(
     state: &State<SharedState>,
     request: Json<GetPlayerRequest>,
-) -> Json<GetPlayerResponse> {
-    let mut player_response = PlayerEncryptedData::default();
-
-    {
+) -> Result<Json<GetPlayerResponse>, Custom<String>> {
+    let player_response = {
         let game_state = state.lock().await;
-        let zone = &game_state.zone;
-
-        player_response = zone.get_player(request.player_id).clone();
-    }
-
-    time::sleep(Duration::from_millis(GET_PLAYER_TIME_MILLIS)).await;
+        let zone = game_state.zone()?;
+        game_state
+            .evaluator
+            .pack(zone.get_player(request.player_id).bits())
+    };
 
     info!("processed /get_player request");
 
-    Json(GetPlayerResponse {
+    Ok(Json(GetPlayerResponse {
         player_data: player_response,
-    })
+    }))
 }
 
 #[post("/move", format = "json", data = "<move_request>")]
 async fn queue_move(
     state: &State<SharedState>,
     move_request: Json<MoveRequest>,
-) -> Json<MoveResponse> {
+) -> Result<Json<MoveResponse>, Custom<String>> {
     let can_move = {
         let current_time = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
@@ -183,13 +366,10 @@ async fn queue_move(
     };
 
     if !can_move {
-        return Json(MoveResponse {
-            my_new_coords: EncryptedCoord {
-                x: Encrypted { val: 0 },
-                y: Encrypted { val: 0 },
-            },
+        return Ok(Json(MoveResponse {
+            my_new_coords: None,
             rate_limited: true,
-        });
+        }));
     }
 
     let notify = Arc::new(Notify::new());
@@ -197,11 +377,14 @@ async fn queue_move(
 
     {
         let mut game_state = state.lock().await;
-        game_state.move_queue.push_back((
-            move_request.player_id,
-            move_request.direction,
-            notify_clone,
-        ));
+        let direction = game_state
+            .evaluator
+            .unbatch(&move_request.direction)
+            .try_into()
+            .map_err(|_| bad_request("invalid direction"))?;
+        game_state
+            .move_queue
+            .push_back((move_request.player_id, direction, notify_clone));
         game_state.player_last_move_time[move_request.player_id] = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap()
@@ -211,14 +394,19 @@ async fn queue_move(
     notify.notified().await;
 
     let game_state = state.lock().await;
-    let player = &game_state.zone.players[move_request.player_id];
+    let my_new_coords = game_state.evaluator.pack(
+        game_state.zone()?.players[move_request.player_id]
+            .data
+            .loc
+            .bits(),
+    );
 
     info!("processed /move request");
 
-    Json(MoveResponse {
-        my_new_coords: player.data.loc,
+    Ok(Json(MoveResponse {
+        my_new_coords: Some(my_new_coords),
         rate_limited: false,
-    })
+    }))
 }
 
 async fn process_moves(state: SharedState) {
@@ -235,14 +423,12 @@ async fn process_moves(state: SharedState) {
             }
         };
 
-        // simulate that the state update does not happen until 500ms has
-        // elapsed following a move request
-        time::sleep(Duration::from_millis(MOVE_TIME_MILLIS)).await;
-
         {
             let mut game_state = state.lock().await;
-            let zone = &mut game_state.zone;
+            let zone = game_state.zone_mut().unwrap();
+            let start = std::time::Instant::now();
             zone.move_player(player_id, direction);
+            info!("zone.move_player takes: {:?}", start.elapsed());
         }
 
         notify.notify_one();
@@ -298,15 +484,29 @@ async fn submit_r2(
             .cloned()
             .collect();
         game_state.evaluator.aggregate_round_2_keys(&round_2_keys);
+        game_state.zone = Some(Zone::new(64, 64, &game_state.evaluator));
     }
 
     Json(SubmitRound2KeyResponse {})
 }
 
+fn bad_request(err: impl ToString) -> Custom<String> {
+    custom(Status::BadRequest, err)
+}
+
+fn custom(status: Status, err: impl ToString) -> Custom<String> {
+    Custom(status, err.to_string())
+}
+
 #[launch]
 async fn rocket() -> _ {
+    tracing_subscriber::registry()
+        .with(tracing_subscriber::EnvFilter::from_default_env())
+        .with(tracing_subscriber::fmt::layer())
+        .init();
+
     let shared_state: Arc<Mutex<GameState>> = Arc::new(Mutex::new(GameState {
-        zone: Zone::new(64, 64), // 64x64 zone
+        zone: None, // 64x64 zone, will be initialized when keygen is finished.
         move_queue: VecDeque::new(),
         player_last_move_time: [0, 0, 0, 0],
         evaluator: PhantomEvaluator::new(PhantomParam::I_4P_60),
@@ -325,7 +525,18 @@ async fn rocket() -> _ {
     .manage(shared_state.clone())
     .mount(
         "/",
-        routes![queue_move, get_cells, get_player, submit_r1, get_pk, submit_r2,],
+        routes![
+            queue_move,
+            get_cells,
+            get_five_cells,
+            get_cross_cells,
+            get_vertical_cells,
+            get_horizontal_cells,
+            get_player,
+            submit_r1,
+            get_pk,
+            submit_r2,
+        ],
     )
     .attach(make_cors())
 }
