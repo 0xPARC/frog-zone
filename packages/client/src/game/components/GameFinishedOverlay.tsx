@@ -6,9 +6,16 @@ import { Scoreboard } from "./Scoreboard";
 const TIME_TO_AUTO_START_NEW_GAME = 60 * 1000;
 
 export const GameFinishedOverlay: React.FC = () => {
+	const wasAborted = useStore.getState().game?.wasAborted;
 	const [countdown, setCountdown] = useState(
 		TIME_TO_AUTO_START_NEW_GAME / 1000,
 	);
+
+	useEffect(() => {
+		if (wasAborted) {
+			handleNewGame();
+		}
+	}, [wasAborted]);
 
 	const handleNewGame = async () => {
 		useStore.getState().setGame(null);

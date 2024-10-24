@@ -21,6 +21,7 @@ export interface GameResponse {
 			score: number;
 			machineId: string;
 		}[];
+		wasAborted: boolean;
 	};
 }
 
