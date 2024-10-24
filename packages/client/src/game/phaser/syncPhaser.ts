@@ -17,8 +17,8 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 	const selectedPlayerId = Number(getPlayerId());
 	const player = await fetchPlayer(selectedPlayerId);
 	const initialPlayerCoord = {
-		x: player?.player_data?.loc.x.val,
-		y: player?.player_data?.loc.y.val,
+		x: player?.player_data?.loc.x,
+		y: player?.player_data?.loc.y,
 	};
 	let moveMarker: Phaser.GameObjects.Image | null = null;
 
@@ -50,13 +50,13 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 					image.destroy();
 				}
 			}
-			if (tile.entity_type.val && tile.entity_id?.val !== undefined) {
-				if (tile.entity_type.val === "Item") {
+			if (tile.entity_type && tile.entity_id !== undefined) {
+				if (tile.entity_type === "Item") {
 					const itemGameObject = addItem(tile.coord);
-					items.set(tile.entity_id.val, itemGameObject);
+					items.set(tile.entity_id, itemGameObject);
 				}
-				if (tile.entity_type.val === "Player") {
-					const id = tile.entity_id.val;
+				if (tile.entity_type === "Player") {
+					const id = tile.entity_id;
 					if (id !== selectedPlayerId) {
 						const playerImg = players.get(id);
 						if (playerImg) {
@@ -70,12 +70,12 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 					}
 					useStore.getState().addPlayer({
 						id,
-						hp: tile.hp.val,
-						atk: tile.atk.val,
+						hp: tile.hp,
+						atk: tile.atk,
 						coord: tile.coord,
 					});
 				}
-				if (tile.entity_type.val === "None") {
+				if (tile.entity_type === "None") {
 					// remove image at coord
 					const id = coordToKey(tile.coord);
 					const image = players.get(id) || items.get(id);
@@ -196,8 +196,8 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		const moveResponse = await api.move(selectedPlayerId, direction);
 		if (moveResponse?.my_new_coords) {
 			const newCoord = {
-				x: moveResponse.my_new_coords.x.val,
-				y: moveResponse.my_new_coords.y.val,
+				x: moveResponse.my_new_coords.x,
+				y: moveResponse.my_new_coords.y,
 			};
 			drawSelectedPlayer(newCoord);
 			if (moveMarker) {

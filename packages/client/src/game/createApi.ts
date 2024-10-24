@@ -9,15 +9,13 @@ export enum Direction {
 
 interface type {
 	player_id: number;
-	direction: {
-		val: Direction;
-	};
+	direction: Direction;
 }
 
 interface MoveResponse {
 	my_new_coords: {
-		x: { val: number };
-		y: { val: number };
+		x: number;
+		y: number;
 	};
 	rate_limited: boolean;
 }
@@ -31,7 +29,7 @@ const createApi = () => {
 	): Promise<MoveResponse> => {
 		const moveRequest: type = {
 			player_id: playerId,
-			direction: { val: direction },
+			direction: direction,
 		};
 
 		const response = await fetch(`${serverUrl}/move`, {

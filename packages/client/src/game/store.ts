@@ -9,10 +9,10 @@ import { GameResponse } from "../utils/fetchGame";
 export type TileEntityType = "None" | "Player" | "Item";
 
 export type Tile = {
-	atk: { val: number };
-	entity_id: { val: 0 };
-	entity_type: { val: TileEntityType };
-	hp: { val: number };
+	atk: number;
+	entity_id: number;
+	entity_type: TileEntityType;
+	hp: number;
 };
 
 export type TileWithCoord = Tile & {
@@ -86,7 +86,7 @@ const initializeGrid = (size: number) => {
 			const coordKey = coordToKey({ x, y });
 			grid.set(coordKey, {
 				coord: { x, y },
-				entity_type: { val: "None" },
+				entity_type: "None",
 				fetchedAt: 0,
 				isShown: false,
 			});

@@ -4,12 +4,8 @@ type PlayerData = {
 		atk: number;
 		hp: number;
 		loc: {
-			x: {
-				val: number;
-			};
-			y: {
-				val: number;
-			};
+			x: number;
+			y: number;
 		};
 	};
 };

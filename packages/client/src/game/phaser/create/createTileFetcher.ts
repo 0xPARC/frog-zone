@@ -3,7 +3,7 @@ import { fetchTiles } from "../../../utils/fetchTiles";
 import { getSurroundingCoordinates } from "../../../utils/getSurroundingCoordinates";
 import useStore, { Coord, TileWithCoord } from "../../store";
 
-const FETCH_INTERVAL = 1000;
+const FETCH_INTERVAL = 15000;
 const STALE_TIME_MS = 5000;
 
 export const createTileFetcher = ({
@@ -35,7 +35,7 @@ export const createTileFetcher = ({
 
 		console.log("COORDINATES FETCHED", nextBatch);
 
-		const newTiles = await fetchTiles(playerId, nextBatch);
+		const newTiles = await fetchTiles(initialCoordinate, nextBatch);
 
 		onSuccessfulFetch({ tiles: newTiles, viewportCoords: coordinates });
 
