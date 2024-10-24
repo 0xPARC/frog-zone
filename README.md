@@ -1,14 +1,10 @@
 # Frog Zone
 
 ## Getting Started
-This is a bun monorepo. Get [bun](https://bun.sh) if you don't have it
-Then, `bun install`
-Client (`packages/client`) is vite + SWC + ts + rxjs + phaser + react. Run with `bun dev`
-Server (`packages/server`) is rust (rocket). Run with `cargo run`
 
-## Git Stuff
-- rebase don't merge
-- [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) within PRs, and then squash and merge to main
+Client is managed with bun. Get [bun](https://bun.sh) if you don't have it.
+Then, `bun install` in `packages/client`.
+Client (`packages/client`) is vite + SWC + ts + rxjs + phaser + react. Run with `bun dev`. Don't forget to add a `.env` with appropriate env variables.
 
-## Notes
-- right now server responds with all events on `/state`, it should only respond with events after a certain id passed by client
+
+Backend and local client (`packages/phantom-client`, `packages/server`, `packages/worker`) are rust (rocket). Install dependencies, build, and run with `sh start.sh` from `packages`. Test with `sh test.sh`. Sometimes stuff is really finnicky so you might have to try a couple of times.
