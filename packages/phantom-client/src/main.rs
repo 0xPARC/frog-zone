@@ -174,7 +174,9 @@ struct GetCrossCellsResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct GetVerticalCellsRequest {}
+struct GetVerticalCellsRequest {
+    center_coord: Coord,
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 struct GetVerticalCellsResponse {
@@ -182,7 +184,9 @@ struct GetVerticalCellsResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct GetHorizontalCellsRequest {}
+struct GetHorizontalCellsRequest {
+    center_coord: Coord,
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 struct GetHorizontalCellsResponse {
@@ -397,17 +401,17 @@ async fn get_cross_cells(
     Ok(Json(GetCrossCellsResponse { cell_data }))
 }
 
-#[post("/get_vertical_cells", format = "json", data = "<_request>")]
+#[post("/get_vertical_cells", format = "json", data = "<request>")]
 async fn get_vertical_cells(
     state: &State<SharedState>,
-    _request: Json<GetVerticalCellsRequest>,
+    request: Json<GetVerticalCellsRequest>,
 ) -> Result<Json<GetVerticalCellsResponse>, Custom<String>> {
     let post_data = {
         let app_state = state.lock().await;
 
         let coord = app_state.user.batched_pk_encrypt(chain![
-            to_le_bits(app_state.player_coord.x),
-            to_le_bits(app_state.player_coord.y)
+            to_le_bits(request.center_coord.x),
+            to_le_bits(request.center_coord.y)
         ]);
 
         proxy::GetVerticalCellsRequest {
@@ -438,17 +442,17 @@ async fn get_vertical_cells(
     Ok(Json(GetVerticalCellsResponse { cell_data }))
 }
 
-#[post("/get_horizontal_cells", format = "json", data = "<_request>")]
+#[post("/get_horizontal_cells", format = "json", data = "<request>")]
 async fn get_horizontal_cells(
     state: &State<SharedState>,
-    _request: Json<GetHorizontalCellsRequest>,
+    request: Json<GetHorizontalCellsRequest>,
 ) -> Result<Json<GetHorizontalCellsResponse>, Custom<String>> {
     let post_data = {
         let app_state = state.lock().await;
 
         let coord = app_state.user.batched_pk_encrypt(chain![
-            to_le_bits(app_state.player_coord.x),
-            to_le_bits(app_state.player_coord.y)
+            to_le_bits(request.center_coord.x),
+            to_le_bits(request.center_coord.y)
         ]);
 
         proxy::GetHorizontalCellsRequest {

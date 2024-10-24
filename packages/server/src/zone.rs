@@ -447,7 +447,7 @@ fn fhe_get_cross_cells(
 }
 
 fn fhe_get_vertical_cells(
-    player_coord: EncryptedCoord,
+    center_coord: EncryptedCoord,
     query_coord: EncryptedCoord,
     items: [ItemWithEncryptedId; NUM_ITEMS],
     players: [PlayerWithEncryptedId; 4],
@@ -459,7 +459,7 @@ fn fhe_get_vertical_cells(
                 .flat_map(|item| item.bits())
                 .cloned()
                 .collect_vec(),
-            &player_coord.bits().cloned().collect_vec(),
+            &center_coord.bits().cloned().collect_vec(),
             &players
                 .iter()
                 .flat_map(|player| player.bits())
@@ -479,7 +479,7 @@ fn fhe_get_vertical_cells(
 }
 
 fn fhe_get_horizontal_cells(
-    player_coord: EncryptedCoord,
+    center_coord: EncryptedCoord,
     query_coord: EncryptedCoord,
     items: [ItemWithEncryptedId; NUM_ITEMS],
     players: [PlayerWithEncryptedId; 4],
@@ -491,7 +491,7 @@ fn fhe_get_horizontal_cells(
                 .flat_map(|item| item.bits())
                 .cloned()
                 .collect_vec(),
-            &player_coord.bits().cloned().collect_vec(),
+            &center_coord.bits().cloned().collect_vec(),
             &players
                 .iter()
                 .flat_map(|player| player.bits())
