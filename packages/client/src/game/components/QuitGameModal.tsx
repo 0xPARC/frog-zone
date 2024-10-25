@@ -3,6 +3,7 @@ import { Modal } from "../../components/Modal";
 import { Button } from "../../components/Button";
 import useStore from "../store";
 import { requestEndGame } from "../../utils/requestEndGame";
+import { getPlayerId } from "../../utils/getPlayerId";
 
 // CTRL + Q triggers the modal. Allows users to quit the game, the game will end if all users quit
 
@@ -33,12 +34,12 @@ export const QuitGameModal: React.FC = () => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [requestedEndGame, setRequestedEndGame] = useState(false);
 	const gameId = useStore.getState().game?.gameId;
-	const publicKey = useStore.getState().publicKey;
+	const machineId = getPlayerId() as string;
 
 	const handleQuit = async () => {
-		if (gameId && publicKey) {
+		if (gameId) {
 			setRequestedEndGame(true);
-			const data = await requestEndGame({ gameId, publicKey });
+			const data = await requestEndGame({ gameId, machineId });
 			if (!data.success) {
 				setRequestedEndGame(false);
 			}
