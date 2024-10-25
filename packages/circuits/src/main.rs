@@ -1,32 +1,31 @@
-use core::ops::{BitAnd, BitOr, BitXor, Not};
-use core::{array::from_fn, cell::OnceCell, num::Wrapping};
+use core::cell::OnceCell;
 use itertools::Itertools;
 use phantom_zone_evaluator::boolean::{fhew::param::I_4P_60, fhew::prelude::*, FheBool};
-use rand::{rngs::StdRng, Rng, RngCore, SeedableRng};
+use rand::{rngs::StdRng, RngCore, SeedableRng};
 use serde::{Deserialize, Serialize};
 use std::env;
 
 use phantom_benchs::*;
 
-type Evaluator = FhewBoolEvaluator<NoisyNativeRing, NonNativePowerOfTwoRing>;
-
-fn encrypt_bool<'a>(
-    evaluator: &'a Evaluator,
-    sk: &LweSecretKeyOwned<i32>,
-    m: bool,
-    rng: &mut LweRng<impl RngCore, impl RngCore>,
-) -> FheBool<&'a Evaluator> {
-    let ct = FhewBoolCiphertext::sk_encrypt(evaluator.param(), evaluator.ring(), sk, m, rng);
-    FheBool::new(evaluator, ct)
-}
-
-fn decrypt_bool(
-    evaluator: &Evaluator,
-    sk: &LweSecretKeyOwned<i32>,
-    ct: FheBool<Evaluator>,
-) -> bool {
-    ct.ct().decrypt(evaluator.ring(), sk)
-}
+// type Evaluator = FhewBoolEvaluator<NoisyNativeRing, NonNativePowerOfTwoRing>;
+//
+// fn encrypt_bool<'a>(
+//     evaluator: &'a Evaluator,
+//     sk: &LweSecretKeyOwned<i32>,
+//     m: bool,
+//     rng: &mut LweRng<impl RngCore, impl RngCore>,
+// ) -> FheBool<&'a Evaluator> {
+//     let ct = FhewBoolCiphertext::sk_encrypt(evaluator.param(), evaluator.ring(), sk, m, rng);
+//     FheBool::new(evaluator, ct)
+// }
+//
+// fn decrypt_bool(
+//     evaluator: &Evaluator,
+//     sk: &LweSecretKeyOwned<i32>,
+//     ct: FheBool<Evaluator>,
+// ) -> bool {
+//     ct.ct().decrypt(evaluator.ring(), sk)
+// }
 
 fn u64_to_binary<const N: usize>(v: u64) -> Vec<bool> {
     assert!((v as u128) < 2u128.pow(N as u32));
@@ -125,19 +124,19 @@ impl<R: RingOps, M: ModulusOps> Client<R, M> {
         bs_key_share
     }
 
-    fn decrypt_share(
-        &self,
-        ct: [FhewBoolCiphertextOwned<R::Elem>; 8],
-    ) -> [LweDecryptionShare<R::Elem>; 8] {
-        ct.map(|ct| {
-            ct.decrypt_share(
-                &self.param,
-                self.ring(),
-                self.sk().as_view(),
-                &mut StdLweRng::from_entropy(),
-            )
-        })
-    }
+    // fn decrypt_share(
+    //     &self,
+    //     ct: [FhewBoolCiphertextOwned<R::Elem>; 8],
+    // ) -> [LweDecryptionShare<R::Elem>; 8] {
+    //     ct.map(|ct| {
+    //         ct.decrypt_share(
+    //             &self.param,
+    //             self.ring(),
+    //             self.sk().as_view(),
+    //             &mut StdLweRng::from_entropy(),
+    //         )
+    //     })
+    // }
 }
 
 #[derive(Serialize, Deserialize)]
@@ -191,42 +190,42 @@ impl<R: RingOps, M: ModulusOps> Server<R, M> {
         self.evaluator = FhewBoolEvaluator::new(bs_key_prep);
     }
 
-    fn pk_encrypt(&self, m: u8) -> [FhewBoolCiphertextOwned<R::Elem>; 8] {
-        pk_encrypt(&self.param, self.ring(), &self.pk, m)
-    }
+    // fn pk_encrypt(&self, m: u8) -> [FhewBoolCiphertextOwned<R::Elem>; 8] {
+    //     pk_encrypt(&self.param, self.ring(), &self.pk, m)
+    // }
 }
 
-fn pk_encrypt<R: RingOps>(
-    param: &FhewBoolParam,
-    ring: &R,
-    pk: &RlwePublicKeyOwned<R::Elem>,
-    m: u8,
-) -> [FhewBoolCiphertextOwned<R::Elem>; 8] {
-    FhewBoolBatchedCiphertext::pk_encrypt(
-        param,
-        ring,
-        pk,
-        (0..8).map(|idx| (m >> idx) & 1 == 1),
-        &mut StdLweRng::from_entropy(),
-    )
-    .extract_all(ring)
-    .try_into()
-    .unwrap()
-}
+// fn pk_encrypt<R: RingOps>(
+//     param: &FhewBoolParam,
+//     ring: &R,
+//     pk: &RlwePublicKeyOwned<R::Elem>,
+//     m: u8,
+// ) -> [FhewBoolCiphertextOwned<R::Elem>; 8] {
+//     FhewBoolBatchedCiphertext::pk_encrypt(
+//         param,
+//         ring,
+//         pk,
+//         (0..8).map(|idx| (m >> idx) & 1 == 1),
+//         &mut StdLweRng::from_entropy(),
+//     )
+//     .extract_all(ring)
+//     .try_into()
+//     .unwrap()
+// }
 
-fn aggregate_decryption_shares<R: RingOps>(
-    ring: &R,
-    ct: [FhewBoolCiphertextOwned<R::Elem>; 8],
-    dec_shares: &[[LweDecryptionShare<R::Elem>; 8]],
-) -> u8 {
-    (0..8)
-        .map(|idx| {
-            let dec_shares = dec_shares.iter().map(|dec_shares| &dec_shares[idx]);
-            ct[idx].aggregate_decryption_shares(ring, dec_shares)
-        })
-        .rev()
-        .fold(0, |m, b| (m << 1) | b as u8)
-}
+// fn aggregate_decryption_shares<R: RingOps>(
+//     ring: &R,
+//     ct: [FhewBoolCiphertextOwned<R::Elem>; 8],
+//     dec_shares: &[[LweDecryptionShare<R::Elem>; 8]],
+// ) -> u8 {
+//     (0..8)
+//         .map(|idx| {
+//             let dec_shares = dec_shares.iter().map(|dec_shares| &dec_shares[idx]);
+//             ct[idx].aggregate_decryption_shares(ring, dec_shares)
+//         })
+//         .rev()
+//         .fold(0, |m, b| (m << 1) | b as u8)
+// }
 
 fn serialize_pk_share<R: RingOps>(
     ring: &R,
@@ -266,23 +265,16 @@ fn deserialize_bs_key_share<R: RingOps, M: ModulusOps>(
     bs_key_share_compact.uncompact(ring, mod_ks)
 }
 
-fn serialize_cts<R: RingOps>(ring: &R, cts: [FhewBoolCiphertextOwned<R::Elem>; 8]) -> Vec<u8> {
-    bincode::serialize(&cts.map(|ct| ct.compact(ring))).unwrap()
-}
-
-fn deserialize_cts<R: RingOps>(ring: &R, bytes: &[u8]) -> [FhewBoolCiphertextOwned<R::Elem>; 8] {
-    let cts: [FhewBoolCiphertext<Compact>; 8] = bincode::deserialize(bytes).unwrap();
-    cts.map(|ct| ct.uncompact(ring))
-}
+// fn serialize_cts<R: RingOps>(ring: &R, cts: [FhewBoolCiphertextOwned<R::Elem>; 8]) -> Vec<u8> {
+//     bincode::serialize(&cts.map(|ct| ct.compact(ring))).unwrap()
+// }
+//
+// fn deserialize_cts<R: RingOps>(ring: &R, bytes: &[u8]) -> [FhewBoolCiphertextOwned<R::Elem>; 8] {
+//     let cts: [FhewBoolCiphertext<Compact>; 8] = bincode::deserialize(bytes).unwrap();
+//     cts.map(|ct| ct.uncompact(ring))
+// }
 
 enum Bench {
-    // Collision1 : Random
-    // Collision2 : Square
-    Collision(usize),
-    Move(usize),
-    Getview(usize),
-    GetviewX,
-    Getview20Partial(usize),
     FZApplyMove,
     FZGetCell,
     FZGetCrossCells,
@@ -477,16 +469,6 @@ impl ItemsWithId {
 fn main() {
     let bench_str = env::var("BENCH").unwrap();
     let bench = match bench_str.as_str() {
-        "Collision1" => Bench::Collision(1),
-        "Collision2" => Bench::Collision(2),
-        "Move1" => Bench::Move(1),
-        "Move2" => Bench::Move(2),
-        "Getview5" => Bench::Getview(5),
-        "Getview10" => Bench::Getview(10),
-        "Getview15" => Bench::Getview(15),
-        "Getview20" => Bench::Getview(20),
-        "Getview20Partial1" => Bench::Getview20Partial(1),
-        "Getview20Partial5" => Bench::Getview20Partial(5),
         "FZApplyMove" => Bench::FZApplyMove,
         "FZGetCell" => Bench::FZGetCell,
         "FZGetCrossCells" => Bench::FZGetCrossCells,
@@ -544,30 +526,6 @@ fn main() {
 
     // Server performs FHE evaluation
     let inputs = match bench {
-        Bench::Collision(_) => {
-            // collision_test (x, y)
-            vec![u64_to_binary::<8>(1), u64_to_binary::<8>(3)]
-        }
-        Bench::Move(_) => {
-            // move_test (dir, pos)
-            vec![u64_to_binary::<8>(1), u64_to_binary::<16>(1)]
-        }
-        Bench::Getview(num_objs) => {
-            // getview (state, x, y)
-            // State: NUM_OBJ * (2*8 + 3*8 + 1) bits
-            let state = vec![false; num_objs * (2 * 8 + 3 * 8 + 1)];
-            vec![state, u64_to_binary::<8>(5), u64_to_binary::<8>(5)]
-        }
-        Bench::GetviewX => {
-            let num_objs = 10;
-            let state = vec![false; 10 * (2 * 8 + 2 * 8 + 1)];
-            vec![state, u64_to_binary::<8>(5), u64_to_binary::<8>(5)]
-        }
-        Bench::Getview20Partial(_) => {
-            let num_objs = 20;
-            let state = vec![false; num_objs * (2 * 8 + 3 * 8 + 1)];
-            vec![state, u64_to_binary::<8>(5), u64_to_binary::<8>(5)]
-        }
         Bench::FZApplyMove => {
             // (direction, items, obstacles, player_data)
             // (Direction, Items, Obstacles100, PlayerData)
@@ -629,14 +587,6 @@ fn main() {
         }
     };
 
-    // inputs
-    //     .iter()
-    //     .for_each(|input| println!("DBG input.len()={}", input.len()));
-
-    // let output = {
-    //     let [a, b, c, d, e] = &inputs.map(Wrapping);
-    //     function(a, b, c, d, e).0
-    // };
     let mut rng = StdLweRng::from_entropy();
 
     let now = std::time::Instant::now();
@@ -662,61 +612,6 @@ fn main() {
     let now = std::time::Instant::now();
     // https://hackmd.io/TjTYc-86QxGuxixpRbhTdA?view
     let outputs_enc = match bench {
-        // Random boundary cells
-        Bench::Collision(1) => vec![vec![collision_rand_test_rs_fhe_lib::entrypoint(
-            &inputs_enc[0],
-            &inputs_enc[1],
-        )]],
-        // Square boundary cells
-        Bench::Collision(2) => vec![vec![collision_square_test_rs_fhe_lib::entrypoint(
-            &inputs_enc[0],
-            &inputs_enc[1],
-        )]],
-        // Unified delta
-        Bench::Move(1) => vec![move1_test_rs_fhe_lib::entrypoint(
-            &inputs_enc[0],
-            &inputs_enc[1],
-        )],
-        // Coord update in place
-        Bench::Move(2) => vec![move2_test_rs_fhe_lib::entrypoint(
-            &inputs_enc[0],
-            &inputs_enc[1],
-        )],
-        Bench::Getview(5) => vec![getview5_test_rs_fhe_lib::entrypoint(
-            &inputs_enc[0],
-            &inputs_enc[1],
-            &inputs_enc[2],
-        )],
-        Bench::Getview(10) => vec![getview10_test_rs_fhe_lib::entrypoint(
-            &inputs_enc[0],
-            &inputs_enc[1],
-            &inputs_enc[2],
-        )],
-        Bench::Getview(15) => vec![getview15_test_rs_fhe_lib::entrypoint(
-            &inputs_enc[0],
-            &inputs_enc[1],
-            &inputs_enc[2],
-        )],
-        Bench::Getview(20) => vec![getview20_test_rs_fhe_lib::entrypoint(
-            &inputs_enc[0],
-            &inputs_enc[1],
-            &inputs_enc[2],
-        )],
-        Bench::GetviewX => vec![getviewx_test_rs_fhe_lib::entrypoint(
-            &inputs_enc[0],
-            &inputs_enc[1],
-            &inputs_enc[2],
-        )],
-        Bench::Getview20Partial(1) => vec![getview20partial1_test_rs_fhe_lib::entrypoint(
-            &inputs_enc[0],
-            &inputs_enc[1],
-            &inputs_enc[2],
-        )],
-        Bench::Getview20Partial(5) => vec![getview20partial5_test_rs_fhe_lib::entrypoint(
-            &inputs_enc[0],
-            &inputs_enc[1],
-            &inputs_enc[2],
-        )],
         Bench::FZApplyMove => vec![frogzone_apply_move_rs_fhe_lib::apply_move(
             &inputs_enc[0],
             &inputs_enc[1],
@@ -758,7 +653,6 @@ fn main() {
                 &inputs_enc[3],
             )]
         }
-        _ => unreachable!(),
     };
     println!("FHE circuit evaluation time: {:?}", now.elapsed());
 
