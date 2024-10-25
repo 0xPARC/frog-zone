@@ -8,16 +8,16 @@ export interface PlayerResponse {
 
 export const requestEndGame = async (args: {
 	gameId: string;
-	publicKey: string;
+	machineId: string;
 }): Promise<PlayerResponse> => {
 	try {
-		const { gameId, publicKey } = args;
+		const { gameId, machineId } = args;
 		const response = await fetch(`/api/game/${gameId}/player/end-game`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 			},
-			body: JSON.stringify({ hasEndedGame: true, publicKey }),
+			body: JSON.stringify({ hasEndedGame: true, machineId }),
 		});
 
 		if (!response.ok) {
