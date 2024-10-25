@@ -1,0 +1,52 @@
+datasource db {
+    provider  = "postgresql"
+    url       = env("DATABASE_URL")
+    directUrl = env("DIRECT_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model Machine {
+    id        Int      @id @default(autoincrement())
+    machineId String   @unique
+    publicKey String
+    gameId    Int?
+    game      Game?    @relation(fields: [gameId], references: [id])
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Game {
+    id         Int          @id @default(autoincrement())
+    gameId     String       @unique
+    machines   Machine[]
+    players    PlayerGame[]
+    createdAt  DateTime     @default(now())
+    wasAborted Boolean      @default(false)
+    status     String       @default("waiting_for_players") // Status can be 'ongoing', 'waiting_for_players' or 'completed'
+    updatedAt  DateTime     @updatedAt
+}
+
+model Player {
+    id          Int          @id @default(autoincrement())
+    publicKey   String       @unique
+    playerGames PlayerGame[]
+    createdAt   DateTime     @default(now())
+    updatedAt   DateTime     @updatedAt
+}
+
+model PlayerGame {
+    id           Int      @id @default(autoincrement())
+    game         Game     @relation(fields: [gameId], references: [id])
+    gameId       Int
+    player       Player   @relation(fields: [playerId], references: [id])
+    playerId     Int
+    publicKey    String
+    machineId    String
+    score        Int      @default(0)
+    hasEndedGame Boolean  @default(false)
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
+}
