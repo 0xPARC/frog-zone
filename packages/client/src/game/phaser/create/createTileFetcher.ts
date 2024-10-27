@@ -3,7 +3,7 @@ import { fetchTiles } from "../../../utils/fetchTiles";
 import { getSurroundingCoordinates } from "../../../utils/getSurroundingCoordinates";
 import useStore, { Coord, TileWithCoord } from "../../store";
 
-const FETCH_INTERVAL = 15000;
+const FETCH_INTERVAL = 1000;
 const STALE_TIME_MS = 5000;
 
 export const createTileFetcher = ({

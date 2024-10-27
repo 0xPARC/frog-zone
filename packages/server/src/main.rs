@@ -1,4 +1,5 @@
 use phantom::{PhantomEvaluator, PhantomParam, PhantomRound1Key, PhantomRound2Key};
+use rocket::data::{Limits, ToByteUnit};
 use rocket::figment::{util::map, Figment};
 use rocket::futures::stream::FuturesUnordered;
 use rocket::futures::TryStreamExt;
@@ -381,24 +382,31 @@ async fn rocket() -> _ {
         process_moves(state_clone).await;
     });
 
-    rocket::Rocket::custom(
-        Config::figment().merge(Figment::new().join(("limits", map!["json" => "700 MB"]))),
-    )
-    .manage(shared_state.clone())
-    .mount(
-        "/",
-        routes![
-            queue_move,
-            get_cells,
-            get_five_cells,
-            get_cross_cells,
-            get_vertical_cells,
-            get_horizontal_cells,
-            get_player,
-            submit_r1,
-            get_pk,
-            submit_r2,
-        ],
-    )
-    .attach(make_cors())
+    let limits = Limits::default().limit("json", 750.mebibytes());
+
+    let config = Config {
+        port: 8000,
+        address: std::net::IpAddr::V4("0.0.0.0".parse().unwrap()),
+        limits,
+        ..Config::default()
+    };
+
+    rocket::Rocket::custom(config)
+        .manage(shared_state.clone())
+        .mount(
+            "/",
+            routes![
+                queue_move,
+                get_cells,
+                get_five_cells,
+                get_cross_cells,
+                get_vertical_cells,
+                get_horizontal_cells,
+                get_player,
+                submit_r1,
+                get_pk,
+                submit_r2,
+            ],
+        )
+        .attach(make_cors())
 }

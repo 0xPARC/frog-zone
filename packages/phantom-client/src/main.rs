@@ -707,6 +707,7 @@ async fn main() -> Result<(), rocket::Error> {
     // Create a custom configuration
     let config = Config {
         port: *PORT,
+        address: std::net::IpAddr::V4("0.0.0.0".parse().unwrap()),
         ..Config::default()
     };
 
