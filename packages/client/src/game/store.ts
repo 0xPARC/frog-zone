@@ -190,6 +190,7 @@ const useStore = create<State>()(
 						// Set isShown to false for tiles outside the viewport
 						newGrid.set(key, {
 							...value,
+							entity_type: { val: "None" },
 							isShown: false,
 						});
 					}
