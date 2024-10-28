@@ -9,6 +9,7 @@ import { getPlayerId } from "./utils/getPlayerId";
 
 import { AreYouThere } from "./game/components/AreYouThere";
 import { EnterGameAnimation } from "./game/components/EnterGameAnimation";
+import { QuitGameModal } from "./game/components/QuitGameModal";
 
 const MIN_PLAYERS = 4;
 const MIN_PLAYERS_TO_FORCE_START = 1;
@@ -60,6 +61,11 @@ function App() {
 					{gameId && gameStatus === "completed" && (
 						<GameFinishedOverlay />
 					)}
+					{gameId &&
+						(gameStatus === "ongoing" ||
+							gameStatus === "waiting_for_players") && (
+							<QuitGameModal />
+						)}
 				</>
 			)}
 		</div>

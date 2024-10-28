@@ -1,4 +1,4 @@
-interface PlayerGame {
+export interface PlayerGame {
 	id: number;
 	gameId: number; // Foreign key to Game
 	playerId: number; // Foreign key to Player
