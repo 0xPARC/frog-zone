@@ -1,4 +1,4 @@
-import { SERVER_URL } from "../const/env.const";
+import { IS_MOCK, SERVER_URL } from "../const/env.const";
 type PlayerData = {
 	player_data: {
 		atk: number;
@@ -13,7 +13,7 @@ type PlayerData = {
 // Fetches the player's current location and stats using their player id
 export const fetchPlayer = async (playerId: number): Promise<PlayerData> => {
 	try {
-		const response = await fetch(`${SERVER_URL}/get_player`, {
+		const response = await fetch(`${SERVER_URL}/${IS_MOCK ? "mock_get_player" : "get_player"}`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",

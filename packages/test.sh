@@ -31,7 +31,7 @@ echo "Starting server..."
 
 nohup cargo run --release http://localhost:8005,http://localhost:8006,http://localhost:8007,http://localhost:8008 >/dev/null 2>&1 &
 
-sleep 1
+sleep 2
 
 cd ..
 

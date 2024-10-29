@@ -1,4 +1,4 @@
-import { SERVER_URL } from "../const/env.const";
+import { IS_MOCK, SERVER_URL } from "../const/env.const";
 import { Coord, Tile, TileWithCoord } from "../game/store";
 
 /*
@@ -119,6 +119,8 @@ export const fetchTiles = async (
       route = "get_five_cells";
     }
     */
+
+    if (IS_MOCK) route = "mock_get_cells"
 
     const response = await fetch(`${SERVER_URL}/${route}`, {
 			method: "POST",

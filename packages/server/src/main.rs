@@ -8,6 +8,7 @@ use rocket::response::status::{Custom, NotFound};
 use rocket::serde::{json::Json, Serialize};
 use rocket::{Config, State};
 use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors, CorsOptions};
+use server::mock_zone::MockZone;
 use server::zone::{EncryptedDirection, Zone, ZoneDiff};
 use server::{
     bad_request,
@@ -38,6 +39,7 @@ const MOVE_TIME_RATE_LIMIT_MILLIS: u64 = 3500;
 
 struct GameState {
     zone: Option<Zone>,
+    mock_zone: Option<MockZone>,
     move_queue: VecDeque<(usize, EncryptedDirection, Arc<Notify>)>,
     player_last_move_time: [u64; 4],
     // Phantom
@@ -58,6 +60,18 @@ impl GameState {
 
     fn zone_mut(&mut self) -> Result<&mut Zone, Custom<String>> {
         self.zone
+            .as_mut()
+            .ok_or_else(|| Custom(Status::BadRequest, "Game is not ready yet".to_string()))
+    }
+
+    fn mock_zone(&self) -> Result<&MockZone, Custom<String>> {
+        self.mock_zone
+            .as_ref()
+            .ok_or_else(|| Custom(Status::BadRequest, "Game is not ready yet".to_string()))
+    }
+
+    fn mock_zone_mut(&mut self) -> Result<&mut MockZone, Custom<String>> {
+        self.mock_zone
             .as_mut()
             .ok_or_else(|| Custom(Status::BadRequest, "Game is not ready yet".to_string()))
     }
@@ -123,6 +137,23 @@ async fn get_cells(
     worker::request(worker_uri, "/get_cells", request).await
 }
 
+#[post("/mock_get_cells", format = "json", data = "<request>")]
+async fn mock_get_cells(
+    state: &State<SharedState>,
+    request: Json<MockGetCellsRequest>,
+) -> Result<Json<MockGetCellsResponse>, Custom<String>> {
+    let cell_data = {
+        let game_state = state.lock().await;
+        let mock_zone = game_state.mock_zone()?;
+
+        mock_zone.get_cells(request.player_id, request.coords.clone())
+    };
+
+    info!("processed /mock_get_cells request");
+
+    Ok(Json(MockGetCellsResponse { cell_data }))
+}
+
 #[post("/get_five_cells", format = "json", data = "<request>")]
 async fn get_five_cells(
     state: &State<SharedState>,
@@ -175,6 +206,24 @@ async fn get_horizontal_cells(
     worker::request(worker_uri, "/get_horizontal_cells", request).await
 }
 
+#[post("/mock_get_player", format = "json", data = "<request>")]
+async fn mock_get_player(
+    state: &State<SharedState>,
+    request: Json<MockGetPlayerRequest>,
+) -> Result<Json<MockGetPlayerResponse>, Custom<String>> {
+    let player_response = {
+        let game_state = state.lock().await;
+        let mock_zone = game_state.mock_zone()?;
+        mock_zone.get_player(request.player_id)
+    };
+
+    info!("processed /mock_get_player request");
+
+    Ok(Json(MockGetPlayerResponse {
+        player_data: player_response,
+    }))
+}
+
 #[post("/get_player", format = "json", data = "<request>")]
 async fn get_player(
     state: &State<SharedState>,
@@ -192,6 +241,57 @@ async fn get_player(
 
     Ok(Json(GetPlayerResponse {
         player_data: player_response,
+    }))
+}
+
+#[post("/mock_move", format = "json", data = "<move_request>")]
+async fn mock_move(
+    state: &State<SharedState>,
+    move_request: Json<MockMoveRequest>,
+) -> Result<Json<MockMoveResponse>, Custom<String>> {
+    let can_move = {
+        let current_time = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_millis() as u64;
+        let game_state = state.lock().await;
+        let last_request_time = game_state.player_last_move_time[move_request.player_id];
+        current_time - last_request_time > MOVE_TIME_RATE_LIMIT_MILLIS
+    };
+
+    if !can_move {
+        return Ok(Json(MockMoveResponse {
+            my_new_coords: None,
+            rate_limited: true,
+        }));
+    }
+
+    {
+        let mut game_state = state.lock().await;
+        let zone = &mut game_state.mock_zone_mut().unwrap();
+        zone.move_player(move_request.player_id, move_request.direction);
+    }
+
+    {
+        let mut game_state = state.lock().await;
+        game_state.player_last_move_time[move_request.player_id] = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_millis() as u64;
+    }
+
+    let my_new_coords = {
+        let game_state = state.lock().await;
+        game_state.mock_zone().unwrap().players[move_request.player_id]
+            .data
+            .loc
+    };
+
+    info!("processed /mock_move request");
+
+    Ok(Json(MockMoveResponse {
+        my_new_coords: Some(my_new_coords),
+        rate_limited: false,
     }))
 }
 
@@ -336,6 +436,7 @@ async fn submit_r2(
             .collect();
         game_state.evaluator.aggregate_round_2_keys(&round_2_keys);
         game_state.zone = Some(Zone::new(64, 64, &game_state.evaluator));
+        game_state.mock_zone = Some(MockZone::new(64, 64));
 
         // Call /init to all workers
         let request = InitRequest {
@@ -368,6 +469,7 @@ async fn rocket() -> _ {
 
     let shared_state: Arc<Mutex<GameState>> = Arc::new(Mutex::new(GameState {
         zone: None, // 64x64 zone, will be initialized when keygen is finished.
+        mock_zone: None,
         move_queue: VecDeque::new(),
         player_last_move_time: [0, 0, 0, 0],
         evaluator: PhantomEvaluator::new(PhantomParam::I_4P_60),
@@ -396,12 +498,15 @@ async fn rocket() -> _ {
         .mount(
             "/",
             routes![
+                mock_move,
                 queue_move,
+                mock_get_cells,
                 get_cells,
                 get_five_cells,
                 get_cross_cells,
                 get_vertical_cells,
                 get_horizontal_cells,
+                mock_get_player,
                 get_player,
                 submit_r1,
                 get_pk,

@@ -1,3 +1,5 @@
+import { IS_MOCK } from "../const/env.const";
+
 const serverUrl = import.meta.env.VITE_SERVER_URL;
 
 export enum Direction {
@@ -32,7 +34,7 @@ const createApi = () => {
 			direction: direction,
 		};
 
-		const response = await fetch(`${serverUrl}/move`, {
+		const response = await fetch(`${serverUrl}/${IS_MOCK ? "mock_move" : "move"}`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
