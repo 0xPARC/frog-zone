@@ -2,12 +2,12 @@ import { QRCodeSVG } from "qrcode.react";
 import React, { useEffect } from "react";
 import { LOGIN_SERVER_URL } from "../../const/env.const";
 import { fetchGame } from "../../utils/fetchGame";
-import {
-	fetchMachineStatus,
-	MachineStatusResponse,
-} from "../../utils/fetchMachineStatus";
+import { fetchMachineStatus } from "../../utils/fetchMachineStatus";
 import { getPlayerId } from "../../utils/getPlayerId";
 import useStore from "../store";
+
+const LOGIN_STATUS_CHECK_INTERVAL = 200;
+const GAME_STATUS_CHECK_INTERVAL = 1000;
 
 export const Login: React.FC = () => {
 	const playerId = getPlayerId();
@@ -17,44 +17,53 @@ export const Login: React.FC = () => {
 	const gameStatus = useStore((state) => state.game?.status);
 
 	useEffect(() => {
-		const checkStatus = async () => {
-			try {
-				if (playerId && !isLoggedIn) {
-					const data: MachineStatusResponse =
-						await fetchMachineStatus({
-							playerId,
-						});
-					console.log("MACHINE STATUS", data);
-					if (data.isLoggedIn) {
-						useStore.getState().setIsLoggedIn({
-							isLoggedIn: data.isLoggedIn,
-							publicKey: data.publicKey,
-						});
-					} else {
-						useStore.getState().setIsLoggedIn({
-							isLoggedIn: false,
-							publicKey: null,
-						});
-					}
+		const fetchMachineStatusData = async () => {
+			if (playerId && !isLoggedIn) {
+				try {
+					const data = await fetchMachineStatus({ playerId });
+
+					useStore.getState().setIsLoggedIn({
+						isLoggedIn: data.isLoggedIn,
+						publicKey: data.publicKey || null,
+					});
+
 					useStore.getState().setGame(data?.game || null);
-				} else if (playerId && isLoggedIn && gameId) {
-					const data = await fetchGame({ gameId });
-					console.log("GAME STATUS", data.game);
-					useStore.getState().setGame(data.game);
+				} catch {
+					useStore.getState().setIsLoggedIn({
+						isLoggedIn: false,
+						publicKey: null,
+					});
 				}
-			} catch {
-				useStore.getState().setIsLoggedIn({
-					isLoggedIn: false,
-					publicKey: null,
-				});
 			}
 		};
 
-		// Start polling every 1 second (1000 milliseconds)
-		const intervalId = setInterval(checkStatus, 1000);
+		const machineStatusIntervalId = setInterval(
+			fetchMachineStatusData,
+			LOGIN_STATUS_CHECK_INTERVAL,
+		);
 
-		// Cleanup polling when component unmounts
-		return () => clearInterval(intervalId);
+		return () => clearInterval(machineStatusIntervalId);
+	}, [playerId, isLoggedIn]);
+
+	useEffect(() => {
+		const fetchGameData = async () => {
+			if (playerId && isLoggedIn && gameId) {
+				try {
+					const data = await fetchGame({ gameId });
+					console.log("GAME STATUS", data.game);
+					useStore.getState().setGame(data.game);
+				} catch {
+					console.log("Error fetching game status.");
+				}
+			}
+		};
+
+		const gameDataIntervalId = setInterval(
+			fetchGameData,
+			GAME_STATUS_CHECK_INTERVAL,
+		);
+
+		return () => clearInterval(gameDataIntervalId);
 	}, [playerId, isLoggedIn, gameId]);
 
 	if (isLoggedIn === true) {
