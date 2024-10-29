@@ -49,7 +49,7 @@ export const createTileFetcher = ({
 
 	const start = () => {
 		if (intervalId === null) {
-		fetchNextBatch();
+			fetchNextBatch();
 			intervalId = setInterval(() => {
 				fetchNextBatch();
 			}, FETCH_INTERVAL);
@@ -74,23 +74,22 @@ export const createTileFetcher = ({
 		const grid = useStore.getState().grid;
 		const now = Date.now();
 
-		const staleCoordinates = coords.filter((coord) => {
+		const priorityCoords = coords.slice(0, 5);
+		const nonPriorityCoords = coords.slice(5);
+
+		const staleCoordinates = nonPriorityCoords.filter((coord) => {
 			const tile = grid.get(coordToKey(coord));
-			if (tile) {
-				return (
-					tile?.fetchedAt === 0 || // Tile has never been fetched
-					now - tile?.fetchedAt > STALE_TIME_MS // Tile is too old
-				);
-			}
-			return false;
+			return (
+				tile &&
+				(tile.fetchedAt === 0 || now - tile.fetchedAt > STALE_TIME_MS)
+			);
 		});
 
-		const freshCoordinates = coords.filter((coord) => {
+		const freshCoordinates = nonPriorityCoords.filter((coord) => {
 			const tile = grid.get(coordToKey(coord));
 			return tile && now - tile.fetchedAt <= STALE_TIME_MS;
 		});
 
-		// Sort both stale and fresh coordinates by taxicab distance from the player
 		staleCoordinates.sort(
 			(a, b) =>
 				taxicabDistance(a, initialCoordinate) -
@@ -102,7 +101,7 @@ export const createTileFetcher = ({
 				taxicabDistance(b, initialCoordinate),
 		);
 
-		return [...staleCoordinates, ...freshCoordinates];
+		return [...priorityCoords, ...staleCoordinates, ...freshCoordinates];
 	};
 
 	// Taxicab distance (Manhattan distance) calculation

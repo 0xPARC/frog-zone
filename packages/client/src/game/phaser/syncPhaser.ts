@@ -9,6 +9,7 @@ import useStore, { GameState, NEXT_MOVE_TIME_MILLIS } from "../store";
 import { createTileFetcher } from "./create/createTileFetcher";
 import phaserConfig from "./create/phaserConfig";
 import { updatePlayer } from "../../utils/updatePlayer";
+import { debounceTime } from "rxjs/internal/operators/debounceTime";
 
 const syncPhaser = async (game: PhaserGame, api: Api) => {
 	const players = new Map<number, Phaser.GameObjects.Image>();
@@ -200,10 +201,6 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				y: moveResponse.my_new_coords.y,
 			};
 			drawSelectedPlayer(newCoord);
-			if (moveMarker) {
-				moveMarker.destroy();
-				moveMarker = null;
-			}
 			completedMoveAnimation(selectedPlayerImg);
 			tileFetcher.updateCoordinates(newCoord);
 			const publicKey = useStore.getState().publicKey as string;
@@ -213,6 +210,10 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				score: Math.floor(Math.random() * 89), // TODO: implement real score, for now this is random between 0 - 88
 				gameId,
 			});
+		}
+		if (moveMarker) {
+			moveMarker.destroy();
+			moveMarker = null;
 		}
 	};
 
@@ -243,14 +244,18 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		drawSelectedPlayer(initialPlayerCoord);
 		tileFetcher.start();
 
-		game.input.keyboard$.subscribe(async (key) => {
+		game.input.keyboard$.pipe(debounceTime(200)).subscribe((key) => {
 			const lastMoveTime = useStore.getState().lastMoveTimeStamp;
 			const now = Date.now();
 			const canMove =
 				!lastMoveTime || now - lastMoveTime >= NEXT_MOVE_TIME_MILLIS;
-			if (!canMove) {
+			const isPreviousMovePending = Boolean(moveMarker);
+
+			if (!canMove || isPreviousMovePending) {
 				return;
 			}
+
+			// Handle directional input
 			if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.LEFT) {
 				handleMovePlayer(Direction.LEFT);
 			} else if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.RIGHT) {
