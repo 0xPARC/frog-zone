@@ -2,7 +2,6 @@ use rocket::{http::Status, response::status::Custom};
 
 pub mod client;
 pub mod mock_zone;
-pub mod temp;
 pub mod worker;
 pub mod zone;
 
