@@ -2,8 +2,9 @@ import { coordToKey } from "@smallbraingames/small-phaser";
 import { fetchTiles } from "../../../utils/fetchTiles";
 import { getSurroundingCoordinates } from "../../../utils/getSurroundingCoordinates";
 import useStore, { Coord, TileWithCoord } from "../../store";
+import { IS_MOCK } from "../../../const/env.const";
 
-const FETCH_INTERVAL = 1000;
+const FETCH_INTERVAL = IS_MOCK ? 1000 : 15000;
 const STALE_TIME_MS = 5000;
 
 export const createTileFetcher = ({

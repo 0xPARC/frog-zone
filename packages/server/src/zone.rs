@@ -1,6 +1,7 @@
 use core::array::from_fn;
 use itertools::{chain, Itertools};
 use phantom::{PhantomBool, PhantomCt, PhantomEvaluator};
+use serde::{Deserialize, Serialize};
 
 const NUM_ITEMS: usize = 16;
 
@@ -150,21 +151,6 @@ impl ItemWithEncryptedId {
 }
 
 #[derive(Clone, Debug)]
-pub enum EntityType {
-    Invalid,
-    Player,
-    Item,
-    Monster,
-    None,
-}
-
-impl Default for EntityType {
-    fn default() -> Self {
-        EntityType::None
-    }
-}
-
-#[derive(Clone, Debug)]
 pub struct CellEncryptedData {
     pub entity_type: EncryptedEntityType,
     pub entity_id: EncryptedU8,
@@ -181,14 +167,6 @@ impl CellEncryptedData {
     pub fn cts(&self) -> impl Iterator<Item = &PhantomCt> {
         self.bits().map(|bit| bit.ct())
     }
-}
-
-#[derive(Clone, Debug)]
-pub enum Direction {
-    Up,
-    Down,
-    Left,
-    Right,
 }
 
 #[derive(Clone, Debug)]

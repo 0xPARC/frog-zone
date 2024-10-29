@@ -32,6 +32,8 @@ echo "Starting server..."
 
 nohup cargo run --release http://localhost:8005,http://localhost:8006,http://localhost:8007,http://localhost:8008 >../logs.txt 2>&1 &
 
+sleep 1
+
 cd ..
 
 # Worker
@@ -48,6 +50,8 @@ nohup cargo run --release 8005 >../logs.txt 2>&1 &
 nohup cargo run --release 8006 >../logs.txt 2>&1 &
 nohup cargo run --release 8007 >../logs.txt 2>&1 &
 nohup cargo run --release 8008 >../logs.txt 2>&1 &
+
+sleep 2
 
 cd ..
 
@@ -66,7 +70,7 @@ nohup cargo run --release 8002 1 http://localhost:8000 http://localhost:8001,htt
 nohup cargo run --release 8003 2 http://localhost:8000 http://localhost:8001,http://localhost:8002,http://localhost:8004 >../logs.txt 2>&1 &
 nohup cargo run --release 8004 3 http://localhost:8000 http://localhost:8001,http://localhost:8002,http://localhost:8003 >../logs.txt 2>&1 &
 
-sleep 1s
+sleep 2
 
 echo "Setting player ids..."
 

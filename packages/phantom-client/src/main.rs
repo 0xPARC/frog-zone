@@ -12,14 +12,21 @@ use rocket::serde::{json::Json, Deserialize, Serialize};
 use rocket::Config;
 use rocket::State;
 use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors, CorsOptions};
+use server::client::{Direction, EntityType};
+use server::mock_zone::{CellEncryptedData, MockEncryptedCoord};
 use std::env;
 use std::iter::repeat_with;
 use std::sync::{Arc, LazyLock};
+use std::time::Duration;
 use tokio::sync::Mutex;
+use tokio::time;
 use tracing::info;
 
 #[macro_use]
 extern crate rocket;
+
+const GET_CELL_MOCK_TIME_MILLIS: u64 = 140; // based on benchmark of 700ms for 5 cells
+const MOVE_MOCK_TIME_MILLIS: u64 = 750;
 
 static PORT: LazyLock<u16> = LazyLock::new(|| {
     env::args()
@@ -121,28 +128,11 @@ pub struct PlayerData {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub enum EntityType {
-    Invalid,
-    Player,
-    Item,
-    Monster,
-    None,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
 pub struct CellData {
     pub entity_type: EntityType,
     pub entity_id: u8,
     pub hp: u8,
     pub atk: u8,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub enum Direction {
-    Up,
-    Down,
-    Left,
-    Right,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -284,6 +274,64 @@ fn make_cors() -> Cors {
     }
     .to_cors()
     .expect("[main] error while building CORS")
+}
+
+fn mock_encrypt_coord(coord: Coord) -> MockEncryptedCoord {
+    return MockEncryptedCoord {
+        x: coord.x,
+        y: coord.y,
+    };
+}
+
+fn mock_decrypt_coord(coord: MockEncryptedCoord) -> Coord {
+    return Coord {
+        x: coord.x,
+        y: coord.y,
+    };
+}
+
+fn mock_decrypt_cell(cell: CellEncryptedData) -> CellData {
+    return CellData {
+        entity_type: cell.entity_type,
+        entity_id: cell.entity_id,
+        atk: cell.atk,
+        hp: cell.hp,
+    };
+}
+
+#[post("/mock_get_cells", format = "json", data = "<request>")]
+async fn mock_get_cells(
+    state: &State<SharedState>,
+    request: Json<GetCellsRequest>,
+) -> Result<Json<GetCellsResponse>, Custom<String>> {
+    let app_state = state.lock().await;
+
+    let post_data = proxy::MockGetCellsRequest {
+        player_id: app_state.user.user_id(),
+        coords: request
+            .coords
+            .iter()
+            .map(|c| mock_encrypt_coord(c.clone()))
+            .collect(),
+    };
+
+    let proxy::MockGetCellsResponse { cell_data } =
+        proxy::proxy(&*SERVER_URI, "/mock_get_cells", post_data)
+            .await?
+            .0;
+
+    let len = request.coords.len();
+    time::sleep(Duration::from_millis(
+        GET_CELL_MOCK_TIME_MILLIS * (len as u64),
+    ))
+    .await;
+
+    Ok(Json(GetCellsResponse {
+        cell_data: cell_data
+            .iter()
+            .map(|c| mock_decrypt_cell(c.clone()))
+            .collect(),
+    }))
 }
 
 #[post("/get_cells", format = "json", data = "<request>")]
@@ -483,6 +531,35 @@ async fn get_horizontal_cells(
     Ok(Json(GetHorizontalCellsResponse { cell_data }))
 }
 
+#[post("/mock_get_player", format = "json", data = "<_request>")]
+async fn mock_get_player(
+    state: &State<SharedState>,
+    _request: Json<GetPlayerRequest>,
+) -> Result<Json<GetPlayerResponse>, Custom<String>> {
+    let post_data = {
+        let app_state = state.lock().await;
+
+        proxy::MockGetPlayerRequest {
+            player_id: app_state.user.user_id(),
+        }
+    };
+
+    let proxy::MockGetPlayerResponse { player_data } =
+        proxy::proxy(&*SERVER_URI, "/mock_get_player", post_data)
+            .await?
+            .0;
+
+    let player_data = PlayerData {
+        loc: mock_decrypt_coord(player_data.loc),
+        hp: player_data.hp,
+        atk: player_data.atk,
+    };
+
+    state.lock().await.player_coord = player_data.loc;
+
+    Ok(Json(GetPlayerResponse { player_data }))
+}
+
 #[post("/get_player", format = "json", data = "<_request>")]
 async fn get_player(
     state: &State<SharedState>,
@@ -519,6 +596,42 @@ async fn get_player(
     state.lock().await.player_coord = player_data.loc;
 
     Ok(Json(GetPlayerResponse { player_data }))
+}
+
+#[post("/mock_move", format = "json", data = "<request>")]
+async fn mock_move(
+    state: &State<SharedState>,
+    request: Json<MoveRequest>,
+) -> Result<Json<MoveResponse>, Custom<String>> {
+    let post_data = {
+        let app_state = state.lock().await;
+
+        proxy::MockMoveRequest {
+            player_id: app_state.user.user_id(),
+            direction: request.direction,
+        }
+    };
+
+    let proxy::MockMoveResponse {
+        my_new_coords,
+        rate_limited,
+    } = proxy::proxy(&*SERVER_URI, "/mock_move", post_data).await?.0;
+
+    let my_new_coords = if let Some(my_new_coords) = my_new_coords {
+        let mut app_state = state.lock().await;
+        let coord = mock_decrypt_coord(my_new_coords);
+        app_state.player_coord = coord;
+        Some(coord)
+    } else {
+        None
+    };
+
+    time::sleep(Duration::from_millis(MOVE_MOCK_TIME_MILLIS)).await;
+
+    Ok(Json(MoveResponse {
+        my_new_coords,
+        rate_limited,
+    }))
 }
 
 #[post("/move", format = "json", data = "<request>")]
@@ -718,12 +831,15 @@ async fn main() -> Result<(), rocket::Error> {
         .mount(
             "/",
             routes![
+                mock_move,
                 queue_move,
+                mock_get_cells,
                 get_cells,
                 get_five_cells,
                 get_cross_cells,
                 get_vertical_cells,
                 get_horizontal_cells,
+                mock_get_player,
                 get_player,
                 get_id,
                 set_id,

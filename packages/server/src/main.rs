@@ -8,7 +8,7 @@ use rocket::response::status::{Custom, NotFound};
 use rocket::serde::{json::Json, Serialize};
 use rocket::{Config, State};
 use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors, CorsOptions};
-use server::mock_zone::{MockEncrypted, MockZone};
+use server::mock_zone::MockZone;
 use server::zone::{EncryptedDirection, Zone, ZoneDiff};
 use server::{
     bad_request,

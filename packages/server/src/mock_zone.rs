@@ -1,6 +1,8 @@
 use core::array::from_fn;
 use serde::{Deserialize, Serialize};
 
+use crate::client::{Direction, EntityType};
+
 const NUM_ITEMS: usize = 16;
 
 pub type MockEncrypted<T> = T;
@@ -50,35 +52,12 @@ pub struct ItemWithEncryptedId {
     pub data: ItemEncryptedData,
 }
 
-#[derive(Copy, Clone, Debug, Serialize)]
-pub enum EntityType {
-    Invalid,
-    Player,
-    Item,
-    Monster,
-    None,
-}
-
-impl Default for EntityType {
-    fn default() -> Self {
-        EntityType::None
-    }
-}
-
-#[derive(Copy, Clone, Debug, Default, Serialize)]
+#[derive(Copy, Clone, Debug, Default, Serialize, Deserialize)]
 pub struct CellEncryptedData {
     pub entity_type: MockEncrypted<EntityType>,
     pub entity_id: MockEncrypted<u8>,
     pub hp: MockEncrypted<u8>,
     pub atk: MockEncrypted<u8>,
-}
-
-#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
-pub enum Direction {
-    Up,
-    Down,
-    Left,
-    Right,
 }
 
 #[derive(Clone, Debug)]

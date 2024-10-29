@@ -1,17 +1,38 @@
-use crate::mock_zone::{
-    CellEncryptedData, Direction, MockEncrypted, MockEncryptedCoord, PlayerEncryptedData,
-};
+use crate::mock_zone::{CellEncryptedData, MockEncrypted, MockEncryptedCoord, PlayerEncryptedData};
 use core::fmt::Debug;
 use phantom::{PhantomBatchedCt, PhantomPackedCt, PhantomPk, PhantomRound1Key, PhantomRound2Key};
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize)]
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq)]
+pub enum EntityType {
+    None,
+    Player,
+    Item,
+    Monster,
+    Invalid,
+}
+
+impl Default for EntityType {
+    fn default() -> Self {
+        EntityType::None
+    }
+}
+
+#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
+pub enum Direction {
+    Up,
+    Down,
+    Left,
+    Right,
+}
+
+#[derive(Serialize, Deserialize)]
 pub struct MockGetCellsRequest {
     pub player_id: usize,
     pub coords: Vec<MockEncryptedCoord>,
 }
 
-#[derive(Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Deserialize)]
 pub struct MockGetCellsResponse {
     pub cell_data: Vec<CellEncryptedData>,
 }
