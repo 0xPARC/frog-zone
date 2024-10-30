@@ -57,6 +57,10 @@ const createTilemap = (scene: Phaser.Scene) => {
 
 	// Create a fog map to store the fog overlays for each tile
 	const fogMap: { [key: string]: Phaser.GameObjects.Graphics } = {};
+	// Create a land map to store the land tiles
+	const landMap: { [key: string]: Phaser.GameObjects.Graphics } = {};
+	// Create a water map to store the water tiles
+	const waterMap: { [key: string]: Phaser.GameObjects.Graphics } = {};
 
 	const putFogAt = (tileCoord: Coord, opacity: number = 0.5) => {
 		const tileX =
@@ -90,6 +94,36 @@ const createTilemap = (scene: Phaser.Scene) => {
 		}
 	}
 
+	const putLandAt = (tileCoord: Coord) => {
+		const tileX =
+			(tileCoord.x + gridSize / 2) * tileWidth + startX * tileWidth;
+		const tileY =
+			(tileCoord.y + gridSize / 2) * tileHeight + startY * tileHeight;
+
+		const key = `${tileCoord.x},${tileCoord.y}`;
+		const landOverlay = scene.add.graphics();
+		landOverlay.fillStyle(0x037a1e, 1);
+		landOverlay.fillRect(tileX, tileY, tileWidth, tileHeight);
+		landOverlay.lineStyle(2, 0x000000, 0.1);
+		landOverlay.strokeRect(tileX, tileY, tileWidth, tileHeight);
+		landMap[key] = landOverlay;
+	};
+
+	const putWaterAt = (tileCoord: Coord) => {
+		const tileX =
+			(tileCoord.x + gridSize / 2) * tileWidth + startX * tileWidth;
+		const tileY =
+			(tileCoord.y + gridSize / 2) * tileHeight + startY * tileHeight;
+
+		const key = `${tileCoord.x},${tileCoord.y}`;
+		const waterOverlay = scene.add.graphics();
+		waterOverlay.fillStyle(0x05acfe, 1);
+		waterOverlay.fillRect(tileX, tileY, tileWidth, tileHeight);
+		waterOverlay.lineStyle(2, 0x000000, 0.1);
+		waterOverlay.strokeRect(tileX, tileY, tileWidth, tileHeight);
+		waterMap[key] = waterOverlay;
+	};
+
 	return {
 		tilemap,
 		layer,
@@ -98,6 +132,8 @@ const createTilemap = (scene: Phaser.Scene) => {
 		getTileAt,
 		putFogAt,
 		removeFogAt,
+		putLandAt,
+		putWaterAt,
 		...config.tilemap,
 	};
 };

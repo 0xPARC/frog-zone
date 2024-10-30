@@ -15,7 +15,13 @@ export type Tile = {
 	hp: number;
 };
 
+export enum TerrainType {
+	LAND = "Land",
+	WATER = "Water",
+}
+
 export type TileWithCoord = Tile & {
+	terrainType: TerrainType;
 	coord: Coord; // phaser coordinate of the tile
 	isShown?: boolean; // if the tile is shown in the game
 	fetchedAt: number; // timestamp of when the tile was fetched
@@ -86,6 +92,7 @@ const initializeGrid = (size: number) => {
 			const coordKey = coordToKey({ x, y });
 			grid.set(coordKey, {
 				coord: { x, y },
+				terrainType: x === 0 ? TerrainType.WATER : TerrainType.LAND,
 				entity_type: "None",
 				fetchedAt: 0,
 				isShown: false,

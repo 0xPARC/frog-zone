@@ -5,7 +5,11 @@ import { getPlayerId } from "../../utils/getPlayerId";
 import { type Api, Direction } from "../createApi";
 import type { PhaserGame } from "../phaser/create/createPhaserGame";
 import type { Coord, TileWithCoord } from "../store";
-import useStore, { GameState, NEXT_MOVE_TIME_MILLIS } from "../store";
+import useStore, {
+	GameState,
+	NEXT_MOVE_TIME_MILLIS,
+	TerrainType,
+} from "../store";
 import { createTileFetcher } from "./create/createTileFetcher";
 import phaserConfig from "./create/phaserConfig";
 import { updatePlayer } from "../../utils/updatePlayer";
@@ -239,9 +243,22 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		return go;
 	};
 
+	const drawTerrain = () => {
+		const grid = useStore.getState().grid;
+		grid.forEach((tile) => {
+			if (tile.terrainType === TerrainType.LAND) {
+				game.tilemap.putLandAt(tile.coord);
+			}
+			if (tile.terrainType === TerrainType.WATER) {
+				game.tilemap.putWaterAt(tile.coord);
+			}
+		});
+	};
+
 	const setupGame = () => {
-		positionCamera(initialPlayerCoord);
+		drawTerrain();
 		drawSelectedPlayer(initialPlayerCoord);
+		positionCamera(initialPlayerCoord);
 		tileFetcher.start();
 
 		game.input.keyboard$.pipe(debounceTime(200)).subscribe((key) => {
