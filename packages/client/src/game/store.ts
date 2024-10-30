@@ -5,6 +5,7 @@ enableMapSet();
 import { coordToKey } from "@smallbraingames/small-phaser";
 import { immer } from "zustand/middleware/immer";
 import { GameResponse } from "../utils/fetchGame";
+import tileConfig from "../const/tile.config.json";
 
 export type TileEntityType = "None" | "Player" | "Item";
 
@@ -85,14 +86,19 @@ interface State {
 	updateGrid: (viewportCoords: Coord[], newTiles: TileWithCoord[]) => void;
 }
 
-const initializeGrid = (size: number) => {
+const initializeGrid = (
+	size: number,
+	config: Record<string, { terrainType: string }>,
+) => {
 	const grid = new Map();
 	for (let x = 0; x < size; x++) {
 		for (let y = 0; y < size; y++) {
 			const coordKey = coordToKey({ x, y });
+			const tileConfig = config[coordKey] || {};
+
 			grid.set(coordKey, {
 				coord: { x, y },
-				terrainType: x === 0 ? TerrainType.WATER : TerrainType.LAND,
+				terrainType: tileConfig.terrainType,
 				entity_type: "None",
 				fetchedAt: 0,
 				isShown: false,
@@ -110,7 +116,7 @@ const useStore = create<State>()(
 		gameState: GameState.LOADING,
 		players: new Map<number, Player>(),
 		items: new Map<number, Item>(),
-		grid: initializeGrid(64),
+		grid: initializeGrid(64, tileConfig),
 		lastMoveTimeStamp: 0, // Store the last move timestamp
 		setIsLoggedIn: ({
 			isLoggedIn,
