@@ -1,5 +1,6 @@
 import { GameFinishedOverlay } from "./game/components/GameFinishedOverlay";
 import { Login } from "./game/components/Login";
+import { TileMapEditor } from "./components/TileMapEditor/TileMapEditor";
 import { MoveCountdownTimer } from "./game/components/MoveCountdown";
 import { PlayerInfo } from "./game/components/PlayerInfo";
 import { WaitingForPlayersOverlay } from "./game/components/WaitingForPlayersOverlay";
@@ -43,7 +44,6 @@ function App() {
 							<AreYouThere />
 						</>
 					)}
-					{/* <button onClick={() => confettiReward()}>Confetti</button> */}
 
 					{gameId &&
 						gameStatus === "waiting_for_players" &&
@@ -68,6 +68,7 @@ function App() {
 						)}
 				</>
 			)}
+			{import.meta.env.VITE_DEV_MODE && <TileMapEditor />}
 		</div>
 	);
 }

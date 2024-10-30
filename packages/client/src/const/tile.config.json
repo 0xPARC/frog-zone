@@ -66,10 +66,10 @@
 		"terrainType": "LAND"
 	},
 	"0,22": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"0,23": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"0,24": {
 		"terrainType": "LAND"
@@ -135,16 +135,16 @@
 		"terrainType": "LAND"
 	},
 	"0,45": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"0,46": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"0,47": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"0,48": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"0,49": {
 		"terrainType": "LAND"
@@ -543,13 +543,13 @@
 		"terrainType": "LAND"
 	},
 	"2,53": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"2,54": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"2,55": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"2,56": {
 		"terrainType": "LAND"
@@ -615,13 +615,13 @@
 		"terrainType": "LAND"
 	},
 	"3,13": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"3,14": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"3,15": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"3,16": {
 		"terrainType": "LAND"
@@ -672,19 +672,19 @@
 		"terrainType": "LAND"
 	},
 	"3,32": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"3,33": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"3,34": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"3,35": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"3,36": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"3,37": {
 		"terrainType": "LAND"
@@ -732,22 +732,22 @@
 		"terrainType": "LAND"
 	},
 	"3,52": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"3,53": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"3,54": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"3,55": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"3,56": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"3,57": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"3,58": {
 		"terrainType": "LAND"
@@ -807,13 +807,13 @@
 		"terrainType": "LAND"
 	},
 	"4,13": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"4,14": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"4,15": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"4,16": {
 		"terrainType": "LAND"
@@ -861,25 +861,25 @@
 		"terrainType": "LAND"
 	},
 	"4,31": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"4,32": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"4,33": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"4,34": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"4,35": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"4,36": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"4,37": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"4,38": {
 		"terrainType": "LAND"
@@ -927,19 +927,19 @@
 		"terrainType": "LAND"
 	},
 	"4,53": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"4,54": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"4,55": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"4,56": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"4,57": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"4,58": {
 		"terrainType": "LAND"
@@ -966,10 +966,10 @@
 		"terrainType": "LAND"
 	},
 	"5,2": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"5,3": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"5,4": {
 		"terrainType": "LAND"
@@ -999,13 +999,13 @@
 		"terrainType": "LAND"
 	},
 	"5,13": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"5,14": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"5,15": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"5,16": {
 		"terrainType": "LAND"
@@ -1050,31 +1050,31 @@
 		"terrainType": "LAND"
 	},
 	"5,30": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"5,31": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"5,32": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"5,33": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"5,34": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"5,35": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"5,36": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"5,37": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"5,38": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"5,39": {
 		"terrainType": "LAND"
@@ -1119,13 +1119,13 @@
 		"terrainType": "LAND"
 	},
 	"5,53": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"5,54": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"5,55": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"5,56": {
 		"terrainType": "LAND"
@@ -1215,7 +1215,7 @@
 		"terrainType": "LAND"
 	},
 	"6,21": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"6,22": {
 		"terrainType": "LAND"
@@ -1242,31 +1242,31 @@
 		"terrainType": "LAND"
 	},
 	"6,30": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"6,31": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"6,32": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"6,33": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"6,34": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"6,35": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"6,36": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"6,37": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"6,38": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"6,39": {
 		"terrainType": "LAND"
@@ -1404,10 +1404,10 @@
 		"terrainType": "LAND"
 	},
 	"7,20": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"7,21": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"7,22": {
 		"terrainType": "LAND"
@@ -1440,19 +1440,19 @@
 		"terrainType": "LAND"
 	},
 	"7,32": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"7,33": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"7,34": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"7,35": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"7,36": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"7,37": {
 		"terrainType": "LAND"
@@ -1596,13 +1596,13 @@
 		"terrainType": "LAND"
 	},
 	"8,20": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"8,21": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"8,22": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"8,23": {
 		"terrainType": "LAND"
@@ -1632,16 +1632,16 @@
 		"terrainType": "LAND"
 	},
 	"8,32": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"8,33": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"8,34": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"8,35": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"8,36": {
 		"terrainType": "LAND"
@@ -1827,13 +1827,13 @@
 		"terrainType": "LAND"
 	},
 	"9,33": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"9,34": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"9,35": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"9,36": {
 		"terrainType": "LAND"
@@ -1950,7 +1950,7 @@
 		"terrainType": "LAND"
 	},
 	"10,10": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"10,11": {
 		"terrainType": "LAND"
@@ -2103,13 +2103,13 @@
 		"terrainType": "LAND"
 	},
 	"10,61": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"10,62": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"10,63": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"11,0": {
 		"terrainType": "LAND"
@@ -2139,16 +2139,16 @@
 		"terrainType": "LAND"
 	},
 	"11,9": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"11,10": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"11,11": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"11,12": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"11,13": {
 		"terrainType": "LAND"
@@ -2286,22 +2286,22 @@
 		"terrainType": "LAND"
 	},
 	"11,58": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"11,59": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"11,60": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"11,61": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"11,62": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"11,63": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"12,0": {
 		"terrainType": "LAND"
@@ -2325,22 +2325,22 @@
 		"terrainType": "LAND"
 	},
 	"12,7": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"12,8": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"12,9": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"12,10": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"12,11": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"12,12": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"12,13": {
 		"terrainType": "LAND"
@@ -2478,22 +2478,22 @@
 		"terrainType": "LAND"
 	},
 	"12,58": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"12,59": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"12,60": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"12,61": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"12,62": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"12,63": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"13,0": {
 		"terrainType": "LAND"
@@ -2514,25 +2514,25 @@
 		"terrainType": "LAND"
 	},
 	"13,6": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"13,7": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"13,8": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"13,9": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"13,10": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"13,11": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"13,12": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"13,13": {
 		"terrainType": "LAND"
@@ -2676,52 +2676,52 @@
 		"terrainType": "LAND"
 	},
 	"13,60": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"13,61": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"13,62": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"13,63": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"14,0": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"14,1": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"14,2": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"14,3": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"14,4": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"14,5": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"14,6": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"14,7": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"14,8": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"14,9": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"14,10": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"14,11": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"14,12": {
 		"terrainType": "LAND"
@@ -2871,43 +2871,43 @@
 		"terrainType": "LAND"
 	},
 	"14,61": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"14,62": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"14,63": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"15,0": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"15,1": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"15,2": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"15,3": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"15,4": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"15,5": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"15,6": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"15,7": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"15,8": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"15,9": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"15,10": {
 		"terrainType": "LAND"
@@ -3072,31 +3072,31 @@
 		"terrainType": "LAND"
 	},
 	"16,0": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"16,1": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"16,2": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"16,3": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"16,4": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"16,5": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"16,6": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"16,7": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"16,8": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"16,9": {
 		"terrainType": "LAND"
@@ -3129,13 +3129,13 @@
 		"terrainType": "LAND"
 	},
 	"16,19": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"16,20": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"16,21": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"16,22": {
 		"terrainType": "LAND"
@@ -3174,13 +3174,13 @@
 		"terrainType": "LAND"
 	},
 	"16,34": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"16,35": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"16,36": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"16,37": {
 		"terrainType": "LAND"
@@ -3264,16 +3264,16 @@
 		"terrainType": "LAND"
 	},
 	"17,0": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"17,1": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"17,2": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"17,3": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"17,4": {
 		"terrainType": "LAND"
@@ -3366,13 +3366,13 @@
 		"terrainType": "LAND"
 	},
 	"17,34": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"17,35": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"17,36": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"17,37": {
 		"terrainType": "LAND"
@@ -3414,7 +3414,7 @@
 		"terrainType": "LAND"
 	},
 	"17,50": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"17,51": {
 		"terrainType": "LAND"
@@ -3423,10 +3423,10 @@
 		"terrainType": "LAND"
 	},
 	"17,53": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"17,54": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"17,55": {
 		"terrainType": "LAND"
@@ -3456,16 +3456,16 @@
 		"terrainType": "LAND"
 	},
 	"18,0": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"18,1": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"18,2": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"18,3": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"18,4": {
 		"terrainType": "LAND"
@@ -3558,13 +3558,13 @@
 		"terrainType": "LAND"
 	},
 	"18,34": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"18,35": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"18,36": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"18,37": {
 		"terrainType": "LAND"
@@ -3606,7 +3606,7 @@
 		"terrainType": "LAND"
 	},
 	"18,50": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"18,51": {
 		"terrainType": "LAND"
@@ -3615,10 +3615,10 @@
 		"terrainType": "LAND"
 	},
 	"18,53": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"18,54": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"18,55": {
 		"terrainType": "LAND"
@@ -3648,16 +3648,16 @@
 		"terrainType": "LAND"
 	},
 	"19,0": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"19,1": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"19,2": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"19,3": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"19,4": {
 		"terrainType": "LAND"
@@ -3840,19 +3840,19 @@
 		"terrainType": "LAND"
 	},
 	"20,0": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"20,1": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"20,2": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"20,3": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"20,4": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"20,5": {
 		"terrainType": "LAND"
@@ -4038,16 +4038,16 @@
 		"terrainType": "LAND"
 	},
 	"21,2": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"21,3": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"21,4": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"21,5": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"21,6": {
 		"terrainType": "LAND"
@@ -4182,7 +4182,7 @@
 		"terrainType": "LAND"
 	},
 	"21,50": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"21,51": {
 		"terrainType": "LAND"
@@ -4230,19 +4230,19 @@
 		"terrainType": "LAND"
 	},
 	"22,2": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"22,3": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"22,4": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"22,5": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"22,6": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"22,7": {
 		"terrainType": "LAND"
@@ -4374,7 +4374,7 @@
 		"terrainType": "LAND"
 	},
 	"22,50": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"22,51": {
 		"terrainType": "LAND"
@@ -4410,10 +4410,10 @@
 		"terrainType": "LAND"
 	},
 	"22,62": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"22,63": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"23,0": {
 		"terrainType": "LAND"
@@ -4425,31 +4425,31 @@
 		"terrainType": "LAND"
 	},
 	"23,3": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"23,4": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"23,5": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"23,6": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"23,7": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"23,8": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"23,9": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"23,10": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"23,11": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"23,12": {
 		"terrainType": "LAND"
@@ -4506,10 +4506,10 @@
 		"terrainType": "LAND"
 	},
 	"23,30": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"23,31": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"23,32": {
 		"terrainType": "LAND"
@@ -4563,13 +4563,13 @@
 		"terrainType": "LAND"
 	},
 	"23,49": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"23,50": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"23,51": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"23,52": {
 		"terrainType": "LAND"
@@ -4602,10 +4602,10 @@
 		"terrainType": "LAND"
 	},
 	"23,62": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"23,63": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"24,0": {
 		"terrainType": "LAND"
@@ -4623,28 +4623,28 @@
 		"terrainType": "LAND"
 	},
 	"24,5": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"24,6": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"24,7": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"24,8": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"24,9": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"24,10": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"24,11": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"24,12": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"24,13": {
 		"terrainType": "LAND"
@@ -4680,40 +4680,40 @@
 		"terrainType": "LAND"
 	},
 	"24,24": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"24,25": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"24,26": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"24,27": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"24,28": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"24,29": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"24,30": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"24,31": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"24,32": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"24,33": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"24,34": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"24,35": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"24,36": {
 		"terrainType": "LAND"
@@ -4749,25 +4749,25 @@
 		"terrainType": "LAND"
 	},
 	"24,47": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"24,48": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"24,49": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"24,50": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"24,51": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"24,52": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"24,53": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"24,54": {
 		"terrainType": "LAND"
@@ -4818,25 +4818,25 @@
 		"terrainType": "LAND"
 	},
 	"25,6": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"25,7": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"25,8": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"25,9": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"25,10": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"25,11": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"25,12": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"25,13": {
 		"terrainType": "LAND"
@@ -4872,40 +4872,40 @@
 		"terrainType": "LAND"
 	},
 	"25,24": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"25,25": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"25,26": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"25,27": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"25,28": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"25,29": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"25,30": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"25,31": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"25,32": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"25,33": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"25,34": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"25,35": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"25,36": {
 		"terrainType": "LAND"
@@ -4944,22 +4944,22 @@
 		"terrainType": "LAND"
 	},
 	"25,48": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"25,49": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"25,50": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"25,51": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"25,52": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"25,53": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"25,54": {
 		"terrainType": "LAND"
@@ -5016,19 +5016,19 @@
 		"terrainType": "LAND"
 	},
 	"26,8": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"26,9": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"26,10": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"26,11": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"26,12": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"26,13": {
 		"terrainType": "LAND"
@@ -5076,19 +5076,19 @@
 		"terrainType": "LAND"
 	},
 	"26,28": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"26,29": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"26,30": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"26,31": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"26,32": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"26,33": {
 		"terrainType": "LAND"
@@ -5136,22 +5136,22 @@
 		"terrainType": "LAND"
 	},
 	"26,48": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"26,49": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"26,50": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"26,51": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"26,52": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"26,53": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"26,54": {
 		"terrainType": "LAND"
@@ -5211,22 +5211,22 @@
 		"terrainType": "LAND"
 	},
 	"27,9": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"27,10": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"27,11": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"27,12": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"27,13": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"27,14": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"27,15": {
 		"terrainType": "LAND"
@@ -5235,7 +5235,7 @@
 		"terrainType": "LAND"
 	},
 	"27,17": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"27,18": {
 		"terrainType": "LAND"
@@ -5271,10 +5271,10 @@
 		"terrainType": "LAND"
 	},
 	"27,29": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"27,30": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"27,31": {
 		"terrainType": "LAND"
@@ -5331,13 +5331,13 @@
 		"terrainType": "LAND"
 	},
 	"27,49": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"27,50": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"27,51": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"27,52": {
 		"terrainType": "LAND"
@@ -5403,34 +5403,34 @@
 		"terrainType": "LAND"
 	},
 	"28,9": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"28,10": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"28,11": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"28,12": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"28,13": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"28,14": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"28,15": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"28,16": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"28,17": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"28,18": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"28,19": {
 		"terrainType": "LAND"
@@ -5601,28 +5601,28 @@
 		"terrainType": "LAND"
 	},
 	"29,11": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"29,12": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"29,13": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"29,14": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"29,15": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"29,16": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"29,17": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"29,18": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"29,19": {
 		"terrainType": "LAND"
@@ -5805,13 +5805,13 @@
 		"terrainType": "LAND"
 	},
 	"30,15": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"30,16": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"30,17": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"30,18": {
 		"terrainType": "LAND"
@@ -6069,13 +6069,13 @@
 		"terrainType": "LAND"
 	},
 	"31,39": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"31,40": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"31,41": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"31,42": {
 		"terrainType": "LAND"
@@ -6135,13 +6135,13 @@
 		"terrainType": "LAND"
 	},
 	"31,61": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"31,62": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"31,63": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"32,0": {
 		"terrainType": "LAND"
@@ -6261,16 +6261,16 @@
 		"terrainType": "LAND"
 	},
 	"32,39": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"32,40": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"32,41": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"32,42": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"32,43": {
 		"terrainType": "LAND"
@@ -6324,16 +6324,16 @@
 		"terrainType": "LAND"
 	},
 	"32,60": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"32,61": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"32,62": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"32,63": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"33,0": {
 		"terrainType": "LAND"
@@ -6453,19 +6453,19 @@
 		"terrainType": "LAND"
 	},
 	"33,39": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"33,40": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"33,41": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"33,42": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"33,43": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"33,44": {
 		"terrainType": "LAND"
@@ -6510,22 +6510,22 @@
 		"terrainType": "LAND"
 	},
 	"33,58": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"33,59": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"33,60": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"33,61": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"33,62": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"33,63": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"34,0": {
 		"terrainType": "LAND"
@@ -6534,34 +6534,34 @@
 		"terrainType": "LAND"
 	},
 	"34,2": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"34,3": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"34,4": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"34,5": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"34,6": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"34,7": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"34,8": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"34,9": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"34,10": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"34,11": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"34,12": {
 		"terrainType": "LAND"
@@ -6645,19 +6645,19 @@
 		"terrainType": "LAND"
 	},
 	"34,39": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"34,40": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"34,41": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"34,42": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"34,43": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"34,44": {
 		"terrainType": "LAND"
@@ -6711,10 +6711,10 @@
 		"terrainType": "LAND"
 	},
 	"34,61": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"34,62": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"34,63": {
 		"terrainType": "LAND"
@@ -6726,37 +6726,37 @@
 		"terrainType": "LAND"
 	},
 	"35,2": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"35,3": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"35,4": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"35,5": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"35,6": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"35,7": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"35,8": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"35,9": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"35,10": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"35,11": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"35,12": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"35,13": {
 		"terrainType": "LAND"
@@ -6918,34 +6918,34 @@
 		"terrainType": "LAND"
 	},
 	"36,2": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"36,3": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"36,4": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"36,5": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"36,6": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"36,7": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"36,8": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"36,9": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"36,10": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"36,11": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"36,12": {
 		"terrainType": "LAND"
@@ -7569,16 +7569,16 @@
 		"terrainType": "LAND"
 	},
 	"39,27": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"39,28": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"39,29": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"39,30": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"39,31": {
 		"terrainType": "LAND"
@@ -7731,7 +7731,7 @@
 		"terrainType": "LAND"
 	},
 	"40,17": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"40,18": {
 		"terrainType": "LAND"
@@ -7761,16 +7761,16 @@
 		"terrainType": "LAND"
 	},
 	"40,27": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"40,28": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"40,29": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"40,30": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"40,31": {
 		"terrainType": "LAND"
@@ -7914,16 +7914,16 @@
 		"terrainType": "LAND"
 	},
 	"41,14": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"41,15": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"41,16": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"41,17": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"41,18": {
 		"terrainType": "LAND"
@@ -7953,16 +7953,16 @@
 		"terrainType": "LAND"
 	},
 	"41,27": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"41,28": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"41,29": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"41,30": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"41,31": {
 		"terrainType": "LAND"
@@ -8106,16 +8106,16 @@
 		"terrainType": "LAND"
 	},
 	"42,14": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"42,15": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"42,16": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"42,17": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"42,18": {
 		"terrainType": "LAND"
@@ -8232,10 +8232,10 @@
 		"terrainType": "LAND"
 	},
 	"42,56": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"42,57": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"42,58": {
 		"terrainType": "LAND"
@@ -8250,10 +8250,10 @@
 		"terrainType": "LAND"
 	},
 	"42,62": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"42,63": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"43,0": {
 		"terrainType": "LAND"
@@ -8280,13 +8280,13 @@
 		"terrainType": "LAND"
 	},
 	"43,8": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"43,9": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"43,10": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"43,11": {
 		"terrainType": "LAND"
@@ -8400,13 +8400,13 @@
 		"terrainType": "LAND"
 	},
 	"43,48": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"43,49": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"43,50": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"43,51": {
 		"terrainType": "LAND"
@@ -8424,10 +8424,10 @@
 		"terrainType": "LAND"
 	},
 	"43,56": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"43,57": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"43,58": {
 		"terrainType": "LAND"
@@ -8442,10 +8442,10 @@
 		"terrainType": "LAND"
 	},
 	"43,62": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"43,63": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"44,0": {
 		"terrainType": "LAND"
@@ -8469,16 +8469,16 @@
 		"terrainType": "LAND"
 	},
 	"44,7": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"44,8": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"44,9": {
 		"terrainType": "LAND"
 	},
 	"44,10": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"44,11": {
 		"terrainType": "LAND"
@@ -8589,37 +8589,37 @@
 		"terrainType": "LAND"
 	},
 	"44,47": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"44,48": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"44,49": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"44,50": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"44,51": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"44,52": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"44,53": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"44,54": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"44,55": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"44,56": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"44,57": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"44,58": {
 		"terrainType": "LAND"
@@ -8634,10 +8634,10 @@
 		"terrainType": "LAND"
 	},
 	"44,62": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"44,63": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"45,0": {
 		"terrainType": "LAND"
@@ -8670,13 +8670,13 @@
 		"terrainType": "LAND"
 	},
 	"45,10": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"45,11": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"45,12": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"45,13": {
 		"terrainType": "LAND"
@@ -8781,37 +8781,37 @@
 		"terrainType": "LAND"
 	},
 	"45,47": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"45,48": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"45,49": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"45,50": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"45,51": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"45,52": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"45,53": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"45,54": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"45,55": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"45,56": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"45,57": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"45,58": {
 		"terrainType": "LAND"
@@ -8826,10 +8826,10 @@
 		"terrainType": "LAND"
 	},
 	"45,62": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"45,63": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"46,0": {
 		"terrainType": "LAND"
@@ -8862,13 +8862,13 @@
 		"terrainType": "LAND"
 	},
 	"46,10": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"46,11": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"46,12": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"46,13": {
 		"terrainType": "LAND"
@@ -8928,25 +8928,25 @@
 		"terrainType": "LAND"
 	},
 	"46,32": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"46,33": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"46,34": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"46,35": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"46,36": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"46,37": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"46,38": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"46,39": {
 		"terrainType": "LAND"
@@ -8976,7 +8976,7 @@
 		"terrainType": "LAND"
 	},
 	"46,48": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"46,49": {
 		"terrainType": "LAND"
@@ -8985,25 +8985,25 @@
 		"terrainType": "LAND"
 	},
 	"46,51": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"46,52": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"46,53": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"46,54": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"46,55": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"46,56": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"46,57": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"46,58": {
 		"terrainType": "LAND"
@@ -9123,22 +9123,22 @@
 		"terrainType": "LAND"
 	},
 	"47,33": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"47,34": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"47,35": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"47,36": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"47,37": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"47,38": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"47,39": {
 		"terrainType": "LAND"
@@ -9183,19 +9183,19 @@
 		"terrainType": "LAND"
 	},
 	"47,53": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"47,54": {
 		"terrainType": "LAND"
 	},
 	"47,55": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"47,56": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"47,57": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"47,58": {
 		"terrainType": "LAND"
@@ -9381,13 +9381,13 @@
 		"terrainType": "LAND"
 	},
 	"48,55": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"48,56": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"48,57": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"48,58": {
 		"terrainType": "LAND"
@@ -9405,7 +9405,7 @@
 		"terrainType": "LAND"
 	},
 	"48,63": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"49,0": {
 		"terrainType": "LAND"
@@ -9468,16 +9468,16 @@
 		"terrainType": "LAND"
 	},
 	"49,20": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"49,21": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"49,22": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"49,23": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"49,24": {
 		"terrainType": "LAND"
@@ -9576,10 +9576,10 @@
 		"terrainType": "LAND"
 	},
 	"49,56": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"49,57": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"49,58": {
 		"terrainType": "LAND"
@@ -9594,10 +9594,10 @@
 		"terrainType": "LAND"
 	},
 	"49,62": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"49,63": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"50,0": {
 		"terrainType": "LAND"
@@ -9606,16 +9606,16 @@
 		"terrainType": "LAND"
 	},
 	"50,2": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"50,3": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"50,4": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"50,5": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"50,6": {
 		"terrainType": "LAND"
@@ -9660,19 +9660,19 @@
 		"terrainType": "LAND"
 	},
 	"50,20": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"50,21": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"50,22": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"50,23": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"50,24": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"50,25": {
 		"terrainType": "LAND"
@@ -9786,10 +9786,10 @@
 		"terrainType": "LAND"
 	},
 	"50,62": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"50,63": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"51,0": {
 		"terrainType": "LAND"
@@ -9798,19 +9798,19 @@
 		"terrainType": "LAND"
 	},
 	"51,2": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"51,3": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"51,4": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"51,5": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"51,6": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"51,7": {
 		"terrainType": "LAND"
@@ -9828,10 +9828,10 @@
 		"terrainType": "LAND"
 	},
 	"51,12": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"51,13": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"51,14": {
 		"terrainType": "LAND"
@@ -9846,25 +9846,25 @@
 		"terrainType": "LAND"
 	},
 	"51,18": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"51,19": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"51,20": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"51,21": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"51,22": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"51,23": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"51,24": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"51,25": {
 		"terrainType": "LAND"
@@ -9978,10 +9978,10 @@
 		"terrainType": "LAND"
 	},
 	"51,62": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"51,63": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"52,0": {
 		"terrainType": "LAND"
@@ -9990,19 +9990,19 @@
 		"terrainType": "LAND"
 	},
 	"52,2": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"52,3": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"52,4": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"52,5": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"52,6": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"52,7": {
 		"terrainType": "LAND"
@@ -10020,10 +10020,10 @@
 		"terrainType": "LAND"
 	},
 	"52,12": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"52,13": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"52,14": {
 		"terrainType": "LAND"
@@ -10038,16 +10038,16 @@
 		"terrainType": "LAND"
 	},
 	"52,18": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"52,19": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"52,20": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"52,21": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"52,22": {
 		"terrainType": "LAND"
@@ -10068,19 +10068,19 @@
 		"terrainType": "LAND"
 	},
 	"52,28": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"52,29": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"52,30": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"52,31": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"52,32": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"52,33": {
 		"terrainType": "LAND"
@@ -10110,13 +10110,13 @@
 		"terrainType": "LAND"
 	},
 	"52,42": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"52,43": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"52,44": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"52,45": {
 		"terrainType": "LAND"
@@ -10173,7 +10173,7 @@
 		"terrainType": "LAND"
 	},
 	"52,63": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"53,0": {
 		"terrainType": "LAND"
@@ -10182,16 +10182,16 @@
 		"terrainType": "LAND"
 	},
 	"53,2": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"53,3": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"53,4": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"53,5": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"53,6": {
 		"terrainType": "LAND"
@@ -10260,19 +10260,19 @@
 		"terrainType": "LAND"
 	},
 	"53,28": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"53,29": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"53,30": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"53,31": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"53,32": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"53,33": {
 		"terrainType": "LAND"
@@ -10302,19 +10302,19 @@
 		"terrainType": "LAND"
 	},
 	"53,42": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"53,43": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"53,44": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"53,45": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"53,46": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"53,47": {
 		"terrainType": "LAND"
@@ -10365,7 +10365,7 @@
 		"terrainType": "LAND"
 	},
 	"53,63": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"54,0": {
 		"terrainType": "LAND"
@@ -10374,10 +10374,10 @@
 		"terrainType": "LAND"
 	},
 	"54,2": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"54,3": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"54,4": {
 		"terrainType": "LAND"
@@ -10494,19 +10494,19 @@
 		"terrainType": "LAND"
 	},
 	"54,42": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"54,43": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"54,44": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"54,45": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"54,46": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"54,47": {
 		"terrainType": "LAND"
@@ -10557,7 +10557,7 @@
 		"terrainType": "LAND"
 	},
 	"54,63": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"55,0": {
 		"terrainType": "LAND"
@@ -10971,19 +10971,19 @@
 		"terrainType": "LAND"
 	},
 	"57,9": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"57,10": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"57,11": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"57,12": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"57,13": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"57,14": {
 		"terrainType": "LAND"
@@ -11157,25 +11157,25 @@
 		"terrainType": "LAND"
 	},
 	"58,7": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"58,8": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"58,9": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"58,10": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"58,11": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"58,12": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"58,13": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"58,14": {
 		"terrainType": "LAND"
@@ -11349,25 +11349,25 @@
 		"terrainType": "LAND"
 	},
 	"59,7": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"59,8": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"59,9": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"59,10": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"59,11": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"59,12": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"59,13": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"59,14": {
 		"terrainType": "LAND"
@@ -11598,37 +11598,37 @@
 		"terrainType": "LAND"
 	},
 	"60,26": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"60,27": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"60,28": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"60,29": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"60,30": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"60,31": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"60,32": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"60,33": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"60,34": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"60,35": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"60,36": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"60,37": {
 		"terrainType": "LAND"
@@ -11787,49 +11787,49 @@
 		"terrainType": "LAND"
 	},
 	"61,25": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"61,26": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"61,27": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"61,28": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"61,29": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"61,30": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"61,31": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"61,32": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"61,33": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"61,34": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"61,35": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"61,36": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"61,37": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"61,38": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"61,39": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"61,40": {
 		"terrainType": "LAND"
@@ -11922,16 +11922,16 @@
 		"terrainType": "LAND"
 	},
 	"62,6": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,7": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,8": {
 		"terrainType": "LAND"
 	},
 	"62,9": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,10": {
 		"terrainType": "LAND"
@@ -11979,94 +11979,94 @@
 		"terrainType": "LAND"
 	},
 	"62,25": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,26": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,27": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,28": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,29": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,30": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,31": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,32": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,33": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,34": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,35": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,36": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,37": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,38": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,39": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,40": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,41": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,42": {
 		"terrainType": "LAND"
 	},
 	"62,43": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,44": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,45": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,46": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,47": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,48": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,49": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,50": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,51": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,52": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,53": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,54": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"62,55": {
 		"terrainType": "LAND"
@@ -12165,100 +12165,100 @@
 		"terrainType": "LAND"
 	},
 	"63,23": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,24": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,25": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,26": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,27": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,28": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,29": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,30": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,31": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,32": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,33": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,34": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,35": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,36": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,37": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,38": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,39": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,40": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,41": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,42": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,43": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,44": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,45": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,46": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,47": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,48": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,49": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,50": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,51": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,52": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,53": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,54": {
-		"terrainType": "LAND"
+		"terrainType": "WATER"
 	},
 	"63,55": {
 		"terrainType": "LAND"

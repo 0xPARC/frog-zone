@@ -17,8 +17,8 @@ export type Tile = {
 };
 
 export enum TerrainType {
-	LAND = "Land",
-	WATER = "Water",
+	LAND = "LAND",
+	WATER = "WATER",
 }
 
 export type TileWithCoord = Tile & {
@@ -94,7 +94,8 @@ const initializeGrid = (
 	for (let x = 0; x < size; x++) {
 		for (let y = 0; y < size; y++) {
 			const coordKey = coordToKey({ x, y });
-			const tileConfig = config[coordKey] || {};
+			const tileConfigKey = `${x},${y}`;
+			const tileConfig = config[tileConfigKey] || {};
 
 			grid.set(coordKey, {
 				coord: { x, y },
