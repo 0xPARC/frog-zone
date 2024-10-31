@@ -27,8 +27,11 @@ export const TileMapEditor = () => {
 		setGridData((prevData) => ({
 			...prevData,
 			[key]: {
-				terrainType: prevData[key as keyof typeof prevData]
-					.terrainType as TerrainType,
+				terrainType:
+					prevData[key as keyof typeof prevData].terrainType ===
+					TerrainType.LAND
+						? TerrainType.WATER
+						: TerrainType.LAND,
 			},
 		}));
 	};
