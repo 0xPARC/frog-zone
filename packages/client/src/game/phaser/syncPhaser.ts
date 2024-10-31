@@ -1,4 +1,8 @@
-import { coordToKey, getCenterPixelCoord } from "@smallbraingames/small-phaser";
+import {
+	coordToKey,
+	getCenterPixelCoord,
+	pixelCoordToTileCoord,
+} from "@smallbraingames/small-phaser";
 import { completedMoveAnimation } from "../../utils/animations";
 import { fetchPlayer } from "../../utils/fetchPlayer";
 import { getPlayerId } from "../../utils/getPlayerId";
@@ -26,6 +30,8 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		y: player?.player_data?.loc.y,
 	};
 	let moveMarker: Phaser.GameObjects.Image | null = null;
+	const tileWidth = phaserConfig.tilemap.tileWidth;
+	const tileHeight = phaserConfig.tilemap.tileHeight;
 
 	const drawTiles = ({
 		tiles,
@@ -149,19 +155,12 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		selectedPlayerImg = playerGameObject;
 	};
 
-	const handleMovePlayer = async (direction: Direction) => {
-		if (!selectedPlayerImg) return;
-
-		// record a move was made
-		useStore.getState().setLastMoveTimeStamp(Date.now());
-		// stop the fetcher so we can show the pending move
-		tileFetcher.stop();
-
-		const tileWidth = phaserConfig.tilemap.tileWidth;
-		const tileHeight = phaserConfig.tilemap.tileHeight;
-
-		let newX = selectedPlayerImg.x;
-		let newY = selectedPlayerImg.y;
+	const getNextPxCoord = (
+		playerImg: Phaser.GameObjects.Image,
+		direction: Direction,
+	) => {
+		let newX = playerImg?.x;
+		let newY = playerImg?.y;
 
 		switch (direction) {
 			case Direction.LEFT:
@@ -177,11 +176,38 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				newY += tileHeight;
 				break;
 		}
+		return { x: newX, y: newY };
+	};
+
+	const isValidTile = (tileCoord: { x: number; y: number }) => {
+		const key = coordToKey(tileCoord);
+		const grid = useStore.getState().grid;
+		const tile = grid.get(key);
+		return tile?.terrainType === TerrainType.LAND;
+	};
+
+	const handleMovePlayer = async (direction: Direction) => {
+		if (!selectedPlayerImg) return;
+
+		const newPxCoord = getNextPxCoord(selectedPlayerImg, direction);
+		// prevent the user from moving to an invalid tile, like into water
+		if (
+			!isValidTile(
+				pixelCoordToTileCoord(newPxCoord, tileWidth, tileHeight),
+			)
+		) {
+			return;
+		}
+
+		// record a move was made
+		useStore.getState().setLastMoveTimeStamp(Date.now());
+		// stop the fetcher so we can show the pending move
+		tileFetcher.stop();
 
 		// Add the marker at the new position
 		const nextMoveMarker = game.mainScene.add.image(
-			newX,
-			newY,
+			newPxCoord.x,
+			newPxCoord.y,
 			phaserConfig.assetKeys.arrow,
 		);
 		nextMoveMarker.setSize(tileWidth, tileHeight);

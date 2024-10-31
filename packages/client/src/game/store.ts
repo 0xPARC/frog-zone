@@ -215,7 +215,9 @@ const useStore = create<State>()(
 
 					// Update the grid with the newly fetched tile value (overrides the isShown: false set above)
 					if (newGrid.has(coordKey)) {
+						const existingTile = newGrid.get(coordKey);
 						newGrid.set(coordKey, {
+							...existingTile,
 							...tile,
 							isShown: true,
 						});
