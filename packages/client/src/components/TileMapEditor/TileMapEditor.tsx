@@ -11,9 +11,42 @@ Exporting the JSON exports a the json to paste into the tile.config.json */
 const ITEM_COORDS = ["1,8", "2,9", "3,3", "1,1"];
 const PLAYER_COORDS = ["1,2", "1,3", "4,5", "5,6"];
 
+interface Grid {
+	[key: string]: {
+		terrainType: TerrainType;
+	};
+}
+
+const findBorderingWaterCoordinates = (grid: Grid): string[] => {
+	const result: string[] = [];
+	const getNeighbors = (x: number, y: number): string[] => [
+		`${x - 1},${y}`, // Up
+		`${x + 1},${y}`, // Down
+		`${x},${y - 1}`, // Left
+		`${x},${y + 1}`, // Right
+	];
+
+	for (const key in grid) {
+		if (grid[key as keyof Grid].terrainType === "WATER") {
+			const [x, y] = key.split(",").map(Number);
+
+			const hasLandNeighbor = getNeighbors(x, y).some(
+				(neighbor) => grid[neighbor]?.terrainType === "LAND",
+			);
+			if (hasLandNeighbor) {
+				result.push(key);
+			}
+		}
+	}
+
+	return result;
+};
+
 export const TileMapEditor = () => {
 	const [gridData, setGridData] = useState(tileMapConfig);
 	const [isVisible, setIsVisible] = useState(false);
+	const waterCoordinatesBorderingLand =
+		findBorderingWaterCoordinates(gridData);
 
 	const toggleTerrain = (x: number, y: number) => {
 		const key = `${x},${y}`;
@@ -99,6 +132,10 @@ export const TileMapEditor = () => {
 										backgroundColor:
 											terrainType === "LAND"
 												? "green"
+												: waterCoordinatesBorderingLand.includes(
+														key,
+												  )
+												? "#03a9f4"
 												: "blue",
 										display: "flex",
 										alignItems: "center",
