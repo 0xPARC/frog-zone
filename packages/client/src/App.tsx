@@ -1,5 +1,6 @@
 import { GameFinishedOverlay } from "./game/components/GameFinishedOverlay";
 import { Login } from "./game/components/Login";
+import { TileMapEditor } from "./components/TileMapEditor/TileMapEditor";
 import { MoveCountdownTimer } from "./game/components/MoveCountdown";
 import { PlayerInfo } from "./game/components/PlayerInfo";
 import { WaitingForPlayersOverlay } from "./game/components/WaitingForPlayersOverlay";
@@ -10,6 +11,7 @@ import { getPlayerId } from "./utils/getPlayerId";
 import { AreYouThere } from "./game/components/AreYouThere";
 import { EnterGameAnimation } from "./game/components/EnterGameAnimation";
 import { QuitGameModal } from "./game/components/QuitGameModal";
+import { DEV_MODE } from "./const/env.const";
 
 const MIN_PLAYERS = 4;
 const MIN_PLAYERS_TO_FORCE_START = 1;
@@ -21,7 +23,7 @@ function App() {
 	const isLoggedIn = useStore((state) => state.isLoggedIn);
 	return (
 		<div>
-			<Login />
+			{!DEV_MODE && <Login />}
 			{isLoggedIn && (
 				<>
 					<PlayerInfo playerId={Number(playerId)} />
@@ -43,7 +45,6 @@ function App() {
 							<AreYouThere />
 						</>
 					)}
-					{/* <button onClick={() => confettiReward()}>Confetti</button> */}
 
 					{gameId &&
 						gameStatus === "waiting_for_players" &&
@@ -68,6 +69,7 @@ function App() {
 						)}
 				</>
 			)}
+			{DEV_MODE && <TileMapEditor />}
 		</div>
 	);
 }

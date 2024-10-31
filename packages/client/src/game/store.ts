@@ -5,6 +5,11 @@ enableMapSet();
 import { coordToKey } from "@smallbraingames/small-phaser";
 import { immer } from "zustand/middleware/immer";
 import { GameResponse } from "../utils/fetchGame";
+import tileConfig from "../const/tile.config.json";
+import {
+	findBorderingWaterCoordinates,
+	Grid,
+} from "../utils/findBorderingWaterCoordinates";
 
 export type TileEntityType = "None" | "Player" | "Item";
 
@@ -15,7 +20,14 @@ export type Tile = {
 	hp: number;
 };
 
+export enum TerrainType {
+	LAND = "LAND",
+	WATER = "WATER",
+}
+
 export type TileWithCoord = Tile & {
+	terrainType: TerrainType;
+	isBorderingLand: boolean; // if its a water tile that is bordering land
 	coord: Coord; // phaser coordinate of the tile
 	isShown?: boolean; // if the tile is shown in the game
 	fetchedAt: number; // timestamp of when the tile was fetched
@@ -79,13 +91,25 @@ interface State {
 	updateGrid: (viewportCoords: Coord[], newTiles: TileWithCoord[]) => void;
 }
 
-const initializeGrid = (size: number) => {
+const initializeGrid = (
+	size: number,
+	config: Record<string, { terrainType: string }>,
+) => {
 	const grid = new Map();
+	const waterCoordinatesBorderingLand = findBorderingWaterCoordinates(
+		config as Grid,
+	);
 	for (let x = 0; x < size; x++) {
 		for (let y = 0; y < size; y++) {
 			const coordKey = coordToKey({ x, y });
+			const tileConfigKey = `${x},${y}`;
+			const tileConfig = config[tileConfigKey] || {};
+
 			grid.set(coordKey, {
 				coord: { x, y },
+				terrainType: tileConfig.terrainType,
+				isBorderingLand:
+					waterCoordinatesBorderingLand.includes(tileConfigKey),
 				entity_type: "None",
 				fetchedAt: 0,
 				isShown: false,
@@ -103,7 +127,7 @@ const useStore = create<State>()(
 		gameState: GameState.LOADING,
 		players: new Map<number, Player>(),
 		items: new Map<number, Item>(),
-		grid: initializeGrid(64),
+		grid: initializeGrid(64, tileConfig),
 		lastMoveTimeStamp: 0, // Store the last move timestamp
 		setIsLoggedIn: ({
 			isLoggedIn,
@@ -201,7 +225,9 @@ const useStore = create<State>()(
 
 					// Update the grid with the newly fetched tile value (overrides the isShown: false set above)
 					if (newGrid.has(coordKey)) {
+						const existingTile = newGrid.get(coordKey);
 						newGrid.set(coordKey, {
+							...existingTile,
 							...tile,
 							isShown: true,
 						});
