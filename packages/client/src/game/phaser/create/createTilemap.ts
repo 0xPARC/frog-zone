@@ -104,7 +104,7 @@ const createTilemap = (scene: Phaser.Scene) => {
 		const landOverlay = scene.add.graphics();
 		landOverlay.fillStyle(0x037a1e, 1);
 		landOverlay.fillRect(tileX, tileY, tileWidth, tileHeight);
-		landOverlay.lineStyle(4, 0x000000, 0.1);
+		landOverlay.lineStyle(5, 0xffffff, 0.2);
 		landOverlay.strokeRect(tileX, tileY, tileWidth, tileHeight);
 		landMap[key] = landOverlay;
 	};
@@ -119,7 +119,7 @@ const createTilemap = (scene: Phaser.Scene) => {
 		const waterOverlay = scene.add.graphics();
 		waterOverlay.fillStyle(0x047dd9, 1);
 		waterOverlay.fillRect(tileX, tileY, tileWidth, tileHeight);
-		waterOverlay.lineStyle(4, 0x000000, 0.1);
+		waterOverlay.lineStyle(5, 0xffffff, 0.2);
 		waterOverlay.strokeRect(tileX, tileY, tileWidth, tileHeight);
 		waterMap[key] = waterOverlay;
 	};
