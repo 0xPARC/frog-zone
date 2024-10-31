@@ -23,3 +23,7 @@ Run `bun dev` in `packages/client`
 
 Add IS_MOCK=true to .env in `packages/client`
 Rerun `sh start.sh` in  `packages/server`
+
+## Running with Dev features:
+Add IS_MOCK=true to .env in `packages/client`, this enables certain dev features like bypassing the login and the TileMapEditor
+

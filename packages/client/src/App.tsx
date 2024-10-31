@@ -11,6 +11,7 @@ import { getPlayerId } from "./utils/getPlayerId";
 import { AreYouThere } from "./game/components/AreYouThere";
 import { EnterGameAnimation } from "./game/components/EnterGameAnimation";
 import { QuitGameModal } from "./game/components/QuitGameModal";
+import { DEV_MODE } from "./const/env.const";
 
 const MIN_PLAYERS = 4;
 const MIN_PLAYERS_TO_FORCE_START = 1;
@@ -22,7 +23,7 @@ function App() {
 	const isLoggedIn = useStore((state) => state.isLoggedIn);
 	return (
 		<div>
-			<Login />
+			{!DEV_MODE && <Login />}
 			{isLoggedIn && (
 				<>
 					<PlayerInfo playerId={Number(playerId)} />
@@ -68,7 +69,7 @@ function App() {
 						)}
 				</>
 			)}
-			{import.meta.env.VITE_DEV_MODE && <TileMapEditor />}
+			{DEV_MODE && <TileMapEditor />}
 		</div>
 	);
 }
