@@ -6,6 +6,10 @@ import { coordToKey } from "@smallbraingames/small-phaser";
 import { immer } from "zustand/middleware/immer";
 import { GameResponse } from "../utils/fetchGame";
 import tileConfig from "../const/tile.config.json";
+import {
+	findBorderingWaterCoordinates,
+	Grid,
+} from "../utils/findBorderingWaterCoordinates";
 
 export type TileEntityType = "None" | "Player" | "Item";
 
@@ -23,6 +27,7 @@ export enum TerrainType {
 
 export type TileWithCoord = Tile & {
 	terrainType: TerrainType;
+	isBorderingLand: boolean; // if its a water tile that is bordering land
 	coord: Coord; // phaser coordinate of the tile
 	isShown?: boolean; // if the tile is shown in the game
 	fetchedAt: number; // timestamp of when the tile was fetched
@@ -91,6 +96,9 @@ const initializeGrid = (
 	config: Record<string, { terrainType: string }>,
 ) => {
 	const grid = new Map();
+	const waterCoordinatesBorderingLand = findBorderingWaterCoordinates(
+		config as Grid,
+	);
 	for (let x = 0; x < size; x++) {
 		for (let y = 0; y < size; y++) {
 			const coordKey = coordToKey({ x, y });
@@ -100,6 +108,8 @@ const initializeGrid = (
 			grid.set(coordKey, {
 				coord: { x, y },
 				terrainType: tileConfig.terrainType,
+				isBorderingLand:
+					waterCoordinatesBorderingLand.includes(tileConfigKey),
 				entity_type: "None",
 				fetchedAt: 0,
 				isShown: false,

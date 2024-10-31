@@ -62,7 +62,7 @@ const createTilemap = (scene: Phaser.Scene) => {
 	// Create a water map to store the water tiles
 	const waterMap: { [key: string]: Phaser.GameObjects.Graphics } = {};
 
-	const putFogAt = (tileCoord: Coord, opacity: number = 0.5) => {
+	const putFogAt = (tileCoord: Coord, opacity: number = 0.7) => {
 		const tileX =
 			(tileCoord.x + gridSize / 2) * tileWidth + startX * tileWidth;
 		const tileY =
@@ -117,6 +117,21 @@ const createTilemap = (scene: Phaser.Scene) => {
 
 		const key = `${tileCoord.x},${tileCoord.y}`;
 		const waterOverlay = scene.add.graphics();
+		waterOverlay.fillStyle(0x035797, 1);
+		waterOverlay.fillRect(tileX, tileY, tileWidth, tileHeight);
+		waterOverlay.lineStyle(5, 0xffffff, 0.2);
+		waterOverlay.strokeRect(tileX, tileY, tileWidth, tileHeight);
+		waterMap[key] = waterOverlay;
+	};
+
+	const putShallowWaterAt = (tileCoord: Coord) => {
+		const tileX =
+			(tileCoord.x + gridSize / 2) * tileWidth + startX * tileWidth;
+		const tileY =
+			(tileCoord.y + gridSize / 2) * tileHeight + startY * tileHeight;
+
+		const key = `${tileCoord.x},${tileCoord.y}`;
+		const waterOverlay = scene.add.graphics();
 		waterOverlay.fillStyle(0x047dd9, 1);
 		waterOverlay.fillRect(tileX, tileY, tileWidth, tileHeight);
 		waterOverlay.lineStyle(5, 0xffffff, 0.2);
@@ -134,6 +149,7 @@ const createTilemap = (scene: Phaser.Scene) => {
 		removeFogAt,
 		putLandAt,
 		putWaterAt,
+		putShallowWaterAt,
 		...config.tilemap,
 	};
 };

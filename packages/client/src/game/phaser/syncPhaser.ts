@@ -276,7 +276,11 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				game.tilemap.putLandAt(tile.coord);
 			}
 			if (tile.terrainType === TerrainType.WATER) {
-				game.tilemap.putWaterAt(tile.coord);
+				if (tile.isBorderingLand) {
+					game.tilemap.putShallowWaterAt(tile.coord);
+				} else {
+					game.tilemap.putWaterAt(tile.coord);
+				}
 			}
 		});
 	};
