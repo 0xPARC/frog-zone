@@ -54,7 +54,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 					game.tilemap.putFogAt(tile.coord, 0.1);
 				}
 			} else {
-				game.tilemap.putFogAt(tile.coord);
+				game.tilemap.putFogAt(tile.coord, tile.fetchedAt ? 0.7 : 1);
 				const id = coordToKey(tile.coord);
 				const image = players.get(id) || items.get(id);
 				if (image) {
