@@ -52,8 +52,6 @@ export default function Home() {
 
       if (zInstance) {
         const pKey = await zInstance.identity.getPublicKey();
-        setPublicKey(pKey);
-
         // gpc proof code follows this sample: https://github.com/robknight/gpc-sample/
         const proof = await zInstance?.gpc.prove({
           request: DevconTicketProofRequest.schema,
@@ -65,7 +63,7 @@ export default function Home() {
           return;
         }
 
-        const { result } = await verifyProof(proof);
+        const { result } = await verifyProof({ proof });
 
         if (result !== true) {
           console.error("Failed to verify proof.");
@@ -77,11 +75,9 @@ export default function Home() {
           machineId: machineId as string,
         });
 
-        console.log("Login response:", loginData);
-
         checkMachineStatus();
-
         setIsZInstanceInitialized(true);
+        setIsConnecting(false);
       } else {
         console.error("Failed to initialize Z instance.");
       }

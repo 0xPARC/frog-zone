@@ -1,4 +1,4 @@
-import { serializeProofResult } from "./serialize";
+import { ProveResult, serializeProofResult } from "./serialize";
 
 export const postNewLogIn = async ({
   publicKey,
@@ -54,11 +54,12 @@ export const fetchMachineStatus = async (machineId: string) => {
 export const verifyProof = async ({
   proof,
 }: {
-  proof: unknown;
+  proof: ProveResult;
 }): Promise<{ result: boolean }> => {
-  const response = await fetch("/api/verify-proof", {
+  const serializedProof = serializeProofResult(proof);
+  const response = await fetch("/api/verify", {
     method: "POST",
-    body: proof,
+    body: JSON.stringify({ proof: serializedProof }),
     headers: {
       "Content-Type": "application/json",
     },

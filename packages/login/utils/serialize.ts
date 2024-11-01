@@ -6,11 +6,11 @@ export type ProveResult = Extract<
   { success: true }
 >;
 
-export function serializeProofResult(result: ProveResult): string {
+export function serializeProofResult(result: ProveResult) {
   const serializedProofResult = {
     proof: result.proof,
     serializedBoundConfig: boundConfigToJSON(result.boundConfig),
     serializedRevealedClaims: revealedClaimsToJSON(result.revealedClaims),
   };
-  return JSON.stringify(serializedProofResult);
+  return serializedProofResult;
 }

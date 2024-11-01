@@ -6,10 +6,10 @@ import {
 } from "@pcd/gpc";
 import path from "path";
 import { DevconTicketProofRequest } from "../../../utils/DevconTicketProofRequest";
-import { serializeProofResult } from "../../../utils/serialize";
 
 const GPC_ARTIFACTS_PATH = path.join(
-  __dirname,
+  process.cwd(),
+  "..",
   "..",
   "node_modules",
   "@pcd",
@@ -22,13 +22,10 @@ export async function OPTIONS() {
 
 export async function POST(request: Request) {
   try {
-    const proofResult = await request.json();
-
-    const serializedProof = serializeProofResult(proofResult);
-
+    const { proof: proofResult } = await request.json();
     // Deserialize values from the client
     const { serializedBoundConfig, serializedRevealedClaims, proof } =
-      JSON.parse(serializedProof);
+      proofResult;
     const boundConfig = boundConfigFromJSON(serializedBoundConfig);
     const revealedClaims = revealedClaimsFromJSON(serializedRevealedClaims);
 
