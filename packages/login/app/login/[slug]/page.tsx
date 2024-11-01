@@ -2,8 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { initializeZConnection } from "@/lib/zupass/connector";
-import { postNewLogIn, fetchMachineStatus } from "@/utils/api";
+import { connect, Zapp } from "@parcnet-js/app-connector";
+import { postNewLogIn, fetchMachineStatus, verifyProof } from "@/utils/api";
+import { DevconTicketProofRequest } from "@/utils/DevconTicketProofRequest";
+
+const myApp: Zapp = {
+  name: "Devcon Ticket Authentication",
+  permissions: {
+    REQUEST_PROOF: { collections: ["Tickets"] },
+    READ_PUBLIC_IDENTIFIERS: {},
+  },
+};
 
 export default function Home() {
   const [isClient, setIsClient] = useState(false);
@@ -35,11 +44,33 @@ export default function Home() {
   const handleInitializeZInstance = async () => {
     if (!isZInstanceInitialized && !publicKey) {
       setIsConnecting(true);
-      const zInstance = await initializeZConnection("app-connector");
+      const zInstance = await await connect(
+        myApp,
+        document.querySelector<HTMLDivElement>("#app-connector")!,
+        "https://zupass.org",
+      );
 
       if (zInstance) {
         const pKey = await zInstance.identity.getPublicKey();
         setPublicKey(pKey);
+
+        // gpc proof code follows this sample: https://github.com/robknight/gpc-sample/
+        const proof = await zInstance?.gpc.prove({
+          request: DevconTicketProofRequest.schema,
+          collectionIds: ["Tickets"],
+        });
+
+        if (!proof?.success) {
+          console.error("Failed to prove ticket.");
+          return;
+        }
+
+        const { result } = await verifyProof(proof);
+
+        if (result !== true) {
+          console.error("Failed to verify proof.");
+          return;
+        }
 
         const loginData = await postNewLogIn({
           publicKey: pKey,

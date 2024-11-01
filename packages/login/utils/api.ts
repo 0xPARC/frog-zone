@@ -1,3 +1,5 @@
+import { serializeProofResult } from "./serialize";
+
 export const postNewLogIn = async ({
   publicKey,
   machineId,
@@ -47,4 +49,20 @@ export const fetchMachineStatus = async (machineId: string) => {
     console.error("Machine ID is required");
     return { success: false, message: "Machine ID is required" };
   }
+};
+
+export const verifyProof = async ({
+  proof,
+}: {
+  proof: unknown;
+}): Promise<{ result: boolean }> => {
+  const response = await fetch("/api/verify-proof", {
+    method: "POST",
+    body: proof,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const data = await response.json();
+  return data;
 };
