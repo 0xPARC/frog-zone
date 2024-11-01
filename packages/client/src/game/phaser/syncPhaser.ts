@@ -96,6 +96,12 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				}
 			}
 		});
+
+		// reveals the tiles only once drawTiles is called when the game start up
+		const phaserContainer = document?.getElementById("phaser-container");
+		if (phaserContainer && phaserContainer.style.visibility !== "visible") {
+			phaserContainer.style.visibility = "visible";
+		}
 	};
 
 	const tileFetcher = createTileFetcher({
