@@ -23,12 +23,14 @@ export async function OPTIONS() {
 export async function POST(request: Request) {
   try {
     const { proof: proofResult } = await request.json();
+    console.log("PR", proofResult);
+
     // Deserialize values from the client
     const { serializedBoundConfig, serializedRevealedClaims, proof } =
       proofResult;
     const boundConfig = boundConfigFromJSON(serializedBoundConfig);
     const revealedClaims = revealedClaimsFromJSON(serializedRevealedClaims);
-
+    console.log("REVEALED CLAIMS", revealedClaims);
     // Get values from the proof request for verification
     const { proofConfig, membershipLists, externalNullifier, watermark } =
       DevconTicketProofRequest.getProofRequest();
@@ -43,13 +45,14 @@ export async function POST(request: Request) {
     revealedClaims.watermark = watermark;
     // Set membership lists to values from the proof request
     revealedClaims.membershipLists = membershipLists;
-
+    console.log("REVEALED CLAIMS LISTS", membershipLists);
     const result = await gpcVerify(
       proof,
       boundConfig,
       revealedClaims,
       GPC_ARTIFACTS_PATH,
     );
+    console.log("RESULT", result);
 
     return NextResponse.json({
       result,
