@@ -26,11 +26,11 @@ const createPhaserGame = async () => {
 	const config: Phaser.Types.Core.GameConfig = {
 		type: Phaser.WEBGL,
 		parent: "phaser-container",
-		width: window.innerWidth * window.devicePixelRatio,
+		width: (window.innerWidth - 370) * window.devicePixelRatio,
 		height: window.innerHeight * window.devicePixelRatio,
 		pixelArt: true,
 		scale: {
-			mode: Phaser.Scale.NONE,
+			mode: Phaser.Scale.CENTER_BOTH,
 			zoom: 0.7 / window.devicePixelRatio,
 		},
 		scene: [MainScene],

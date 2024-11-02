@@ -32,6 +32,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 	let moveMarker: Phaser.GameObjects.Image | null = null;
 	const tileWidth = phaserConfig.tilemap.tileWidth;
 	const tileHeight = phaserConfig.tilemap.tileHeight;
+	const addActionLog = useStore.getState().addActionLog;
 
 	const drawTiles = ({
 		tiles,
@@ -232,6 +233,13 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		moveMarker = nextMoveMarker;
 
 		const moveResponse = await api.move(selectedPlayerId, direction);
+		addActionLog({
+			message: `move ${direction.toUpperCase()} received: ${JSON.stringify(
+				{
+					response: "success",
+				},
+			)}`,
+		});
 		if (moveResponse?.my_new_coords) {
 			const newCoord = {
 				x: moveResponse.my_new_coords.x,
@@ -320,6 +328,9 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 			}
 		});
 		useStore.getState().setGameState(GameState.READY);
+		addActionLog({
+			message: "welcome to FROG ZONE",
+		});
 	};
 	setupGame();
 };
