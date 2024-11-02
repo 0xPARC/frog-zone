@@ -50,7 +50,7 @@ export const TerminalActionLog: React.FC = () => {
 
 	return (
 		<div style={actionLogStyles.container}>
-			<div style={actionLogStyles.header}>FROG ZONE action_log:</div>
+			<div style={actionLogStyles.header}>FROG ZONE console:</div>
 			<div style={actionLogStyles.log}>
 				{logs.length > 0 &&
 					logs.map((log: ActionLog, index) => (
