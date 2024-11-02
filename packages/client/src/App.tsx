@@ -25,7 +25,7 @@ function App() {
 	return (
 		<div>
 			{!DEV_MODE && <Login />}
-			{!isLoggedIn && (
+			{isLoggedIn && (
 				<>
 					<PlayerInfo playerId={Number(playerId)} />
 					<MoveCountdownTimer />
