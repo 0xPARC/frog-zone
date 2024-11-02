@@ -34,7 +34,7 @@ const WinGameButton: React.FC<WinGameButtonProps> = ({ gameId }) => {
 			style={{
 				position: "absolute",
 				top: "10px",
-				right: "10px",
+				right: "380px",
 			}}
 		>
 			<button
@@ -47,6 +47,7 @@ const WinGameButton: React.FC<WinGameButtonProps> = ({ gameId }) => {
 					borderRadius: "5px",
 					padding: "10px 15px",
 					border: "none",
+					minWidth: "100px",
 				}}
 			>
 				{loading ? "Updating..." : "Win Game"}

@@ -10,7 +10,7 @@ const styles = {
 		position: "absolute" as "absolute",
 		top: "10px",
 		left: "10px",
-		backgroundColor: "rgba(0,0,0,0.5)",
+		backgroundColor: "rgba(0,0,0,0.8)",
 		fontFamily: "monospace",
 		color: "#fff",
 		paddingLeft: "10px",
