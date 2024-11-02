@@ -159,6 +159,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 			coord: coord,
 		});
 		selectedPlayerImg = playerGameObject;
+		game.camera.phaserCamera.startFollow(selectedPlayerImg);
 	};
 
 	const getNextPxCoord = (
@@ -294,7 +295,6 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 	const setupGame = () => {
 		drawTerrain();
 		drawSelectedPlayer(initialPlayerCoord);
-		positionCamera(initialPlayerCoord);
 		tileFetcher.start();
 
 		game.input.keyboard$.pipe(debounceTime(200)).subscribe((key) => {
