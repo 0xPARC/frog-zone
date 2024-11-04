@@ -55,7 +55,7 @@ export const verifyProof = async ({
   proof,
 }: {
   proof: ProveResult;
-}): Promise<{ result: boolean }> => {
+}): Promise<{ verified: boolean }> => {
   const serializedProof = serializeProofResult(proof);
   const response = await fetch("/api/verify", {
     method: "POST",
