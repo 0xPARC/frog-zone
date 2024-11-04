@@ -1,9 +1,10 @@
 #ifndef FROGZONE_H
 #define FROGZONE_H
 
-#define NUM_OBSTACLES 100
+#define NUM_OBSTACLES 96
 #define NUM_PLAYERS 4
-#define NUM_ITEMS 16
+#define NUM_ITEMS 10
+#define NUM_MONSTERS 6
 
 #define HEIGHT 64
 #define WIDTH 64
@@ -29,7 +30,7 @@ enum Direction {
 };
 
 struct Obstacles100 {
-    Coord values[NUM_OBSTACLES];
+    Coord values[NUM_OBSTACLES + NUM_PLAYERS];
 };
 
 struct PlayerData {
@@ -64,9 +65,29 @@ struct ItemsWithId {
     ItemWithId values[NUM_ITEMS];
 };
 
+struct MonsterData {
+    Coord loc;
+    unsigned char hp;
+    unsigned char atk;
+};
+
+struct MonsterWithId {
+    unsigned char id;
+    MonsterData data;
+};
+
+struct Monsters {
+    MonsterData values[NUM_MONSTERS];
+};
+
+struct MonstersWithId {
+    MonsterWithId values[NUM_MONSTERS];
+};
+
 struct ApplyMoveOut {
     PlayerData player_data;
     Items items;
+    Monsters monsters;
 };
 
 struct PlayersWithId {
@@ -101,6 +122,7 @@ struct CellDatas5 {
 
 CellData get_cell_no_check(
                            Coord coord,
+                           MonstersWithId monsters,
                            ItemsWithId items,
                            PlayersWithId players);
 bool invalid_coord_x(
@@ -120,11 +142,13 @@ ApplyMoveOut apply_move(
                         PlayerData player_data,
                         Direction direction,
                         Obstacles100 obstacles,
+                        Monsters monsters,
                         Items items);
 
 CellData get_cell(
                   Coord player_coord,
                   Coord query_coord,
+                  MonstersWithId monsters,
                   ItemsWithId items,
                   PlayersWithId players
                   );
@@ -132,12 +156,14 @@ CellData get_cell(
 CellDatas5 get_five_cells(
                           Coord player_coord,
                           Coords5 query_coords,
+                          MonstersWithId monsters,
                           ItemsWithId items,
                           PlayersWithId players
                          );
 
 CellDatas5 get_cross_cells(
                           Coord player_coord,
+                          MonstersWithId monsters,
                           ItemsWithId items,
                           PlayersWithId players
                          );
@@ -145,6 +171,7 @@ CellDatas5 get_cross_cells(
 CellDatas5 get_horizontal_cells(
                           Coord player_coord,
                           Coord query_coord,
+                          MonstersWithId monsters,
                           ItemsWithId items,
                           PlayersWithId players
                          );
@@ -152,6 +179,7 @@ CellDatas5 get_horizontal_cells(
 CellDatas5 get_vertical_cells(
                           Coord player_coord,
                           Coord query_coord,
+                          MonstersWithId monsters,
                           ItemsWithId items,
                           PlayersWithId players
                          );

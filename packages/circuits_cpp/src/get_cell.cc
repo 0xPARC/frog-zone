@@ -4,6 +4,7 @@
 CellData get_cell(
                   Coord player_coord,
                   Coord query_coord,
+                  MonstersWithId monsters,
                   ItemsWithId items,
                   PlayersWithId players
                   ) {
@@ -13,6 +14,5 @@ CellData get_cell(
     return ret;
   }
 
-  return get_cell_no_check(query_coord, items, players);
+  return get_cell_no_check(query_coord, monsters, items, players);
 }
-

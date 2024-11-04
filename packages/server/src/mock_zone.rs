@@ -3,7 +3,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::client::{Direction, EntityType};
 
-const NUM_ITEMS: usize = 16;
+const NUM_ITEMS: usize = 10;
+const NUM_MONSTERS: usize = 6;
+const NUM_OBSTACLES: usize = 96;
 
 pub type MockEncrypted<T> = T;
 
@@ -52,6 +54,25 @@ pub struct ItemWithEncryptedId {
     pub data: ItemEncryptedData,
 }
 
+#[derive(Copy, Clone, Debug)]
+pub struct MonsterEncryptedData {
+    pub loc: MockEncryptedCoord,
+    pub hp: MockEncrypted<u8>,
+    pub atk: MockEncrypted<u8>,
+}
+
+#[derive(Clone, Debug)]
+pub struct Monster {
+    pub id: usize,
+    pub data: MonsterEncryptedData,
+}
+
+#[derive(Copy, Clone, Debug)]
+pub struct MonsterWithEncryptedId {
+    pub id: MockEncrypted<u8>,
+    pub data: MonsterEncryptedData,
+}
+
 #[derive(Copy, Clone, Debug, Default, Serialize, Deserialize)]
 pub struct CellEncryptedData {
     pub entity_type: MockEncrypted<EntityType>,
@@ -66,7 +87,8 @@ pub struct MockZone {
     pub height: u8,
     pub players: [Player; 4],
     pub items: [Item; NUM_ITEMS],
-    pub obstacles: [MockEncryptedCoord; 96],
+    pub monsters: [Monster; NUM_MONSTERS],
+    pub obstacles: [MockEncryptedCoord; NUM_OBSTACLES],
     pub precomputed_ids: [MockEncrypted<u8>; 20],
 }
 
@@ -109,7 +131,7 @@ pub fn fhe_apply_move_check_collisions(
     direction: MockEncrypted<Direction>,
     height: u8,
     width: u8,
-    obstacles: [MockEncryptedCoord; 100],
+    obstacles: [MockEncryptedCoord; NUM_OBSTACLES + 4],
 ) -> MockEncryptedCoord {
     let new_coords = fhe_apply_move_raw(old_coords, direction, height, width);
 
@@ -130,15 +152,22 @@ pub fn fhe_apply_move(
     direction: MockEncrypted<Direction>,
     height: u8,
     width: u8,
-    obstacles: [MockEncryptedCoord; 100],
+    obstacles: [MockEncryptedCoord; NUM_OBSTACLES + 4],
+    monsters: [MonsterEncryptedData; NUM_MONSTERS],
     items: [ItemEncryptedData; NUM_ITEMS],
-) -> (PlayerEncryptedData, [ItemEncryptedData; NUM_ITEMS]) {
-    let new_coords =
+) -> (
+    PlayerEncryptedData,
+    [ItemEncryptedData; NUM_ITEMS],
+    [MonsterEncryptedData; NUM_MONSTERS],
+) {
+    let old_coords = player_data.loc;
+
+    let mut new_coords =
         fhe_apply_move_check_collisions(player_data.loc, direction, height, width, obstacles);
 
     let mut new_player_data = player_data;
-    new_player_data.loc = new_coords;
     let mut new_item_data = items;
+    let mut new_monster_data = monsters;
 
     for (idx, item) in items.iter().enumerate() {
         if new_coords == item.loc && !item.is_consumed {
@@ -148,15 +177,49 @@ pub fn fhe_apply_move(
         }
     }
 
-    (new_player_data, new_item_data)
+    for (idx, monster) in monsters.iter().enumerate() {
+        if new_coords == monster.loc && monster.hp != 0 {
+            // apply monster's attack
+            if player_data.hp <= monster.atk {
+                new_player_data.hp = 0;
+            } else {
+                new_player_data.hp -= monster.atk;
+            }
+
+            // apply player's attack
+            if monster.hp <= player_data.atk {
+                new_monster_data[idx].hp = 0;
+                new_player_data.atk += monster.atk;
+            } else {
+                new_monster_data[idx].hp -= player_data.atk
+            }
+
+            // revert player back to their coords
+            new_coords = old_coords;
+        }
+    }
+
+    new_player_data.loc = new_coords;
+
+    (new_player_data, new_item_data, new_monster_data)
 }
 
 fn fhe_get_cell_no_check(
     coord: MockEncryptedCoord,
+    monsters: [MonsterWithEncryptedId; NUM_MONSTERS],
     items: [ItemWithEncryptedId; NUM_ITEMS],
     players: [PlayerWithEncryptedId; 4],
 ) -> CellEncryptedData {
     let mut cell = CellEncryptedData::default();
+
+    for monster in monsters {
+        if coord == monster.data.loc && monster.data.hp > 0 {
+            cell.entity_type = EntityType::Monster;
+            cell.entity_id = monster.id;
+            cell.hp = monster.data.hp;
+            cell.atk = monster.data.atk;
+        }
+    }
 
     for item in items {
         if coord == item.data.loc && !item.data.is_consumed {
@@ -182,6 +245,7 @@ fn fhe_get_cell_no_check(
 fn fhe_get_cell(
     player_coord: MockEncryptedCoord,
     query_coord: MockEncryptedCoord,
+    monsters: [MonsterWithEncryptedId; NUM_MONSTERS],
     items: [ItemWithEncryptedId; NUM_ITEMS],
     players: [PlayerWithEncryptedId; 4],
 ) -> CellEncryptedData {
@@ -193,12 +257,13 @@ fn fhe_get_cell(
         return ret;
     }
 
-    fhe_get_cell_no_check(query_coord, items, players)
+    fhe_get_cell_no_check(query_coord, monsters, items, players)
 }
 
 fn fhe_get_five_cells(
     player_coord: MockEncryptedCoord,
     query_coords: [MockEncryptedCoord; 5],
+    monsters: [MonsterWithEncryptedId; NUM_MONSTERS],
     items: [ItemWithEncryptedId; NUM_ITEMS],
     players: [PlayerWithEncryptedId; 4],
 ) -> [CellEncryptedData; 5] {
@@ -213,7 +278,7 @@ fn fhe_get_five_cells(
             ret.entity_type = EntityType::Invalid;
             cells[idx] = ret;
         } else {
-            cells[idx] = fhe_get_cell_no_check(query_coord.clone(), items, players);
+            cells[idx] = fhe_get_cell_no_check(query_coord.clone(), monsters, items, players);
         }
     }
 
@@ -222,6 +287,7 @@ fn fhe_get_five_cells(
 
 fn fhe_get_cross_cells(
     player_coord: MockEncryptedCoord,
+    monsters: [MonsterWithEncryptedId; NUM_MONSTERS],
     items: [ItemWithEncryptedId; NUM_ITEMS],
     players: [PlayerWithEncryptedId; 4],
 ) -> [CellEncryptedData; 5] {
@@ -248,7 +314,7 @@ fn fhe_get_cross_cells(
     ];
 
     for (idx, query_coord) in query_coords.iter().enumerate() {
-        cells[idx] = fhe_get_cell_no_check(query_coord.clone(), items, players);
+        cells[idx] = fhe_get_cell_no_check(query_coord.clone(), monsters, items, players);
     }
 
     cells
@@ -257,6 +323,7 @@ fn fhe_get_cross_cells(
 fn fhe_get_vertical_cells(
     center_coord: MockEncryptedCoord,
     query_coord: MockEncryptedCoord,
+    monsters: [MonsterWithEncryptedId; NUM_MONSTERS],
     items: [ItemWithEncryptedId; NUM_ITEMS],
     players: [PlayerWithEncryptedId; 4],
 ) -> [CellEncryptedData; 5] {
@@ -291,7 +358,7 @@ fn fhe_get_vertical_cells(
     ];
 
     for (idx, query_coord) in query_coords.iter().enumerate() {
-        cells[idx] = fhe_get_cell_no_check(query_coord.clone(), items, players);
+        cells[idx] = fhe_get_cell_no_check(query_coord.clone(), monsters, items, players);
     }
 
     cells
@@ -300,6 +367,7 @@ fn fhe_get_vertical_cells(
 fn fhe_get_horizontal_cells(
     center_coord: MockEncryptedCoord,
     query_coord: MockEncryptedCoord,
+    monsters: [MonsterWithEncryptedId; NUM_MONSTERS],
     items: [ItemWithEncryptedId; NUM_ITEMS],
     players: [PlayerWithEncryptedId; 4],
 ) -> [CellEncryptedData; 5] {
@@ -334,7 +402,7 @@ fn fhe_get_horizontal_cells(
     ];
 
     for (idx, query_coord) in query_coords.iter().enumerate() {
-        cells[idx] = fhe_get_cell_no_check(query_coord.clone(), items, players);
+        cells[idx] = fhe_get_cell_no_check(query_coord.clone(), monsters, items, players);
     }
 
     cells
@@ -406,11 +474,23 @@ impl MockZone {
             },
         });
 
+        let monsters = from_fn(|i| Monster {
+            id: i,
+            data: MonsterEncryptedData {
+                loc: MockEncryptedCoord {
+                    x: pk_encrypt(i as _),
+                    y: pk_encrypt((i + 2) as _),
+                },
+                hp: pk_encrypt(10),
+                atk: pk_encrypt(1),
+            },
+        });
+
         let filler_coord = MockEncryptedCoord {
             x: pk_encrypt(255),
             y: pk_encrypt(255),
         };
-        let mut obstacles: [MockEncryptedCoord; 96] = from_fn(|_| filler_coord.clone());
+        let mut obstacles: [MockEncryptedCoord; NUM_OBSTACLES] = from_fn(|_| filler_coord.clone());
         obstacles[0] = MockEncryptedCoord {
             x: pk_encrypt(0),
             y: pk_encrypt(0),
@@ -444,6 +524,7 @@ impl MockZone {
             height,
             players,
             items,
+            monsters,
             obstacles,
             precomputed_ids,
         }
@@ -460,27 +541,34 @@ impl MockZone {
 
         let item_data = self.items.each_ref().map(|i| i.data.clone());
 
-        let obstacles: [_; 100] = from_fn(|i| {
-            if i < 96 {
+        let monster_data = self.monsters.each_ref().map(|i| i.data.clone());
+
+        let obstacles: [_; NUM_OBSTACLES + 4] = from_fn(|i| {
+            if i < NUM_OBSTACLES {
                 self.obstacles[i].clone()
             } else {
-                self.players[i - 96].data.loc.clone()
+                self.players[i - NUM_OBSTACLES].data.loc.clone()
             }
         });
 
-        let (new_player_data, new_item_data) = fhe_apply_move(
+        let (new_player_data, new_item_data, new_monster_data) = fhe_apply_move(
             player_data,
             direction,
             self.height,
             self.width,
             obstacles,
+            monster_data,
             item_data,
         );
 
         self.players[player_id].data = new_player_data;
 
-        for i in 0..self.items.len() {
+        for i in 0..NUM_ITEMS {
             self.items[i].data = new_item_data[i].clone();
+        }
+
+        for i in 0..NUM_MONSTERS {
+            self.monsters[i].data = new_monster_data[i].clone();
         }
 
         self.players[player_id].data.loc.clone()
@@ -506,6 +594,16 @@ impl MockZone {
         })
     }
 
+    fn fully_encrypted_monsters(&self) -> [MonsterWithEncryptedId; NUM_MONSTERS] {
+        from_fn(|i| {
+            let monster = self.monsters[i].clone();
+            MonsterWithEncryptedId {
+                id: self.precomputed_ids[monster.id].clone(),
+                data: monster.data,
+            }
+        })
+    }
+
     pub fn get_cells(
         &self,
         player_id: usize,
@@ -518,6 +616,7 @@ impl MockZone {
             cells.push(fhe_get_cell(
                 player_coord.clone(),
                 coord.clone(),
+                self.fully_encrypted_monsters(),
                 self.fully_encrypted_items(),
                 self.fully_encrypted_players(),
             ));
@@ -538,6 +637,7 @@ impl MockZone {
         fhe_get_five_cells(
             self.players[player_id].data.loc.clone(),
             coords,
+            self.fully_encrypted_monsters(),
             self.fully_encrypted_items(),
             self.fully_encrypted_players(),
         )
@@ -546,6 +646,7 @@ impl MockZone {
     pub fn get_cross_cells(&self, player_id: usize) -> [CellEncryptedData; 5] {
         fhe_get_cross_cells(
             self.players[player_id].data.loc.clone(),
+            self.fully_encrypted_monsters(),
             self.fully_encrypted_items(),
             self.fully_encrypted_players(),
         )
@@ -559,6 +660,7 @@ impl MockZone {
         fhe_get_vertical_cells(
             self.players[player_id].data.loc.clone(),
             center,
+            self.fully_encrypted_monsters(),
             self.fully_encrypted_items(),
             self.fully_encrypted_players(),
         )
@@ -572,6 +674,7 @@ impl MockZone {
         fhe_get_horizontal_cells(
             self.players[player_id].data.loc.clone(),
             center,
+            self.fully_encrypted_monsters(),
             self.fully_encrypted_items(),
             self.fully_encrypted_players(),
         )

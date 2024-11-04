@@ -23,6 +23,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 	const players = new Map<number, Phaser.GameObjects.Image>();
 	let selectedPlayerImg: Phaser.GameObjects.Image | null = null;
 	const items = new Map<number, Phaser.GameObjects.Image>();
+	const monsters = new Map<number, Phaser.GameObjects.Image>();
 	const selectedPlayerId = Number(getPlayerId());
 	const player = await fetchPlayer(selectedPlayerId);
 	const initialPlayerCoord = {
@@ -65,6 +66,10 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				if (tile.entity_type === "Item") {
 					const itemGameObject = addItem(tile.coord);
 					items.set(tile.entity_id, itemGameObject);
+				}
+				if (tile.entity_type === "Monster") {
+					const monsterGameObject = addMonster(tile.coord);
+					monsters.set(tile.entity_id, monsterGameObject);
 				}
 				if (tile.entity_type === "Player") {
 					const id = tile.entity_id;
@@ -230,6 +235,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				x: moveResponse.my_new_coords.x,
 				y: moveResponse.my_new_coords.y,
 			};
+			positionCamera(newCoord);
 			drawSelectedPlayer(newCoord);
 			completedMoveAnimation(selectedPlayerImg);
 			tileFetcher.updateCoordinates(newCoord);
@@ -257,6 +263,28 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 			pixelCoord.x,
 			pixelCoord.y,
 			phaserConfig.assetKeys.item,
+		);
+		go.setSize(
+			phaserConfig.tilemap.tileWidth,
+			phaserConfig.tilemap.tileHeight,
+		);
+		go.setDisplaySize(
+			phaserConfig.tilemap.tileWidth,
+			phaserConfig.tilemap.tileHeight,
+		);
+		return go;
+	};
+
+	const addMonster = (coord: Coord): Phaser.GameObjects.Image => {
+		const pixelCoord = getCenterPixelCoord(
+			coord,
+			phaserConfig.tilemap.tileWidth,
+			phaserConfig.tilemap.tileHeight,
+		);
+		const go = game.mainScene.add.image(
+			pixelCoord.x,
+			pixelCoord.y,
+			phaserConfig.assetKeys.monster,
 		);
 		go.setSize(
 			phaserConfig.tilemap.tileWidth,

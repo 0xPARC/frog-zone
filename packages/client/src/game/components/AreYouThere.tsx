@@ -4,8 +4,8 @@ import { Button } from "../../components/Button";
 import { updatePlayer } from "../../utils/updatePlayer";
 import { updateGameStatus } from "../../utils/updateGameStatus";
 
-const TIME_UNTIL_ARE_YOU_THERE = 30 * 1000;
-const TIME_UNTIL_AUTO_END = 30 * 1000;
+const TIME_UNTIL_ARE_YOU_THERE = 3000 * 1000;
+const TIME_UNTIL_AUTO_END = 3000 * 1000;
 
 const modalStyles = {
 	overlay: {

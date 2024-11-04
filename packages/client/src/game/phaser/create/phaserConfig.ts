@@ -9,6 +9,7 @@ const config = {
 		frog: "frog",
 		arrow: "arrow",
 		item: "item",
+		monster: "monster",
 	},
 };
 

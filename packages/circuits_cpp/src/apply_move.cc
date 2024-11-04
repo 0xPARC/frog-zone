@@ -50,12 +50,14 @@ ApplyMoveOut apply_move(
                         PlayerData player_data,
                         Direction direction,
                         Obstacles100 obstacles,
+                        Monsters monsters,
                         Items items) {
+  Coord old_coords = player_data.loc;
   Coord new_coords = apply_move_check_collisions(player_data.loc, direction, obstacles);
 
   PlayerData new_player_data = player_data;
-  new_player_data.loc = new_coords;
   Items new_items = items;
+  Monsters new_monsters = monsters;
 
   #pragma hls_unroll yes
   for (int i = 0; i < NUM_ITEMS; i++) {
@@ -67,8 +69,32 @@ ApplyMoveOut apply_move(
     }
   }
 
+  #pragma hls_unroll yes
+  for (int i = 0; i < NUM_MONSTERS; i++) {
+    MonsterData monster = new_monsters.values[i];
+    if ((new_coords == monster.loc) && (monster.hp != 0)) {
+        if (player_data.hp <= monster.atk) {
+            new_player_data.hp = 0;
+        } else {
+            new_player_data.hp -= monster.atk;
+        }
+
+        if (player_data.atk >= monster.hp) {
+            new_monsters.values[i].hp = 0;
+            new_player_data.atk += monster.atk;
+        } else {
+            new_monsters.values[i].hp -= player_data.atk;
+        }
+
+        new_coords = old_coords;
+    }
+  }
+
+  new_player_data.loc = new_coords;
+
   return ApplyMoveOut{
     .player_data = new_player_data,
     .items = new_items,
+    .monsters = new_monsters,
   };
 }

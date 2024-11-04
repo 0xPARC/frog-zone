@@ -3,6 +3,7 @@
 #pragma hls_top
 CellDatas5 get_cross_cells(
                           Coord player_coord,
+                          MonstersWithId monsters,
                           ItemsWithId items,
                           PlayersWithId players
                          ) {
@@ -18,9 +19,8 @@ CellDatas5 get_cross_cells(
   #pragma hls_unroll yes
   for (int i = 0; i < 5; i++) {
     Coord query_coord = query_coords[i];
-    cells.values[i] = get_cell_no_check(query_coord, items, players);
+    cells.values[i] = get_cell_no_check(query_coord, monsters, items, players);
   }
 
   return cells;
 }
-

@@ -11,7 +11,7 @@ import {
 	Grid,
 } from "../utils/findBorderingWaterCoordinates";
 
-export type TileEntityType = "None" | "Player" | "Item";
+export type TileEntityType = "None" | "Player" | "Item" | "Monster";
 
 export type Tile = {
 	atk: number;
@@ -45,6 +45,11 @@ export type Item = {
 	atk: number;
 };
 
+export type Monster = {
+	hp: number;
+	atk: number;
+};
+
 type ItemEffect = {
 	oldHp: number;
 	oldAtk: number;
@@ -68,6 +73,7 @@ interface State {
 	game: Game | null;
 	players: Map<number, Player>;
 	items: Map<number, Item>;
+  monsters: Map<number, Monster>;
 	grid: Map<number, TileWithCoord>;
 	lastMoveTimeStamp: number; // timestamp for next move
 	setIsLoggedIn: (s: {
@@ -78,6 +84,7 @@ interface State {
 
 	addPlayer: (player: Player) => void;
 	addItem: (item: Item, coord: Coord) => void;
+	addMonster: (item: Monster, coord: Coord) => void;
 
 	movePlayer: (id: number, coord: Coord) => void;
 	pickupItem: (
@@ -127,6 +134,7 @@ const useStore = create<State>()(
 		gameState: GameState.LOADING,
 		players: new Map<number, Player>(),
 		items: new Map<number, Item>(),
+		monsters: new Map<number, Monster>(),
 		grid: initializeGrid(64, tileConfig),
 		lastMoveTimeStamp: 0, // Store the last move timestamp
 		setIsLoggedIn: ({
@@ -152,6 +160,11 @@ const useStore = create<State>()(
 		addItem: (item, coord) => {
 			set((state) => {
 				state.items.set(coordToKey(coord), item);
+			});
+		},
+		addMonster: (monster, coord) => {
+			set((state) => {
+				state.items.set(coordToKey(coord), monster);
 			});
 		},
 
@@ -214,7 +227,7 @@ const useStore = create<State>()(
 						// Set isShown to false for tiles outside the viewport
 						newGrid.set(key, {
 							...value,
-							entity_type: { val: "None" },
+							entity_type: "None",
 							isShown: false,
 						});
 					}

@@ -4,6 +4,7 @@
 CellDatas5 get_five_cells(
                           Coord player_coord,
                           Coords5 query_coords,
+                          MonstersWithId monsters,
                           ItemsWithId items,
                           PlayersWithId players
                          ) {
@@ -18,11 +19,10 @@ CellDatas5 get_five_cells(
       ret.entity_type = Invalid;
       cell = ret;
     } else {
-      cell = get_cell_no_check(query_coord, items, players);
+      cell = get_cell_no_check(query_coord, monsters, items, players);
     }
     cells.values[i] = cell;
   }
 
   return cells;
 }
-

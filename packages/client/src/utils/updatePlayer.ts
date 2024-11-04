@@ -1,3 +1,5 @@
+import { DEV_MODE } from "../const/env.const";
+
 export interface PlayerGame {
 	id: number;
 	gameId: number; // Foreign key to Game
@@ -20,25 +22,31 @@ export const updatePlayer = async (args: {
 	publicKey: string; // identifies the player
 	score?: number;
 }): Promise<PlayerResponse> => {
-	try {
-		const { gameId, publicKey, ...rest } = args;
-		const response = await fetch(`/api/game/${gameId}/player`, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({ ...rest, publicKey }),
-		});
+  if (!DEV_MODE) {
+  	try {
+  		const { gameId, publicKey, ...rest } = args;
+  		const response = await fetch(`/api/game/${gameId}/player`, {
+  			method: "POST",
+  			headers: {
+  				"Content-Type": "application/json",
+  			},
+  			body: JSON.stringify({ ...rest, publicKey }),
+  		});
 
-		if (!response.ok) {
-			throw new Error(`Failed to update player: ${response.statusText}`);
-		}
+  		if (!response.ok) {
+  			throw new Error(`Failed to update player: ${response.statusText}`);
+  		}
 
-		const data: PlayerResponse = await response.json();
-		console.log("Player updated:", data);
-		return data;
-	} catch (error) {
-		console.error("Error updating player:", error);
-		throw error;
-	}
+  		const data: PlayerResponse = await response.json();
+  		console.log("Player updated:", data);
+  		return data;
+  	} catch (error) {
+  		console.error("Error updating player:", error);
+  		throw error;
+  	}
+  }
+
+  return {
+    success: true
+  }
 };

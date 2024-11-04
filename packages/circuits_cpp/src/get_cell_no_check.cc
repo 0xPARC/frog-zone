@@ -2,9 +2,21 @@
 
 CellData get_cell_no_check(
                            Coord coord,
+                           MonstersWithId monsters,
                            ItemsWithId items,
                            PlayersWithId players) {
   CellData cell = CellData();
+
+  #pragma hls_unroll yes
+  for (int i = 0; i < NUM_MONSTERS; i++) {
+    MonsterWithId monster = monsters.values[i];
+    if ((coord == monster.data.loc) && (monster.data.hp > 0)) {
+      cell.entity_type = Monster;
+      cell.entity_id = monster.id;
+      cell.hp = monster.data.hp;
+      cell.atk = monster.data.atk;
+    }
+  }
 
   #pragma hls_unroll yes
   for (int i = 0; i < NUM_ITEMS; i++) {

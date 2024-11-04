@@ -14,7 +14,7 @@ func="$1"
 
 # $DOCKER run --rm -it --entrypoint /bin/bash \
 #	--mount type=bind,source="$(pwd)/transpiler",target=/usr/src/fhe/transpiler \
-$DOCKER run --rm -it --entrypoint /usr/src/fhe/compile-frogzone.sh \
+$DOCKER run --platform linux/amd64 --rm -it --entrypoint /usr/src/fhe/compile-frogzone.sh \
 	--mount type=bind,source="$(pwd)/src",target=/projects/frogzone \
 	--mount type=bind,source="$(pwd)/compile-frogzone.sh",target=/usr/src/fhe/compile-frogzone.sh \
 	-e func="${func}" \
