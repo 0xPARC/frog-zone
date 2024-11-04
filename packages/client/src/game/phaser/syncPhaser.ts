@@ -19,6 +19,8 @@ import phaserConfig from "./create/phaserConfig";
 import { updatePlayer } from "../../utils/updatePlayer";
 import { debounceTime } from "rxjs/internal/operators/debounceTime";
 
+const ENABLE_KEYBOARD_NAV = true;
+
 const syncPhaser = async (game: PhaserGame, api: Api) => {
 	const players = new Map<number, Phaser.GameObjects.Image>();
 	let selectedPlayerImg: Phaser.GameObjects.Image | null = null;
@@ -29,7 +31,6 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		x: player?.player_data?.loc.x,
 		y: player?.player_data?.loc.y,
 	};
-	let moveMarker: Phaser.GameObjects.Image | null = null;
 	const tileWidth = phaserConfig.tilemap.tileWidth;
 	const tileHeight = phaserConfig.tilemap.tileHeight;
 	const addActionLog = useStore.getState().addActionLog;
@@ -38,6 +39,15 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		[Direction.LEFT]: null,
 		[Direction.RIGHT]: null,
 		[Direction.UP]: null,
+	};
+	const isPreviousMovePending = false;
+
+	const isMoveAvailable = () => {
+		const lastMoveTime = useStore.getState().lastMoveTimeStamp;
+		const now = Date.now();
+		const canMove =
+			!lastMoveTime || now - lastMoveTime >= NEXT_MOVE_TIME_MILLIS;
+		return canMove && !isPreviousMovePending;
 	};
 
 	const drawTiles = ({
@@ -224,16 +234,22 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				directionArrows[direction].destroy();
 				directionArrows[direction] = null;
 			}
-			const newPxCoord = getNextPxCoord(playerImg, direction);
+			const newPxCoord = getNextPxCoord(
+				playerImg,
+				direction,
+				tileWidth * 0.72,
+			);
 			const arrow = game.mainScene.add
 				.image(newPxCoord.x, newPxCoord.y, phaserConfig.assetKeys.arrow)
 				.setInteractive();
 			arrow.setSize(tileWidth, tileHeight);
-			arrow.setDisplaySize(tileWidth * 0.7, tileHeight * 0.7);
+			arrow.setDisplaySize(tileWidth * 0.6, tileHeight * 0.6);
 			arrow.setDepth(4);
 			arrow.setRotation(rotation[direction]);
 			arrow.on("pointerdown", () => {
-				handleMovePlayer(direction);
+				if (isMoveAvailable()) {
+					handleMovePlayer(direction);
+				}
 			});
 			directionArrows[direction] = arrow;
 		});
@@ -262,20 +278,24 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		}
 
 		const moveResponse = await api.move(selectedPlayerId, direction);
-		addActionLog({
-			message: `move ${direction.toUpperCase()} received: ${JSON.stringify(
-				{
-					response: "success",
-				},
-			)}`,
-		});
 		if (directionArrows[direction]) {
-			directionArrows[direction].clearTint;
+			directionArrows[direction].clearTint();
 		}
 		if (moveResponse?.my_new_coords) {
+			const x = moveResponse.my_new_coords.x;
+			const y = moveResponse.my_new_coords.y;
+			addActionLog({
+				message: `move ${direction.toUpperCase()} received: ${JSON.stringify(
+					{
+						response: "success",
+						x,
+						y,
+					},
+				)}`,
+			});
 			const newCoord = {
-				x: moveResponse.my_new_coords.x,
-				y: moveResponse.my_new_coords.y,
+				x,
+				y,
 			};
 			drawSelectedPlayer(newCoord);
 			completedMoveAnimation(selectedPlayerImg);
@@ -286,6 +306,19 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				publicKey,
 				score: Math.floor(Math.random() * 89), // TODO: implement real score, for now this is random between 0 - 88
 				gameId,
+			});
+		} else {
+			console.error("MOVE FAILED", {
+				moveResponse,
+				selectedPlayerId,
+				direction,
+			});
+			addActionLog({
+				message: `move ${direction.toUpperCase()} received: ${JSON.stringify(
+					{
+						response: "failure",
+					},
+				)}`,
 			});
 		}
 	};
@@ -333,28 +366,28 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		drawSelectedPlayer(initialPlayerCoord);
 		tileFetcher.start();
 
-		game.input.keyboard$.pipe(debounceTime(200)).subscribe((key) => {
-			const lastMoveTime = useStore.getState().lastMoveTimeStamp;
-			const now = Date.now();
-			const canMove =
-				!lastMoveTime || now - lastMoveTime >= NEXT_MOVE_TIME_MILLIS;
-			const isPreviousMovePending = Boolean(moveMarker);
+		if (ENABLE_KEYBOARD_NAV) {
+			game.input.keyboard$.pipe(debounceTime(200)).subscribe((key) => {
+				if (!isMoveAvailable()) {
+					return;
+				}
 
-			if (!canMove || isPreviousMovePending) {
-				return;
-			}
-
-			// Handle directional input
-			if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.LEFT) {
-				handleMovePlayer(Direction.LEFT);
-			} else if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.RIGHT) {
-				handleMovePlayer(Direction.RIGHT);
-			} else if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.UP) {
-				handleMovePlayer(Direction.UP);
-			} else if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.DOWN) {
-				handleMovePlayer(Direction.DOWN);
-			}
-		});
+				// Handle directional input
+				if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.LEFT) {
+					handleMovePlayer(Direction.LEFT);
+				} else if (
+					key.keyCode === Phaser.Input.Keyboard.KeyCodes.RIGHT
+				) {
+					handleMovePlayer(Direction.RIGHT);
+				} else if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.UP) {
+					handleMovePlayer(Direction.UP);
+				} else if (
+					key.keyCode === Phaser.Input.Keyboard.KeyCodes.DOWN
+				) {
+					handleMovePlayer(Direction.DOWN);
+				}
+			});
+		}
 		useStore.getState().setGameState(GameState.READY);
 		addActionLog({
 			message: "welcome to FROG ZONE",
