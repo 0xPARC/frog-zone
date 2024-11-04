@@ -19,6 +19,7 @@ export default function Home() {
   const [publicKey, setPublicKey] = useState<string | null>(null);
   const [isZInstanceInitialized, setIsZInstanceInitialized] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const params = useParams();
   const machineId = params.slug as string;
 
@@ -42,6 +43,7 @@ export default function Home() {
   }, [isClient, checkMachineStatus]);
 
   const handleInitializeZInstance = async () => {
+    setError(null);
     if (!isZInstanceInitialized && !publicKey) {
       setIsConnecting(true);
       const zInstance = await await connect(
@@ -61,6 +63,10 @@ export default function Home() {
 
         if (!proof?.success) {
           console.error("Failed to prove ticket.");
+          setIsConnecting(false);
+          setError(
+            "Sorry. It looks like failed to verify your ticket. Please try again and make sure your account is correct.",
+          );
           return;
         }
 
@@ -68,6 +74,7 @@ export default function Home() {
 
         if (!verified) {
           console.error("Failed to verify proof.");
+          setIsConnecting(false);
           return;
         }
 
@@ -99,7 +106,7 @@ export default function Home() {
         className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]"
         id="app-connector"
       ></div>
-      <div className="absolute top-0 p-3">
+      <div className="absolute top-0 p-3 max-w-md">
         {publicKey ? (
           <>
             <h1 className="font-bold text-xl">Game started!</h1>
@@ -118,6 +125,7 @@ export default function Home() {
             >
               {isConnecting ? "Connecting..." : "Connect"}
             </button>
+            {error && <p className="text-red-400 text-xs mb-2 mt-3">{error}</p>}
           </div>
         )}
       </div>
