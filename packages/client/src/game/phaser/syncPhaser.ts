@@ -225,16 +225,13 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				directionArrows[direction] = null;
 			}
 			const newPxCoord = getNextPxCoord(playerImg, direction);
-			const arrow = game.mainScene.add.image(
-				newPxCoord.x,
-				newPxCoord.y,
-				phaserConfig.assetKeys.arrow,
-			);
+			const arrow = game.mainScene.add
+				.image(newPxCoord.x, newPxCoord.y, phaserConfig.assetKeys.arrow)
+				.setInteractive();
 			arrow.setSize(tileWidth, tileHeight);
 			arrow.setDisplaySize(tileWidth * 0.7, tileHeight * 0.7);
 			arrow.setDepth(4);
 			arrow.setRotation(rotation[direction]);
-			arrow.setInteractive();
 			arrow.on("pointerdown", () => {
 				handleMovePlayer(direction);
 			});
