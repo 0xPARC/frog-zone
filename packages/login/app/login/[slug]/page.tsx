@@ -65,7 +65,7 @@ export default function Home() {
           console.error("Failed to prove ticket.");
           setIsConnecting(false);
           setError(
-            "Sorry. It looks like failed to verify your ticket. Please try again and make sure your account is correct.",
+            "Sorry. It looks like we failed to verify your ticket. Please try again and make sure your account is correct.",
           );
           return;
         }
