@@ -20,6 +20,7 @@ import { updatePlayer } from "../../utils/updatePlayer";
 import { debounceTime } from "rxjs/internal/operators/debounceTime";
 
 const ENABLE_KEYBOARD_NAV = true;
+const ARROW_ALPHA_WHILE_MOVE_UNAVAILABLE = 0.6;
 
 const syncPhaser = async (game: PhaserGame, api: Api) => {
 	const players = new Map<number, Phaser.GameObjects.Image>();
@@ -242,6 +243,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 			const arrow = game.mainScene.add
 				.image(newPxCoord.x, newPxCoord.y, phaserConfig.assetKeys.arrow)
 				.setInteractive();
+			arrow.setAlpha(ARROW_ALPHA_WHILE_MOVE_UNAVAILABLE);
 			arrow.setSize(tileWidth, tileHeight);
 			arrow.setDisplaySize(tileWidth * 0.6, tileHeight * 0.6);
 			arrow.setDepth(4);
@@ -273,14 +275,22 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		// stop the fetcher so we can show the pending move
 		tileFetcher.stop();
 
+		Object.keys(directionArrows).forEach((key) => {
+			const d = key as Direction;
+			if (directionArrows[d] && d !== direction) {
+				directionArrows[d].setAlpha(ARROW_ALPHA_WHILE_MOVE_UNAVAILABLE);
+			}
+		});
+
 		if (directionArrows[direction]) {
-			directionArrows[direction].setTint(0x555555);
+			directionArrows[direction].setTint(0xfeb437);
 		}
 
 		const moveResponse = await api.move(selectedPlayerId, direction);
-		if (directionArrows[direction]) {
-			directionArrows[direction].clearTint();
-		}
+		directionArrows[direction]?.clearTint();
+		directionArrows[direction]?.setAlpha(
+			ARROW_ALPHA_WHILE_MOVE_UNAVAILABLE,
+		);
 		if (moveResponse?.my_new_coords) {
 			const x = moveResponse.my_new_coords.x;
 			const y = moveResponse.my_new_coords.y;
@@ -360,6 +370,21 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 			}
 		});
 	};
+
+	game.mainScene.time.addEvent({
+		delay: 200,
+		loop: true,
+		callback: () => {
+			if (isMoveAvailable()) {
+				Object.keys(directionArrows).forEach((key) => {
+					const d = key as Direction;
+					if (directionArrows[d]) {
+						directionArrows[d].setAlpha(1);
+					}
+				});
+			}
+		},
+	});
 
 	const setupGame = () => {
 		drawTerrain();
