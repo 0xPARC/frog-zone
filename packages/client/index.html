@@ -23,13 +23,29 @@
         padding: 0;
 		font-family: monospace;
 		color: white;
-		background-color: black;
+		background-color: white;
+		box-sizing: border-box;
+		max-height:100vh;
       }
+	  .game-container {
+		width: calc(100vw - 370px);
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 100vh;
+	  }
+	  #phaser-container {
+	    overflow: hidden;
+		max-height:100vh;
+		visibility: hidden;
+	  }
     </style>
   </head>
   <body>
     <div id="root"></div>
-    <div id="phaser-container"/>
+    <div class="game-container">
+	<div id="phaser-container"></div>
+	</div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

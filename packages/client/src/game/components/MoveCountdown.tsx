@@ -53,8 +53,8 @@ export const MoveCountdownTimer = () => {
 		...styles.container,
 		backgroundColor:
 			timeRemaining > 0
-				? "rgba(255, 100, 0, 0.4)"
-				: "rgba(0, 128, 0, 0.4)",
+				? "rgba(255, 100, 0, 0.8)"
+				: "rgba(0, 128, 0, 0.8)",
 		animation: shake ? "shake 0.3s" : "none",
 	};
 
@@ -102,7 +102,7 @@ const styles = {
 	container: {
 		position: "fixed" as "fixed",
 		bottom: "20px",
-		right: "20px",
+		right: "380px",
 		padding: "10px 20px",
 		borderRadius: "8px",
 		color: "white",

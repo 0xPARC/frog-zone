@@ -64,6 +64,12 @@ export enum GameState {
 
 export type Game = GameResponse["game"];
 
+export type ActionLog = {
+	message: string;
+};
+
+export type ActionLogs = ActionLog[] | [];
+
 export const NEXT_MOVE_TIME_MILLIS = 3500;
 
 interface State {
@@ -76,6 +82,7 @@ interface State {
   monsters: Map<number, Monster>;
 	grid: Map<number, TileWithCoord>;
 	lastMoveTimeStamp: number; // timestamp for next move
+	actionLogs: ActionLogs;
 	setIsLoggedIn: (s: {
 		isLoggedIn: boolean | null;
 		publicKey: string | null;
@@ -96,6 +103,7 @@ interface State {
 	setLastMoveTimeStamp: (time: number) => void;
 	getPlayerById: (id: number) => Player | null;
 	updateGrid: (viewportCoords: Coord[], newTiles: TileWithCoord[]) => void;
+	addActionLog: (log: ActionLog) => void;
 }
 
 const initializeGrid = (
@@ -137,6 +145,7 @@ const useStore = create<State>()(
 		monsters: new Map<number, Monster>(),
 		grid: initializeGrid(64, tileConfig),
 		lastMoveTimeStamp: 0, // Store the last move timestamp
+		actionLogs: [],
 		setIsLoggedIn: ({
 			isLoggedIn,
 			publicKey,
@@ -248,6 +257,11 @@ const useStore = create<State>()(
 				});
 
 				state.grid = newGrid;
+			});
+		},
+		addActionLog: (log) => {
+			set((state) => {
+				state.actionLogs.push(log);
 			});
 		},
 	})),

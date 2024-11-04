@@ -27,6 +27,7 @@ export const createTileFetcher = ({
 	let coordinates = getSurroundingCoordinates(initialCoordinate);
 	let currentIndex = 0;
 	let intervalId: ReturnType<typeof setInterval> | null = null;
+	const addActionLog = useStore.getState().addActionLog;
 
 	const fetchNextBatch = async () => {
 		const nextBatch = coordinates.slice(
@@ -34,9 +35,13 @@ export const createTileFetcher = ({
 			currentIndex + batchSize,
 		);
 
-		console.log("COORDINATES FETCHED", nextBatch);
-
 		const newTiles = await fetchTiles(initialCoordinate, nextBatch);
+
+		addActionLog({
+			message: `get cells received: ${JSON.stringify({
+				response: "success",
+			})}`,
+		});
 
 		onSuccessfulFetch({ tiles: newTiles, viewportCoords: coordinates });
 

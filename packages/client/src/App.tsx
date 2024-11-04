@@ -9,6 +9,7 @@ import useStore from "./game/store";
 import { getPlayerId } from "./utils/getPlayerId";
 
 import { AreYouThere } from "./game/components/AreYouThere";
+import { TerminalActionLog } from "./game/components/TerminalActionLog";
 import { EnterGameAnimation } from "./game/components/EnterGameAnimation";
 import { QuitGameModal } from "./game/components/QuitGameModal";
 import { DEV_MODE } from "./const/env.const";
@@ -28,6 +29,7 @@ function App() {
 				<>
 					<PlayerInfo playerId={Number(playerId)} />
 					<MoveCountdownTimer />
+					<TerminalActionLog />
 
 					{gameId && gameStatus === "ongoing" && (
 						<>

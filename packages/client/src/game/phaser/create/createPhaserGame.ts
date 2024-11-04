@@ -14,7 +14,10 @@ const createPhaserGame = async () => {
 	const MainScene = createPhaserScene({
 		key: MAIN_SCENE_KEY,
 		preload: (scene: Phaser.Scene) => {
-			scene.load.image(phaserConfig.assetKeys.tileset, "/assets/tile.png");
+			scene.load.image(
+				phaserConfig.assetKeys.tileset,
+				"/assets/tile.png",
+			);
 			scene.load.image(phaserConfig.assetKeys.frog, "/assets/frog.png");
 			scene.load.image(phaserConfig.assetKeys.item, "/assets/potion.png");
 			scene.load.image(phaserConfig.assetKeys.arrow, "/assets/arrow.png");
@@ -24,12 +27,13 @@ const createPhaserGame = async () => {
 	const config: Phaser.Types.Core.GameConfig = {
 		type: Phaser.WEBGL,
 		parent: "phaser-container",
-		width: window.innerWidth * window.devicePixelRatio,
+		width: (window.innerWidth - 370) * window.devicePixelRatio,
 		height: window.innerHeight * window.devicePixelRatio,
+		backgroundColor: "#FFF",
 		pixelArt: true,
 		scale: {
-			mode: Phaser.Scale.NONE,
-			zoom: 1 / window.devicePixelRatio,
+			mode: Phaser.Scale.CENTER_BOTH,
+			zoom: 0.7 / window.devicePixelRatio,
 		},
 		scene: [MainScene],
 		dom: {
@@ -43,7 +47,9 @@ const createPhaserGame = async () => {
 	mainScene.load.setCORS("anonymous");
 	mainScene.sound.unlock();
 	mainScene.sound.pauseOnBlur = false;
-	const sceneContext = await setupMainScene(phaserGame.scenes[MAIN_SCENE_KEY]);
+	const sceneContext = await setupMainScene(
+		phaserGame.scenes[MAIN_SCENE_KEY],
+	);
 	return { phaserGame, mainScene, ...sceneContext };
 };
 
