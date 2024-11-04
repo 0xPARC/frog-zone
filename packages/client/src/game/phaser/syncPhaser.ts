@@ -33,6 +33,12 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 	const tileWidth = phaserConfig.tilemap.tileWidth;
 	const tileHeight = phaserConfig.tilemap.tileHeight;
 	const addActionLog = useStore.getState().addActionLog;
+	let directionArrows: Record<Direction, Phaser.GameObjects.Image | null> = {
+		[Direction.DOWN]: null,
+		[Direction.LEFT]: null,
+		[Direction.RIGHT]: null,
+		[Direction.UP]: null,
+	};
 
 	const drawTiles = ({
 		tiles,
@@ -114,9 +120,10 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 
 	const addPlayer = ({
 		coord,
+		showArrows,
 	}: {
-		playerId: number;
 		coord: Coord;
+		showArrows?: boolean;
 	}): Phaser.GameObjects.Image => {
 		const pixelCoord = getCenterPixelCoord(
 			coord,
@@ -137,6 +144,9 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 			phaserConfig.tilemap.tileHeight,
 		);
 		go.setDepth(1);
+		if (showArrows) {
+			drawArrowsAroundPlayer(go);
+		}
 		return go;
 	};
 
@@ -156,8 +166,8 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 			selectedPlayerImg?.destroy();
 		}
 		const playerGameObject = addPlayer({
-			playerId: selectedPlayerId,
 			coord: coord,
+			showArrows: true,
 		});
 		selectedPlayerImg = playerGameObject;
 		game.camera.phaserCamera.startFollow(selectedPlayerImg);
@@ -166,22 +176,23 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 	const getNextPxCoord = (
 		playerImg: Phaser.GameObjects.Image,
 		direction: Direction,
+		offset: number = tileWidth,
 	) => {
 		let newX = playerImg?.x;
 		let newY = playerImg?.y;
 
 		switch (direction) {
 			case Direction.LEFT:
-				newX -= tileWidth;
+				newX -= offset;
 				break;
 			case Direction.RIGHT:
-				newX += tileWidth;
+				newX += offset;
 				break;
 			case Direction.UP:
-				newY -= tileHeight;
+				newY -= offset;
 				break;
 			case Direction.DOWN:
-				newY += tileHeight;
+				newY += offset;
 				break;
 		}
 		return { x: newX, y: newY };
@@ -192,6 +203,43 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		const grid = useStore.getState().grid;
 		const tile = grid.get(key);
 		return tile?.terrainType === TerrainType.LAND;
+	};
+
+	const drawArrowsAroundPlayer = (playerImg: Phaser.GameObjects.Image) => {
+		const rotation = {
+			[Direction.LEFT]: Math.PI,
+			[Direction.RIGHT]: 0,
+			[Direction.UP]: (3 * Math.PI) / 2,
+			[Direction.DOWN]: Math.PI / 2,
+		};
+		const directions = [
+			Direction.LEFT,
+			Direction.RIGHT,
+			Direction.UP,
+			Direction.DOWN,
+		];
+		directions.forEach((direction) => {
+			if (directionArrows[direction]) {
+				// clear old arrows
+				directionArrows[direction].destroy();
+				directionArrows[direction] = null;
+			}
+			const newPxCoord = getNextPxCoord(playerImg, direction);
+			const arrow = game.mainScene.add.image(
+				newPxCoord.x,
+				newPxCoord.y,
+				phaserConfig.assetKeys.arrow,
+			);
+			arrow.setSize(tileWidth, tileHeight);
+			arrow.setDisplaySize(tileWidth * 0.7, tileHeight * 0.7);
+			arrow.setDepth(4);
+			arrow.setRotation(rotation[direction]);
+			arrow.setInteractive();
+			arrow.on("pointerdown", () => {
+				handleMovePlayer(direction);
+			});
+			directionArrows[direction] = arrow;
+		});
 	};
 
 	const handleMovePlayer = async (direction: Direction) => {
@@ -212,25 +260,9 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		// stop the fetcher so we can show the pending move
 		tileFetcher.stop();
 
-		// Add the marker at the new position
-		const nextMoveMarker = game.mainScene.add.image(
-			newPxCoord.x,
-			newPxCoord.y,
-			phaserConfig.assetKeys.arrow,
-		);
-		nextMoveMarker.setSize(tileWidth, tileHeight);
-		nextMoveMarker.setDisplaySize(tileWidth * 0.7, tileHeight * 0.7);
-		nextMoveMarker.setDepth(0);
-
-		const rotation = {
-			[Direction.LEFT]: Math.PI,
-			[Direction.RIGHT]: 0,
-			[Direction.UP]: (3 * Math.PI) / 2,
-			[Direction.DOWN]: Math.PI / 2,
-		};
-
-		nextMoveMarker.setRotation(rotation[direction]);
-		moveMarker = nextMoveMarker;
+		if (directionArrows[direction]) {
+			directionArrows[direction].setTint(0x555555);
+		}
 
 		const moveResponse = await api.move(selectedPlayerId, direction);
 		addActionLog({
@@ -240,6 +272,9 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				},
 			)}`,
 		});
+		if (directionArrows[direction]) {
+			directionArrows[direction].clearTint;
+		}
 		if (moveResponse?.my_new_coords) {
 			const newCoord = {
 				x: moveResponse.my_new_coords.x,
@@ -255,10 +290,6 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				score: Math.floor(Math.random() * 89), // TODO: implement real score, for now this is random between 0 - 88
 				gameId,
 			});
-		}
-		if (moveMarker) {
-			moveMarker.destroy();
-			moveMarker = null;
 		}
 	};
 
