@@ -1,0 +1,15 @@
+diff --git a/node_modules/fastfile/src/fastfile.js b/node_modules/fastfile/src/fastfile.js
+index 25db11e..0420a82 100644
+--- a/node_modules/fastfile/src/fastfile.js
++++ b/node_modules/fastfile/src/fastfile.js
+@@ -2,7 +2,9 @@
+ import { open } from "./osfile.js";
+ import * as memFile from "./memfile.js";
+ import * as bigMemFile from "./bigmemfile.js";
+-import { O_TRUNC, O_CREAT, O_RDWR, O_EXCL, O_RDONLY } from "constants";
++import constants from "constants";
++
++const { O_TRUNC, O_CREAT, O_RDWR, O_EXCL, O_RDONLY } = constants;
+ 
+ const DEFAULT_CACHE_SIZE = (1 << 16);
+ const DEFAULT_PAGE_SIZE = (1 << 13);
