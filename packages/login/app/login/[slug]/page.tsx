@@ -52,6 +52,8 @@ export default function Home() {
         "https://zupass.org",
       );
 
+      console.log("APP CONNECTED: zinstance", zInstance);
+
       if (zInstance) {
         const pKey = await zInstance.identity.getPublicKey();
         const proofRequest = getTicketProofRequest();
@@ -62,18 +64,21 @@ export default function Home() {
         });
 
         if (!proof?.success) {
-          console.error("Failed to prove ticket.");
+          console.error("Failed to prove ticket.", proof);
           setIsConnecting(false);
           setError(
-            "Sorry. It looks like we failed to verify your ticket. Please try again and make sure your account is correct.",
+            "Sorry. It looks like we failed to find your ticket. Please try again and make sure your account is correct.",
           );
           return;
         }
 
-        const { verified } = await verifyProof({ proof });
+        const result = await verifyProof({ proof });
 
-        if (!verified) {
-          console.error("Failed to verify proof.");
+        if (!result.verified) {
+          console.error("Failed to verify proof.", result);
+          setError(
+            "Sorry. It looks like we failed to verify your ticket. Please try again.",
+          );
           setIsConnecting(false);
           return;
         }
