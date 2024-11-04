@@ -1,11 +1,10 @@
+import { deserializeProofResult } from "@/utils/serialize";
+import { getTicketProofRequest } from "@/utils/ticketProof";
+import { gpcVerify } from "@pcd/gpc";
 import { NextResponse } from "next/server";
-import {
-  boundConfigFromJSON,
-  gpcVerify,
-  revealedClaimsFromJSON,
-} from "@pcd/gpc";
 import path from "path";
-import { DevconTicketProofRequest } from "../../../utils/DevconTicketProofRequest";
+// @ts-ignore ffjavascript does not have types
+import { getCurveFromName } from "ffjavascript";
 
 const GPC_ARTIFACTS_PATH = path.join(
   process.cwd(),
@@ -23,41 +22,42 @@ export async function OPTIONS() {
 export async function POST(request: Request) {
   try {
     const { proof: proofResult } = await request.json();
-    console.log("PR", proofResult);
+    const { boundConfig, revealedClaims, proof } =
+      deserializeProofResult(proofResult);
+    const proofRequest = getTicketProofRequest().getProofRequest();
 
-    // Deserialize values from the client
-    const { serializedBoundConfig, serializedRevealedClaims, proof } =
-      proofResult;
-    const boundConfig = boundConfigFromJSON(serializedBoundConfig);
-    const revealedClaims = revealedClaimsFromJSON(serializedRevealedClaims);
-    console.log("REVEALED CLAIMS", revealedClaims);
-    // Get values from the proof request for verification
-    const { proofConfig, membershipLists, externalNullifier, watermark } =
-      DevconTicketProofRequest.getProofRequest();
+    console.log("PROOF REQUEST", proofRequest);
 
-    // Set circuit identifier to the one from the bound config
-    proofConfig.circuitIdentifier = boundConfig.circuitIdentifier;
+    // Multi-threaded verification seems to be broken in NextJS, so we need to
+    // initialize the curve in single-threaded mode.
 
-    // Set external nullifier and watermark
-    if (revealedClaims.owner && externalNullifier) {
-      revealedClaims.owner.externalNullifier = externalNullifier;
+    // @ts-ignore
+    if (!globalThis.curve_bn128) {
+      // @ts-ignore
+      globalThis.curve_bn128 = getCurveFromName("bn128", {
+        singleThread: true,
+      });
     }
-    revealedClaims.watermark = watermark;
-    // Set membership lists to values from the proof request
-    revealedClaims.membershipLists = membershipLists;
-    console.log("REVEALED CLAIMS LISTS", membershipLists);
-    const result = await gpcVerify(
+
+    console.log("VERIFY REQ");
+
+    const res = await gpcVerify(
       proof,
-      boundConfig,
+      {
+        ...proofRequest.proofConfig,
+        circuitIdentifier: boundConfig.circuitIdentifier,
+      },
       revealedClaims,
       GPC_ARTIFACTS_PATH,
     );
-    console.log("RESULT", result);
+
+    console.log("GCP VERIFY", res);
 
     return NextResponse.json({
-      result,
+      verified: res,
     });
   } catch (error) {
+    console.log("----> ERROR", error);
     return NextResponse.json(
       {
         success: false,

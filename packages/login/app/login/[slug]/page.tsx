@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { connect, Zapp } from "@parcnet-js/app-connector";
 import { postNewLogIn, fetchMachineStatus, verifyProof } from "@/utils/api";
-import { DevconTicketProofRequest } from "@/utils/DevconTicketProofRequest";
+import { getTicketProofRequest } from "@/utils/ticketProof";
 
 const myApp: Zapp = {
   name: "Devcon Ticket Authentication",
   permissions: {
-    REQUEST_PROOF: { collections: ["Tickets"] },
+    REQUEST_PROOF: { collections: ["Devcon SEA"] },
     READ_PUBLIC_IDENTIFIERS: {},
   },
 };
@@ -52,10 +52,11 @@ export default function Home() {
 
       if (zInstance) {
         const pKey = await zInstance.identity.getPublicKey();
+        const proofRequest = getTicketProofRequest();
         // gpc proof code follows this sample: https://github.com/robknight/gpc-sample/
         const proof = await zInstance?.gpc.prove({
-          request: DevconTicketProofRequest.schema,
-          collectionIds: ["Tickets"],
+          request: proofRequest.schema,
+          collectionIds: ["Devcon SEA"],
         });
 
         if (!proof?.success) {
@@ -63,9 +64,9 @@ export default function Home() {
           return;
         }
 
-        const { result } = await verifyProof({ proof });
+        const { verified } = await verifyProof({ proof });
 
-        if (result !== true) {
+        if (!verified) {
           console.error("Failed to verify proof.");
           return;
         }
@@ -75,8 +76,11 @@ export default function Home() {
           machineId: machineId as string,
         });
 
+        console.log("LOGIN", loginData);
+
         checkMachineStatus();
         setIsZInstanceInitialized(true);
+        setPublicKey(pKey);
         setIsConnecting(false);
       } else {
         console.error("Failed to initialize Z instance.");
@@ -104,9 +108,10 @@ export default function Home() {
           </>
         ) : (
           <div>
-            <p>
-              Do you want to connect your Zupass to device with ID: {machineId}?
+            <p className="mb-2">
+              Please connect to verify your ticket via Zupass.
             </p>
+            <p className="text-sm text-gray-400 mb-2">Device id: {machineId}</p>
             <button
               onClick={handleInitializeZInstance}
               className="px-4 py-2 bg-green-500 text-white font-bold rounded"

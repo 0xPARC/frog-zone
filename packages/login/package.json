@@ -15,6 +15,7 @@
 		"@pcd/gpc": "^0.4.0",
 		"@pcd/proto-pod-gpc-artifacts": "^0.13.0",
 		"@prisma/client": "^5.20.0",
+		"ffjavascript": "^0.3.1",
 		"next": "14.2.15",
 		"prisma": "^5.20.0",
 		"react": "^18",
