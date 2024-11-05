@@ -65,6 +65,7 @@ export type Game = GameResponse["game"];
 
 export type ActionLog = {
 	message: string;
+	color: string; // hex color of the message
 };
 
 export type ActionLogs = ActionLog[] | [];

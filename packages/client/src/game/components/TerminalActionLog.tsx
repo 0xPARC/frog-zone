@@ -58,6 +58,7 @@ export const TerminalActionLog: React.FC = () => {
 							key={index}
 							style={{
 								...actionLogStyles.message,
+								color: log?.color,
 								fontWeight:
 									index === logs.length - 1
 										? "bold"

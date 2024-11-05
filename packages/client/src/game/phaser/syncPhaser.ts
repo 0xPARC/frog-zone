@@ -65,6 +65,10 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 			if (item.coord.x === tileCoord.x && item.coord.y === tileCoord.y) {
 				item.image.destroy();
 				items.delete(key);
+				addActionLog({
+					message: `item consumed: ${ENTITIES_CONFIG.items[key]?.name}`,
+					color: "turquoise",
+				});
 			}
 		});
 		players.forEach((item, key) => {
@@ -373,6 +377,11 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 			directionArrows[direction].setTint(0xfeb437);
 		}
 
+		addActionLog({
+			message: `move ${direction.toUpperCase()} requested`,
+			color: "darkorange",
+		});
+
 		const moveResponse = await api.move(selectedPlayerId, direction);
 		directionArrows[direction]?.clearTint();
 		directionArrows[direction]?.setAlpha(
@@ -389,6 +398,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 						y,
 					},
 				)}`,
+				color: "limegreen",
 			});
 			const newCoord = {
 				x,
@@ -417,6 +427,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 						response: "failure",
 					},
 				)}`,
+				color: "red",
 			});
 		}
 	};
@@ -532,6 +543,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		useStore.getState().setGameState(GameState.READY);
 		addActionLog({
 			message: "welcome to FROG ZONE",
+			color: "limegreen",
 		});
 	};
 	setupGame();
