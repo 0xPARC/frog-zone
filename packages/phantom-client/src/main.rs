@@ -202,6 +202,14 @@ struct MoveResponse {
     rate_limited: bool,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+struct ResetGameRequest {
+    player_id: usize,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct ResetGameResponse {}
+
 #[derive(Deserialize)]
 struct SetIdRequest {
     player_id: usize,
@@ -297,6 +305,24 @@ fn mock_decrypt_cell(cell: CellEncryptedData) -> CellData {
         atk: cell.atk,
         hp: cell.hp,
     };
+}
+
+#[post("/reset_game", format = "json", data = "<_request>")]
+async fn reset_game(
+    state: &State<SharedState>,
+    _request: Json<ResetGameRequest>,
+) -> Result<Json<ResetGameResponse>, Custom<String>> {
+    let app_state = state.lock().await;
+
+    let post_data = proxy::ResetGameRequest {
+        player_id: app_state.user.user_id(),
+    };
+
+    let proxy::ResetGameResponse {} = proxy::proxy(&*SERVER_URI, "/reset_game", post_data)
+        .await?
+        .0;
+
+    Ok(Json(ResetGameResponse {}))
 }
 
 #[post("/mock_get_cells", format = "json", data = "<request>")]
@@ -831,6 +857,7 @@ async fn main() -> Result<(), rocket::Error> {
         .mount(
             "/",
             routes![
+                reset_game,
                 mock_move,
                 queue_move,
                 mock_get_cells,

@@ -26,6 +26,14 @@ pub enum Direction {
     Right,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ResetGameRequest {
+    pub player_id: usize,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ResetGameResponse {}
+
 #[derive(Serialize, Deserialize)]
 pub struct MockGetCellsRequest {
     pub player_id: usize,

@@ -5,7 +5,7 @@ use rocket::futures::stream::FuturesUnordered;
 use rocket::futures::TryStreamExt;
 use rocket::http::{Method, Status};
 use rocket::response::status::{Custom, NotFound};
-use rocket::serde::{json::Json, Serialize};
+use rocket::serde::{json::Json, Deserialize, Serialize};
 use rocket::{Config, State};
 use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors, CorsOptions};
 use server::mock_zone::MockZone;
@@ -37,10 +37,22 @@ const GET_CELL_TIME_MILLIS: u64 = 140; // based on benchmark of 700ms for 5 cell
 const GET_PLAYER_TIME_MILLIS: u64 = 140;
 const MOVE_TIME_RATE_LIMIT_MILLIS: u64 = 3500;
 
+#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
+pub enum ActionType {
+    None,
+    Move,
+    ResetGame,
+}
+
 struct GameState {
     zone: Option<Zone>,
     mock_zone: Option<MockZone>,
-    move_queue: VecDeque<(usize, EncryptedDirection, Arc<Notify>)>,
+    action_queue: VecDeque<(
+        ActionType,
+        Option<usize>,
+        Option<EncryptedDirection>,
+        Arc<Notify>,
+    )>,
     player_last_move_time: [u64; 4],
     // Phantom
     evaluator: PhantomEvaluator,
@@ -122,6 +134,28 @@ fn make_cors() -> Cors {
     }
     .to_cors()
     .expect("[main] error while building CORS")
+}
+
+#[post("/reset_game", format = "json", data = "<_request>")]
+async fn reset_game(
+    state: &State<SharedState>,
+    _request: Json<ResetGameRequest>,
+) -> Result<Json<ResetGameResponse>, Custom<String>> {
+    let notify = Arc::new(Notify::new());
+    let notify_clone = notify.clone();
+
+    {
+        let mut game_state = state.lock().await;
+        game_state
+            .action_queue
+            .push_back((ActionType::ResetGame, None, None, notify_clone));
+    }
+
+    notify.notified().await;
+
+    info!("processed /reset_game request");
+
+    Ok(Json(ResetGameResponse {}))
 }
 
 #[post("/get_cells", format = "json", data = "<request>")]
@@ -327,9 +361,12 @@ async fn queue_move(
             .unbatch(&move_request.direction)
             .try_into()
             .map_err(|_| bad_request("invalid direction"))?;
-        game_state
-            .move_queue
-            .push_back((move_request.player_id, direction, notify_clone));
+        game_state.action_queue.push_back((
+            ActionType::Move,
+            Some(move_request.player_id),
+            Some(direction),
+            notify_clone,
+        ));
         game_state.player_last_move_time[move_request.player_id] = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap()
@@ -354,12 +391,12 @@ async fn queue_move(
     }))
 }
 
-async fn process_moves(state: SharedState) {
+async fn process_actions(state: SharedState) {
     loop {
-        let (player_id, direction, notify) = {
+        let (action_type, player_id, direction, notify) = {
             let mut game_state = state.lock().await;
-            if let Some(move_request) = game_state.move_queue.pop_front() {
-                move_request
+            if let Some(action_request) = game_state.action_queue.pop_front() {
+                action_request
             } else {
                 // No moves to process, wait for a new move to be queued
                 drop(game_state);
@@ -369,17 +406,32 @@ async fn process_moves(state: SharedState) {
         };
 
         {
-            let mut game_state = state.lock().await;
-            let zone = game_state.zone_mut().unwrap();
-            let start = std::time::Instant::now();
-            zone.move_player(player_id, direction);
-            info!("zone.move_player takes: {:?}", start.elapsed());
+            match action_type {
+                ActionType::Move => {
+                    let mut game_state = state.lock().await;
+                    let zone = game_state.zone_mut().unwrap();
+                    let start = std::time::Instant::now();
+                    let unwrapped_player_id = player_id.unwrap();
+                    let unwrapped_direction = direction.unwrap();
+                    zone.move_player(unwrapped_player_id, unwrapped_direction);
+                    info!("zone.move_player takes: {:?}", start.elapsed());
 
-            // For each worker, mark the flag of `player_id` to be true.
-            game_state
-                .worker_diff
-                .iter_mut()
-                .for_each(|flag| flag[player_id] = true);
+                    // For each worker, mark the flag of `player_id` to be true.
+                    game_state
+                        .worker_diff
+                        .iter_mut()
+                        .for_each(|flag| flag[unwrapped_player_id] = true);
+                }
+                ActionType::ResetGame => {
+                    let mut game_state = state.lock().await;
+
+                    game_state.zone = Some(Zone::new(64, 64, &game_state.evaluator));
+                    game_state.mock_zone = Some(MockZone::new(64, 64));
+                    game_state.action_queue = VecDeque::new();
+                    game_state.player_last_move_time = [0, 0, 0, 0];
+                }
+                ActionType::None => {}
+            }
         }
 
         notify.notify_one();
@@ -470,7 +522,7 @@ async fn rocket() -> _ {
     let shared_state: Arc<Mutex<GameState>> = Arc::new(Mutex::new(GameState {
         zone: None, // 64x64 zone, will be initialized when keygen is finished.
         mock_zone: None,
-        move_queue: VecDeque::new(),
+        action_queue: VecDeque::new(),
         player_last_move_time: [0, 0, 0, 0],
         evaluator: PhantomEvaluator::new(PhantomParam::I_4P_60),
         player_round_1_key: [None, None, None, None],
@@ -481,7 +533,7 @@ async fn rocket() -> _ {
 
     let state_clone = shared_state.clone();
     tokio::spawn(async move {
-        process_moves(state_clone).await;
+        process_actions(state_clone).await;
     });
 
     let limits = Limits::default().limit("json", 750.mebibytes());
@@ -498,6 +550,7 @@ async fn rocket() -> _ {
         .mount(
             "/",
             routes![
+                reset_game,
                 mock_move,
                 queue_move,
                 mock_get_cells,

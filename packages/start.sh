@@ -79,12 +79,16 @@ curl -sS --header "Content-Type: application/json" --request POST --data '{"play
 curl -sS --header "Content-Type: application/json" --request POST --data '{"player_id":2}' -o /dev/null http://localhost:8003/set_id
 curl -sS --header "Content-Type: application/json" --request POST --data '{"player_id":3}' -o /dev/null http://localhost:8004/set_id
 
+sleep 1
+
 echo "Submitting round 1 keys..."
 
 curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8001/submit_r1
 curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8002/submit_r1
 curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8003/submit_r1
 curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8004/submit_r1
+
+sleep 1
 
 echo "Get public key..."
 
@@ -93,12 +97,16 @@ curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o
 curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8003/get_pk
 curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8004/get_pk
 
+sleep 1
+
 echo "Submitting round 2 keys..."
 
 curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8001/submit_r2
 curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8002/submit_r2
 curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8003/submit_r2
 curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8004/submit_r2
+
+sleep 1
 
 echo "Getting player data..."
 
