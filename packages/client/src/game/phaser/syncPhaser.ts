@@ -78,6 +78,12 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				players.delete(key);
 			}
 		});
+		monsters.forEach((item, key) => {
+			if (item.coord.x === tileCoord.x && item.coord.y === tileCoord.y) {
+				item.image.destroy();
+				monsters.delete(key);
+			}
+		});
 	};
 
 	const drawTiles = ({
@@ -129,11 +135,28 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 					}
 				}
 				if (tile.entity_type === "Monster") {
-					const monsterGameObject = addMonster(tile.coord);
-					monsters.set(tile.entity_id, {
-						image: monsterGameObject,
-						coord: tile.coord,
-					});
+					const id = tile.entity_id;
+					const monster = monsters.get(tile.entity_id);
+					// check to see we didn't already add this item, in this specific spot
+					if (
+						!monster ||
+						(monster.coord.x !== tile.coord.x &&
+							monster.coord.y !== tile.coord.y)
+					) {
+						// destroy the old monster since its location changed
+						if (monster) {
+							monster.image.destroy();
+						}
+						const monsterGameObject = addMonster(
+							tile.coord,
+							ENTITIES_CONFIG.monsters[id].assetKey ??
+								phaserConfig.assetKeys.monster,
+						);
+						items.set(id, {
+							image: monsterGameObject,
+							coord: tile.coord,
+						});
+					}
 				}
 				if (tile.entity_type === "Player") {
 					const id = tile.entity_id;
@@ -425,7 +448,10 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		return go;
 	};
 
-	const addMonster = (coord: Coord): Phaser.GameObjects.Image => {
+	const addMonster = (
+		coord: Coord,
+		assetKey: string,
+	): Phaser.GameObjects.Image => {
 		const pixelCoord = getCenterPixelCoord(
 			coord,
 			phaserConfig.tilemap.tileWidth,
@@ -434,7 +460,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		const go = game.mainScene.add.image(
 			pixelCoord.x,
 			pixelCoord.y,
-			phaserConfig.assetKeys.monster,
+			assetKey,
 		);
 		go.setSize(
 			phaserConfig.tilemap.tileWidth,

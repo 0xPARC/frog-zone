@@ -79,7 +79,7 @@ interface State {
 	game: Game | null;
 	players: Map<number, Player>;
 	items: Map<number, Item>;
-  monsters: Map<number, Monster>;
+	monsters: Map<number, Monster>;
 	grid: Map<number, TileWithCoord>;
 	lastMoveTimeStamp: number; // timestamp for next move
 	actionLogs: ActionLogs;
