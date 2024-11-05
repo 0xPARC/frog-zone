@@ -29,7 +29,8 @@ const createPhaserGame = async () => {
 		parent: "phaser-container",
 		width: (window.innerWidth - 370) * window.devicePixelRatio,
 		height: window.innerHeight * window.devicePixelRatio,
-		backgroundColor: "#FFF",
+		backgroundColor: "#201e1e",
+
 		pixelArt: true,
 		scale: {
 			mode: Phaser.Scale.CENTER_BOTH,

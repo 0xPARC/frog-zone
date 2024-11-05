@@ -1,5 +1,6 @@
 import React from "react";
 import useStore from "../store";
+import ENTITIES_CONFIG from "../../const/entities.config";
 
 type PlayerInfoProps = {
 	playerId: number;
@@ -31,7 +32,7 @@ export const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId }) => {
 	return (
 		<div style={styles.infoBox}>
 			<h4>
-				<b>Frog #{player.id}</b>
+				<b>Player: {ENTITIES_CONFIG.players[Number(playerId)].name}</b>
 			</h4>
 			<p>HP: {player.hp}</p>
 			<p>ATK: {player.atk}</p>

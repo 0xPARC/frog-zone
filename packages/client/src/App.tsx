@@ -3,6 +3,7 @@ import { Login } from "./game/components/Login";
 import { TileMapEditor } from "./components/TileMapEditor/TileMapEditor";
 import { MoveCountdownTimer } from "./game/components/MoveCountdown";
 import { PlayerInfo } from "./game/components/PlayerInfo";
+import { TileInfo } from "./game/components/TileInfo";
 import { WaitingForPlayersOverlay } from "./game/components/WaitingForPlayersOverlay";
 import WinGameButton from "./game/components/WinGameButton";
 import useStore from "./game/store";
@@ -28,6 +29,7 @@ function App() {
 			{isLoggedIn && (
 				<>
 					<PlayerInfo playerId={Number(playerId)} />
+					<TileInfo />
 					<MoveCountdownTimer />
 					<TerminalActionLog />
 

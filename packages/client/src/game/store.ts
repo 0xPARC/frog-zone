@@ -79,10 +79,12 @@ interface State {
 	game: Game | null;
 	players: Map<number, Player>;
 	items: Map<number, Item>;
-  monsters: Map<number, Monster>;
+	monsters: Map<number, Monster>;
 	grid: Map<number, TileWithCoord>;
 	lastMoveTimeStamp: number; // timestamp for next move
 	actionLogs: ActionLogs;
+	hoverTile: TileWithCoord | null;
+	setHoverTile: (coord: Coord | null) => void;
 	setIsLoggedIn: (s: {
 		isLoggedIn: boolean | null;
 		publicKey: string | null;
@@ -146,6 +148,15 @@ const useStore = create<State>()(
 		grid: initializeGrid(64, tileConfig),
 		lastMoveTimeStamp: 0, // Store the last move timestamp
 		actionLogs: [],
+		hoverTile: null,
+		setHoverTile: (coord: Coord | null) => {
+			if (coord) {
+				const gridItem = get().grid.get(coordToKey(coord));
+				set({ hoverTile: gridItem });
+			} else {
+				set({ hoverTile: null });
+			}
+		},
 		setIsLoggedIn: ({
 			isLoggedIn,
 			publicKey,
