@@ -50,7 +50,6 @@ export const Login: React.FC = () => {
 			if (playerId && isLoggedIn && gameId) {
 				try {
 					const data = await fetchGame({ gameId });
-					console.log("GAME STATUS", data.game);
 					useStore.getState().setGame(data.game);
 				} catch {
 					console.log("Error fetching game status.");

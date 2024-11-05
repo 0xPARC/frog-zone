@@ -27,7 +27,6 @@ export const requestEndGame = async (args: {
 		}
 
 		const data: PlayerResponse = await response.json();
-		console.log("Player updated:", data);
 		return data;
 	} catch (error) {
 		console.error("Failed to end game for player:", error);

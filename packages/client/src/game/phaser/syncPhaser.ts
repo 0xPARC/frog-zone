@@ -1,5 +1,4 @@
 import {
-	coordToKey,
 	getCenterPixelCoord,
 	pixelCoordToTileCoord,
 } from "@smallbraingames/small-phaser";
@@ -61,13 +60,8 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 	};
 
 	const destroyImageAtTileCoord = ({ tileCoord }: { tileCoord: Coord }) => {
-		if (tileCoord.x === 2 && tileCoord.y === 1) {
-			console.log("tile passed in correctly");
-			console.log("items", items);
-		}
 		items.forEach((item, key) => {
 			if (item.coord.x === tileCoord.x && item.coord.y === tileCoord.y) {
-				console.log("MATCHING ITEM DELETED", item);
 				item.image.destroy();
 				items.delete(key);
 			}
@@ -126,7 +120,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 						}
 						const itemGameObject = addItem(
 							tile.coord,
-							ENTITIES_CONFIG.items[id].assetKey,
+							ENTITIES_CONFIG.items[id]?.assetKey ?? "item",
 						);
 						items.set(id, {
 							image: itemGameObject,
@@ -149,7 +143,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 						}
 						const monsterGameObject = addMonster(
 							tile.coord,
-							ENTITIES_CONFIG.monsters[id].assetKey ??
+							ENTITIES_CONFIG.monsters[id]?.assetKey ??
 								phaserConfig.assetKeys.monster,
 						);
 						items.set(id, {
@@ -178,7 +172,9 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 							}
 							const playerGameObject = addPlayer({
 								coord: tile.coord,
-								assetKey: ENTITIES_CONFIG.players[id].assetKey,
+								assetKey:
+									ENTITIES_CONFIG.players[id]?.assetKey ??
+									"frog",
 							});
 							players.set(tile.entity_id, {
 								image: playerGameObject,
@@ -299,7 +295,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 	};
 
 	const isValidTile = (tileCoord: { x: number; y: number }) => {
-		const key = coordToKey(tileCoord);
+		const key = `${tileCoord.x},${tileCoord.y}`;
 		const grid = useStore.getState().grid;
 		const tile = grid.get(key);
 		return tile?.terrainType === TerrainType.LAND;
