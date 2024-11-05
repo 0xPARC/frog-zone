@@ -18,6 +18,7 @@ import { createTileFetcher } from "./create/createTileFetcher";
 import phaserConfig from "./create/phaserConfig";
 import { updatePlayer } from "../../utils/updatePlayer";
 import { debounceTime } from "rxjs/internal/operators/debounceTime";
+import ENTITIES_CONFIG from "../../const/entities.config";
 
 const ENABLE_KEYBOARD_NAV = true;
 const ARROW_ALPHA_WHILE_MOVE_UNAVAILABLE = 0.6;
@@ -105,6 +106,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 			}
 			if (tile.entity_type && tile.entity_id !== undefined) {
 				if (tile.entity_type === "Item") {
+					const id = tile.entity_id;
 					const item = items.get(tile.entity_id);
 					// check to see we didn't already add this item, in this specific spot
 					if (
@@ -116,8 +118,11 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 						if (item) {
 							item.image.destroy();
 						}
-						const itemGameObject = addItem(tile.coord);
-						items.set(tile.entity_id, {
+						const itemGameObject = addItem(
+							tile.coord,
+							ENTITIES_CONFIG.items[id].assetKey,
+						);
+						items.set(id, {
 							image: itemGameObject,
 							coord: tile.coord,
 						});
@@ -137,7 +142,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 					});
 					// selectedPlayer is handled in drawSelectedPlayer for more control/ faster updates
 					if (id !== selectedPlayerId) {
-						const player = players.get(tile.entity_id);
+						const player = players.get(id);
 						// check to see we didn't already add a player with this same id and in the same spot
 						if (
 							!player ||
@@ -150,6 +155,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 							}
 							const playerGameObject = addPlayer({
 								coord: tile.coord,
+								assetKey: ENTITIES_CONFIG.players[id].assetKey,
 							});
 							players.set(tile.entity_id, {
 								image: playerGameObject,
@@ -189,9 +195,11 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 	const addPlayer = ({
 		coord,
 		showArrows,
+		assetKey,
 	}: {
 		coord: Coord;
 		showArrows?: boolean;
+		assetKey: string;
 	}): Phaser.GameObjects.Image => {
 		const pixelCoord = getCenterPixelCoord(
 			coord,
@@ -201,7 +209,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		const go = game.mainScene.add.image(
 			pixelCoord.x,
 			pixelCoord.y,
-			phaserConfig.assetKeys.frog,
+			assetKey,
 		);
 		go.setSize(
 			phaserConfig.tilemap.tileWidth,
@@ -236,6 +244,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		const playerGameObject = addPlayer({
 			coord: coord,
 			showArrows: true,
+			assetKey: ENTITIES_CONFIG.players[selectedPlayerId].assetKey,
 		});
 		selectedPlayerImg = playerGameObject;
 		game.camera.phaserCamera.startFollow(selectedPlayerImg);
@@ -391,7 +400,10 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		}
 	};
 
-	const addItem = (coord: Coord): Phaser.GameObjects.Image => {
+	const addItem = (
+		coord: Coord,
+		assetKey: string,
+	): Phaser.GameObjects.Image => {
 		const pixelCoord = getCenterPixelCoord(
 			coord,
 			phaserConfig.tilemap.tileWidth,
@@ -400,7 +412,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		const go = game.mainScene.add.image(
 			pixelCoord.x,
 			pixelCoord.y,
-			phaserConfig.assetKeys.item,
+			assetKey,
 		);
 		go.setSize(
 			phaserConfig.tilemap.tileWidth,
