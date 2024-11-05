@@ -34,8 +34,6 @@ export const TileInfo: React.FC = () => {
 		return null;
 	}
 
-	console.log("hoverTile", hoverTile);
-
 	return (
 		<div style={styles.infoBox}>
 			<h4>Tile Info</h4>
