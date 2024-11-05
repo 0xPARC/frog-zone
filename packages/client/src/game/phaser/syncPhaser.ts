@@ -120,7 +120,8 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 						}
 						const itemGameObject = addItem(
 							tile.coord,
-							ENTITIES_CONFIG.items[id]?.assetKey ?? "item",
+							ENTITIES_CONFIG.items[id]?.assetKey ??
+								phaserConfig.assetKeys.item,
 						);
 						items.set(id, {
 							image: itemGameObject,
@@ -146,7 +147,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 							ENTITIES_CONFIG.monsters[id]?.assetKey ??
 								phaserConfig.assetKeys.monster,
 						);
-						items.set(id, {
+						monsters.set(id, {
 							image: monsterGameObject,
 							coord: tile.coord,
 						});
@@ -174,7 +175,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 								coord: tile.coord,
 								assetKey:
 									ENTITIES_CONFIG.players[id]?.assetKey ??
-									"frog",
+									phaserConfig.assetKeys.frog,
 							});
 							players.set(tile.entity_id, {
 								image: playerGameObject,
