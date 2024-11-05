@@ -1,4 +1,3 @@
-import { coordToKey } from "@smallbraingames/small-phaser";
 import { fetchTiles } from "../../../utils/fetchTiles";
 import { getSurroundingCoordinates } from "../../../utils/getSurroundingCoordinates";
 import useStore, { Coord, TileWithCoord } from "../../store";
@@ -83,15 +82,15 @@ export const createTileFetcher = ({
 		const nonPriorityCoords = coords.slice(5);
 
 		const staleCoordinates = nonPriorityCoords.filter((coord) => {
-			const tile = grid.get(coordToKey(coord));
+			const tile = grid.get(`${coord.x},${coord.y}`);
 			return (
 				tile &&
-				(tile.fetchedAt === 0 || now - tile.fetchedAt > STALE_TIME_MS)
+				(tile.fetchedAt === 0 || now - tile.fetchedAt >= STALE_TIME_MS)
 			);
 		});
 
 		const freshCoordinates = nonPriorityCoords.filter((coord) => {
-			const tile = grid.get(coordToKey(coord));
+			const tile = grid.get(`${coord.x},${coord.y}`);
 			return tile && now - tile.fetchedAt <= STALE_TIME_MS;
 		});
 

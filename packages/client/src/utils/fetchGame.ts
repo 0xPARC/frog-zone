@@ -38,7 +38,6 @@ export const fetchGame = async ({
 		}
 
 		const data: GameResponse = await response.json();
-		console.log("Fetched game:", data);
 		return data;
 	} catch (error) {
 		console.error("Error fetching game:", error);
