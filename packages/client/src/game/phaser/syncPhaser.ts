@@ -66,7 +66,9 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				item.image.destroy();
 				items.delete(key);
 				addActionLog({
-					message: `item consumed: ${ENTITIES_CONFIG.items[key]?.name}`,
+					message: `item consumed: ${
+						ENTITIES_CONFIG.items[key]?.name ?? "UNKNOWN"
+					}`,
 					color: "turquoise",
 				});
 			}
