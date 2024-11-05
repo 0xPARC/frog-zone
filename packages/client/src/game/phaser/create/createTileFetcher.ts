@@ -40,6 +40,7 @@ export const createTileFetcher = ({
 			message: `get cells received: ${JSON.stringify({
 				response: "success",
 			})}`,
+			color: "#c2c5c7",
 		});
 
 		onSuccessfulFetch({ tiles: newTiles, viewportCoords: coordinates });
