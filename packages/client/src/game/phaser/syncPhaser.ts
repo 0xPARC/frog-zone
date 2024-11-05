@@ -1,3 +1,4 @@
+import { Player } from "./../store";
 import {
 	getCenterPixelCoord,
 	pixelCoordToTileCoord,
