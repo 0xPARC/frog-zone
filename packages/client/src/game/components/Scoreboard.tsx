@@ -1,6 +1,7 @@
 import React from "react";
 import useStore from "../store";
 import { getPlayerId } from "../../utils/getPlayerId";
+import ENTITIES_CONFIG from "../../const/entities.config";
 
 export const Scoreboard: React.FC = () => {
 	const players = useStore.getState().game?.players || [];
@@ -38,7 +39,11 @@ export const Scoreboard: React.FC = () => {
 								>
 									<td>{index + 1}.</td>
 									<td style={styles.td}>
-										Frog #{player.machineId}
+										{
+											ENTITIES_CONFIG.players[
+												Number(player.machineId)
+											].name
+										}
 										{index === 0 && " 🏆"}
 									</td>
 									<td style={styles.td}>
