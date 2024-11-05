@@ -22,11 +22,18 @@ import { debounceTime } from "rxjs/internal/operators/debounceTime";
 const ENABLE_KEYBOARD_NAV = true;
 const ARROW_ALPHA_WHILE_MOVE_UNAVAILABLE = 0.6;
 
+type StoredImage = {
+	image: Phaser.GameObjects.Image;
+	coord: Coord;
+};
+
+type EntityId = number;
+
 const syncPhaser = async (game: PhaserGame, api: Api) => {
-	const players = new Map<number, Phaser.GameObjects.Image>();
+	const players = new Map<EntityId, StoredImage>();
 	let selectedPlayerImg: Phaser.GameObjects.Image | null = null;
-	const items = new Map<number, Phaser.GameObjects.Image>();
-	const monsters = new Map<number, Phaser.GameObjects.Image>();
+	const monsters = new Map<EntityId, StoredImage>();
+	const items = new Map<EntityId, StoredImage>();
 	const selectedPlayerId = Number(getPlayerId());
 	const player = await fetchPlayer(selectedPlayerId);
 	const initialPlayerCoord = {
@@ -52,6 +59,26 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		return canMove && !isPreviousMovePending;
 	};
 
+	const destroyImageAtTileCoord = ({ tileCoord }: { tileCoord: Coord }) => {
+		if (tileCoord.x === 2 && tileCoord.y === 1) {
+			console.log("tile passed in correctly");
+			console.log("items", items);
+		}
+		items.forEach((item, key) => {
+			if (item.coord.x === tileCoord.x && item.coord.y === tileCoord.y) {
+				console.log("MATCHING ITEM DELETED", item);
+				item.image.destroy();
+				items.delete(key);
+			}
+		});
+		players.forEach((item, key) => {
+			if (item.coord.x === tileCoord.x && item.coord.y === tileCoord.y) {
+				item.image.destroy();
+				players.delete(key);
+			}
+		});
+	};
+
 	const drawTiles = ({
 		tiles,
 		viewportCoords,
@@ -74,33 +101,61 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				}
 			} else {
 				game.tilemap.putFogAt(tile.coord, tile.fetchedAt ? 0.7 : 1);
-				const id = coordToKey(tile.coord);
-				const image = players.get(id) || items.get(id);
-				if (image) {
-					image.destroy();
-				}
+				destroyImageAtTileCoord({ tileCoord: tile.coord });
 			}
 			if (tile.entity_type && tile.entity_id !== undefined) {
 				if (tile.entity_type === "Item") {
-					const itemGameObject = addItem(tile.coord);
-					items.set(tile.entity_id, itemGameObject);
+					const item = items.get(tile.entity_id);
+					// check to see we didn't already add this item, in this specific spot
+					if (
+						!item ||
+						(item.coord.x !== tile.coord.x &&
+							item.coord.y !== tile.coord.y)
+					) {
+						// destroy the old item since its location changed
+						if (item) {
+							item.image.destroy();
+						}
+						const itemGameObject = addItem(tile.coord);
+						items.set(tile.entity_id, {
+							image: itemGameObject,
+							coord: tile.coord,
+						});
+					}
 				}
 				if (tile.entity_type === "Monster") {
 					const monsterGameObject = addMonster(tile.coord);
-					monsters.set(tile.entity_id, monsterGameObject);
+					monsters.set(tile.entity_id, {
+						image: monsterGameObject,
+						coord: tile.coord,
+					});
 				}
 				if (tile.entity_type === "Player") {
 					const id = tile.entity_id;
+					destroyImageAtTileCoord({
+						tileCoord: tile.coord,
+					});
+					// selectedPlayer is handled in drawSelectedPlayer for more control/ faster updates
 					if (id !== selectedPlayerId) {
-						const playerImg = players.get(id);
-						if (playerImg) {
-							playerImg.destroy();
+						const player = players.get(tile.entity_id);
+						// check to see we didn't already add a player with this same id and in the same spot
+						if (
+							!player ||
+							(player.coord.x !== tile.coord.x &&
+								player.coord.y !== tile.coord.y)
+						) {
+							// destroy the old player, since their location has changed
+							if (player) {
+								player.image.destroy();
+							}
+							const playerGameObject = addPlayer({
+								coord: tile.coord,
+							});
+							players.set(tile.entity_id, {
+								image: playerGameObject,
+								coord: tile.coord,
+							});
 						}
-						const playerGameObject = addPlayer({
-							playerId: id,
-							coord: tile.coord,
-						});
-						players.set(id, playerGameObject);
 					}
 					useStore.getState().addPlayer({
 						id,
@@ -110,12 +165,9 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 					});
 				}
 				if (tile.entity_type === "None") {
-					// remove image at coord
-					const id = coordToKey(tile.coord);
-					const image = players.get(id) || items.get(id);
-					if (image) {
-						image.destroy();
-					}
+					destroyImageAtTileCoord({
+						tileCoord: tile.coord,
+					});
 				}
 			}
 		});
