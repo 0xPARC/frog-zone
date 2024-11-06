@@ -162,10 +162,7 @@ const useStore = create<State>()(
 		setGame: (game) => set({ game }),
 		addPlayer: (player) => {
 			set((state) => {
-				state.players.set(
-					`${player.coord.x},${player.coord.y}`,
-					player,
-				);
+				state.players.set(player.id, player);
 			});
 		},
 		addItem: (item, coord) => {
