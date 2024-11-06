@@ -1,13 +1,15 @@
 import { SERVER_URL } from "../const/env.const";
 // tells the game server to reset all players
-export const resetGame = async () => {
+export const resetGame = async ({ playerId }: { playerId: string }) => {
 	try {
-		// TODD: implement endpoint
 		const response = await fetch(`${SERVER_URL}/reset_game`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 			},
+			body: JSON.stringify({
+				player_id: Number(playerId),
+			}),
 		});
 
 		if (!response.ok) {

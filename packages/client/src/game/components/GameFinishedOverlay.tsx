@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import useStore from "../store";
 import { Button } from "../../components/Button";
 import { Scoreboard } from "./Scoreboard";
+import { resetGame } from "../../utils/resetGame";
+import { getPlayerId } from "../../utils/getPlayerId";
 
 const TIME_TO_AUTO_START_NEW_GAME = 60 * 1000;
 
@@ -10,6 +12,7 @@ export const GameFinishedOverlay: React.FC = () => {
 	const [countdown, setCountdown] = useState(
 		TIME_TO_AUTO_START_NEW_GAME / 1000,
 	);
+	const playerId = getPlayerId() as string;
 
 	useEffect(() => {
 		if (wasAborted) {
@@ -18,11 +21,8 @@ export const GameFinishedOverlay: React.FC = () => {
 	}, [wasAborted]);
 
 	const handleNewGame = async () => {
-		useStore.getState().setGame(null);
-		useStore.getState().setIsLoggedIn({
-			isLoggedIn: false,
-			publicKey: null,
-		});
+		await resetGame({ playerId });
+		window.location.reload();
 	};
 
 	useEffect(() => {

@@ -31,7 +31,10 @@ export const fetchPlayer = async (playerId: number): Promise<PlayerData> => {
 		}
 
 		const data = await response.json();
-		return data;
+		return {
+			...data,
+			player_id: playerId,
+		};
 	} catch (error) {
 		console.error("Error fetching player data:", error);
 		throw error;
