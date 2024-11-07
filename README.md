@@ -23,7 +23,7 @@ From the root folder of the repo run `npx patch-package` this will patch the pac
 From `packages/login` delete the `.next` folder (to remove cached dependencies without the patch, just in case)
 Run `bun dev` in `packages/login`
 
-The client should now restart and hit your local login server to change the login and game status throughout the game. 
+The client should now restart and hit your local login server to change the login and game status throughout the game.
 
 ## Running the Plain text version of the game:
 
