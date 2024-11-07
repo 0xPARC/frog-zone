@@ -1,4 +1,4 @@
-import { createTilemap as createPhaserTilemap } from "@smallbraingames/small-phaser";
+import { awaitTween, createTilemap as createPhaserTilemap } from "@smallbraingames/small-phaser";
 import type { Coord, TerrainType } from "../../store";
 import config from "./phaserConfig";
 import useStore from "../../store";
@@ -114,22 +114,34 @@ const createTilemap = (scene: Phaser.Scene) => {
 			(tileCoord.y + gridSize / 2) * tileHeight + startY * tileHeight;
 
 		const key = `${tileCoord.x},${tileCoord.y}`;
-		// if fog already exists, remove it
+		// if fog already exists, update it
 		if (fogMap[key]) {
-			removeFogAt(tileCoord);
+			// removeFogAt(tileCoord);
+			 awaitTween({
+      targets: fogMap[key],
+        alpha: opacity,
+      duration: config.animationDuration,
+        });
+      return;
 		}
 		const fogOverlay = scene.add.graphics();
-		fogOverlay.fillStyle(0x303030, opacity);
+		fogOverlay.fillStyle(0xffffff, 0);
+    fogOverlay.setAlpha(0);
 		fogOverlay.fillRect(tileX, tileY, tileWidth, tileHeight);
 		fogMap[key] = fogOverlay;
+    awaitTween({
+      targets: fogOverlay,
+      alpha: opacity,
+      duration: config.animationDuration,
+    });
 	};
 
 	const removeFogAt = (tileCoord: Coord) => {
 		const key = `${tileCoord.x},${tileCoord.y}`;
 		const fogOverlay = fogMap[key];
 		if (fogOverlay) {
-			fogOverlay.destroy(); // Destroy the fog graphics for this tile
-			delete fogMap[key]; // Remove the entry from the map
+	     fogOverlay.destroy(); // Destroy the fog graphics for this tile
+        delete fogMap[key]; // Remove the entry from the map
 		}
 	};
 

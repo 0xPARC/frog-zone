@@ -26,6 +26,7 @@ const config = {
 		dragon: "dragon",
 		"prickly bush": "prickly bush",
 	},
+	animationDuration: 300,
 };
 
 export default config;

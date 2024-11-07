@@ -9,7 +9,6 @@ const STALE_TIME_MS = 5000;
 export const createTileFetcher = ({
 	initialCoordinate,
 	batchSize,
-	playerId,
 	onSuccessfulFetch,
 }: {
 	initialCoordinate: Coord; // the center coordinate of the viewport
