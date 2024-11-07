@@ -17,7 +17,13 @@ If running locally, you will need to create a postgress database and add the cre
 
 Login Server (`packages/client`) is next js + react + prisma. Run with `bun dev`
 Update `LOGIN_SERVER_URL` to .env to point to your local login server, ex: `http://localhost:3000`
-Run `bun dev` in `packages/client`
+
+From `packages/` run `bun install`
+From the root folder of the repo run `npx patch-package` this will patch the package fastfile which is a dependency of `/login`. You should see a log that the patch for fastfile was applied.
+From `packages/login` delete the `.next` folder (to remove cached dependencies without the patch, just in case)
+Run `bun dev` in `packages/login`
+
+The client should now restart and hit your local login server to change the login and game status throughout the game. 
 
 ## Running the Plain text version of the game:
 
