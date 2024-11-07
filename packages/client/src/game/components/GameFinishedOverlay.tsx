@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
-import useStore from "../store";
+import type React from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../../components/Button";
-import { Scoreboard } from "./Scoreboard";
-import { resetGame } from "../../utils/resetGame";
 import { getPlayerId } from "../../utils/getPlayerId";
+import { resetGame } from "../../utils/resetGame";
+import useStore from "../store";
+import { Scoreboard } from "./Scoreboard";
 
 const TIME_TO_AUTO_START_NEW_GAME = 60 * 1000;
 
@@ -46,8 +47,8 @@ export const GameFinishedOverlay: React.FC = () => {
 			<div>
 				<Button onClick={handleNewGame}>Start New Game Now</Button>
 				<p style={styles.countdownMessage}>
-					A new game will start automatically in{" "}
-					<strong>{countdown}</strong> seconds.
+					A new game will start automatically in <strong>{countdown}</strong>{" "}
+					seconds.
 				</p>
 			</div>
 		</div>
@@ -56,17 +57,17 @@ export const GameFinishedOverlay: React.FC = () => {
 
 const styles = {
 	overlay: {
-		position: "fixed" as "fixed",
+		position: "fixed" as const,
 		top: 0,
 		left: 0,
 		width: "100vw",
 		height: "100vh",
 		backgroundColor: "rgba(0, 0, 0, 1)",
 		display: "flex",
-		flexDirection: "column" as "column",
+		flexDirection: "column" as const,
 		justifyContent: "center",
 		alignItems: "center",
-		textAlign: "center" as "center",
+		textAlign: "center" as const,
 		zIndex: 1000,
 	},
 	countdownMessage: {

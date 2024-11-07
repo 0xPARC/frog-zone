@@ -1,6 +1,6 @@
-import React from "react";
-import useStore from "../store";
+import type React from "react";
 import ENTITIES_CONFIG from "../../const/entities.config";
+import useStore from "../store";
 
 type PlayerInfoProps = {
 	playerId: number;
@@ -8,7 +8,7 @@ type PlayerInfoProps = {
 
 const styles = {
 	infoBox: {
-		position: "absolute" as "absolute",
+		position: "absolute" as const,
 		top: "10px",
 		left: "10px",
 		backgroundColor: "rgba(0,0,0,0.8)",

@@ -1,4 +1,4 @@
-import { GameResponse } from "./fetchGame";
+import type { GameResponse } from "./fetchGame";
 
 export interface MachineStatusResponse {
 	isLoggedIn: boolean;

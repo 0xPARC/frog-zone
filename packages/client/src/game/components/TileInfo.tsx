@@ -1,10 +1,10 @@
-import React from "react";
-import useStore from "../store";
+import type React from "react";
 import ENTITIES_CONFIG from "../../const/entities.config";
+import useStore from "../store";
 
 const styles = {
 	infoBox: {
-		position: "absolute" as "absolute",
+		position: "absolute" as const,
 		top: "160px",
 		left: "10px",
 		backgroundColor: "rgba(0,0,0,0.8)",
@@ -43,10 +43,7 @@ export const TileInfo: React.FC = () => {
 						<p>
 							x: {hoverTile.coord.x} y: {hoverTile.coord.y}
 						</p>
-						<p>
-							contains:{" "}
-							{entityTypeToInfoMap[hoverTile.entity_type]}
-						</p>
+						<p>contains: {entityTypeToInfoMap[hoverTile.entity_type]}</p>
 						<p>terrain: {hoverTile.terrainType}</p>
 					</div>
 					{hoverTile.entity_type === "Player" && (
@@ -54,13 +51,13 @@ export const TileInfo: React.FC = () => {
 							<h4>Player Details</h4>
 							<p>
 								name:{" "}
-								{ENTITIES_CONFIG["players"][hoverTile.entity_id]
-									?.name ?? "UNKNOWN"}
+								{ENTITIES_CONFIG["players"][hoverTile.entity_id]?.name ??
+									"UNKNOWN"}
 							</p>
 							<p>
 								description:{" "}
-								{ENTITIES_CONFIG["players"][hoverTile.entity_id]
-									?.description ?? "???"}
+								{ENTITIES_CONFIG["players"][hoverTile.entity_id]?.description ??
+									"???"}
 							</p>
 						</>
 					)}
@@ -69,13 +66,13 @@ export const TileInfo: React.FC = () => {
 							<h4>Item Details</h4>
 							<p>
 								name:{" "}
-								{ENTITIES_CONFIG["items"][hoverTile.entity_id]
-									?.name ?? "UNKNOWN"}
+								{ENTITIES_CONFIG["items"][hoverTile.entity_id]?.name ??
+									"UNKNOWN"}
 							</p>
 							<p>
 								description:{" "}
-								{ENTITIES_CONFIG["items"][hoverTile.entity_id]
-									?.description ?? "???"}
+								{ENTITIES_CONFIG["items"][hoverTile.entity_id]?.description ??
+									"???"}
 							</p>
 						</>
 					)}
@@ -84,14 +81,17 @@ export const TileInfo: React.FC = () => {
 							<h4>THERE'S A MONSTER !!</h4>
 							<p>
 								name:{" "}
-								{ENTITIES_CONFIG["monsters"][
-									hoverTile.entity_id
-								]?.name ?? "UNKNOWN"}
+								{ENTITIES_CONFIG["monsters"][hoverTile.entity_id]?.name ??
+									"UNKNOWN"}
 							</p>
 							<p>
 								description:{" "}
+<<<<<<< HEAD
 								{ENTITIES_CONFIG["monsters"][hoverTile.entity_id]
 									?.description ??
+=======
+								{ENTITIES_CONFIG["items"][hoverTile.entity_id]?.description ??
+>>>>>>> 3999995 (chore(client): lint)
 									"Yikes... We don't know anything about this one!"}
 							</p>
 						</>

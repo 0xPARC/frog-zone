@@ -3,12 +3,18 @@ import { enableMapSet } from "immer";
 import { create } from "zustand";
 enableMapSet();
 import { immer } from "zustand/middleware/immer";
-import { GameResponse } from "../utils/fetchGame";
 import tileConfig from "../const/tile.config.json";
+import type { GameResponse } from "../utils/fetchGame";
 import {
+<<<<<<< HEAD
 	findBorderCoordinates,
 	Grid,
 } from "../utils/findBorderCoords";
+=======
+	type Grid,
+	findBorderingWaterCoordinates,
+} from "../utils/findBorderingWaterCoordinates";
+>>>>>>> 3999995 (chore(client): lint)
 
 export type TileEntityType = "None" | "Player" | "Item" | "Monster";
 
@@ -98,11 +104,7 @@ interface State {
 	addItem: (item: Item, coord: Coord) => void;
 	addMonster: (item: Monster, coord: Coord) => void;
 	movePlayer: (id: number, coord: Coord) => void;
-	pickupItem: (
-		playerId: number,
-		coord: Coord,
-		itemEffect: ItemEffect,
-	) => void;
+	pickupItem: (playerId: number, coord: Coord, itemEffect: ItemEffect) => void;
 	setGameState: (state: GameState) => void;
 	setLastMoveTimeStamp: (time: number) => void;
 	getPlayerById: (id: number) => Player | null;
@@ -135,8 +137,12 @@ const initializeGrid = (
 			grid.set(key, {
 				coord: { x, y },
 				terrainType: tileConfig.terrainType as TerrainType,
+<<<<<<< HEAD
 				isBorderingLand:
 					borderCoords.includes(tileConfigKey),
+=======
+				isBorderingLand: waterCoordinatesBorderingLand.includes(tileConfigKey),
+>>>>>>> 3999995 (chore(client): lint)
 				entity_type: "None",
 				fetchedAt: 0,
 				isShown: false,
@@ -215,9 +221,7 @@ const useStore = create<State>()(
 		getPlayerById: (id) => {
 			const players = get().players;
 			return (
-				Array.from(players.values()).find(
-					(player) => player.id === id,
-				) || null
+				Array.from(players.values()).find((player) => player.id === id) || null
 			);
 		},
 		updateGrid: (viewportCoords, newTiles) => {

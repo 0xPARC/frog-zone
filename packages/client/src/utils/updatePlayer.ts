@@ -34,9 +34,7 @@ export const updatePlayer = async (args: {
 			});
 
 			if (!response.ok) {
-				throw new Error(
-					`Failed to update player: ${response.statusText}`,
-				);
+				throw new Error(`Failed to update player: ${response.statusText}`);
 			}
 
 			const data: PlayerResponse = await response.json();

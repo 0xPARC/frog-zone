@@ -3,10 +3,10 @@ import {
 	createInput,
 	getSceneLoadPromise,
 } from "@smallbraingames/small-phaser";
-import createTilemap from "./createTilemap";
-import config from "./phaserConfig";
 import { getPlayerId } from "../../../utils/getPlayerId";
 import useStore from "../../store";
+import createTilemap from "./createTilemap";
+import config from "./phaserConfig";
 
 const tileHeight = config.tilemap.tileHeight;
 const setupMainScene = async (scene: Phaser.Scene) => {

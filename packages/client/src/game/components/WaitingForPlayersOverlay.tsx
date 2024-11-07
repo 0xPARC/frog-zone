@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 import ForceStartButton from "./ForceStartButton";
 
 type WaitingForPlayersOverlayProps = {
@@ -30,17 +30,17 @@ export const WaitingForPlayersOverlay: React.FC<
 
 const styles = {
 	overlay: {
-		position: "fixed" as "fixed",
+		position: "fixed" as const,
 		top: 0,
 		left: 0,
 		width: "100vw",
 		height: "100vh",
 		backgroundColor: "rgba(0, 0, 0, 1)",
 		display: "flex",
-		flexDirection: "column" as "column",
+		flexDirection: "column" as const,
 		justifyContent: "center",
 		alignItems: "center",
-		textAlign: "center" as "center",
+		textAlign: "center" as const,
 		zIndex: 1000,
 	},
 };

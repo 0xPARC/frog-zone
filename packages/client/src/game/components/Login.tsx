@@ -1,5 +1,6 @@
 import { QRCodeSVG } from "qrcode.react";
-import React, { useEffect } from "react";
+import type React from "react";
+import { useEffect } from "react";
 import { LOGIN_SERVER_URL } from "../../const/env.const";
 import { fetchGame } from "../../utils/fetchGame";
 import { fetchMachineStatus } from "../../utils/fetchMachineStatus";
@@ -95,6 +96,7 @@ export const Login: React.FC = () => {
 								href={loginUrl}
 								target="_blank"
 								style={{ color: "#0099e0" }}
+								rel="noreferrer"
 							>
 								link
 							</a>
@@ -106,8 +108,8 @@ export const Login: React.FC = () => {
 					<h1>Welcome to FROG ZONE! 🐸</h1>
 					<p>Please wait.</p>
 					<p>
-						There is an ongoing game... But you will be able to join
-						once it finishes.
+						There is an ongoing game... But you will be able to join once it
+						finishes.
 					</p>
 				</div>
 			)}
@@ -117,17 +119,17 @@ export const Login: React.FC = () => {
 
 const styles = {
 	overlay: {
-		position: "fixed" as "fixed",
+		position: "fixed" as const,
 		top: 0,
 		left: 0,
 		width: "100vw",
 		height: "100vh",
 		backgroundColor: "rgba(0, 0, 0, 1)",
 		display: "flex",
-		flexDirection: "column" as "column",
+		flexDirection: "column" as const,
 		justifyContent: "center",
 		alignItems: "center",
-		textAlign: "center" as "center",
+		textAlign: "center" as const,
 		zIndex: 1000,
 	},
 	qrContainer: {

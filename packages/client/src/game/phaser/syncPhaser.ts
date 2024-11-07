@@ -2,9 +2,12 @@ import {
 	getCenterPixelCoord,
 	pixelCoordToTileCoord,
 } from "@smallbraingames/small-phaser";
+import { debounceTime } from "rxjs/internal/operators/debounceTime";
+import ENTITIES_CONFIG from "../../const/entities.config";
 import { completedMoveAnimation } from "../../utils/animations";
 import { fetchPlayer } from "../../utils/fetchPlayer";
 import { getPlayerId } from "../../utils/getPlayerId";
+import { updatePlayer } from "../../utils/updatePlayer";
 import { type Api, Direction } from "../createApi";
 import type { PhaserGame } from "../phaser/create/createPhaserGame";
 import type { Coord, TileWithCoord } from "../store";
@@ -14,9 +17,6 @@ import useStore, {
 } from "../store";
 import { createTileFetcher } from "./create/createTileFetcher";
 import phaserConfig from "./create/phaserConfig";
-import { updatePlayer } from "../../utils/updatePlayer";
-import { debounceTime } from "rxjs/internal/operators/debounceTime";
-import ENTITIES_CONFIG from "../../const/entities.config";
 
 const ENABLE_KEYBOARD_NAV = true;
 const ARROW_ALPHA_WHILE_MOVE_UNAVAILABLE = 0.6;
@@ -116,8 +116,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 					// check to see we didn't already add this item, in this specific spot
 					if (
 						!item ||
-						(item.coord.x !== tile.coord.x &&
-							item.coord.y !== tile.coord.y)
+						(item.coord.x !== tile.coord.x && item.coord.y !== tile.coord.y)
 					) {
 						// destroy the old item since its location changed
 						if (item) {
@@ -231,15 +230,8 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 			phaserConfig.tilemap.tileWidth,
 			phaserConfig.tilemap.tileHeight,
 		);
-		const go = game.mainScene.add.image(
-			pixelCoord.x,
-			pixelCoord.y,
-			assetKey,
-		);
-		go.setSize(
-			phaserConfig.tilemap.tileWidth,
-			phaserConfig.tilemap.tileHeight,
-		);
+		const go = game.mainScene.add.image(pixelCoord.x, pixelCoord.y, assetKey);
+		go.setSize(phaserConfig.tilemap.tileWidth, phaserConfig.tilemap.tileHeight);
 		go.setDisplaySize(
 			phaserConfig.tilemap.tileWidth,
 			phaserConfig.tilemap.tileHeight,
@@ -327,11 +319,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				directionArrows[direction].destroy();
 				directionArrows[direction] = null;
 			}
-			const newPxCoord = getNextPxCoord(
-				playerImg,
-				direction,
-				tileWidth * 0.72,
-			);
+			const newPxCoord = getNextPxCoord(playerImg, direction, tileWidth * 0.72);
 			const arrow = game.mainScene.add
 				.image(newPxCoord.x, newPxCoord.y, phaserConfig.assetKeys.arrow)
 				.setInteractive();
@@ -352,6 +340,17 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 	const handleMovePlayer = async (direction: Direction) => {
 		if (!selectedPlayerImg) return;
 
+<<<<<<< HEAD
+=======
+		const newPxCoord = getNextPxCoord(selectedPlayerImg, direction);
+		// prevent the user from moving to an invalid tile, like into water
+		if (
+			!isValidTile(pixelCoordToTileCoord(newPxCoord, tileWidth, tileHeight))
+		) {
+			return;
+		}
+
+>>>>>>> 3999995 (chore(client): lint)
 		// record a move was made
 		useStore.getState().setLastMoveTimeStamp(Date.now());
 		// stop the fetcher so we can show the pending move
@@ -375,20 +374,16 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 
 		const moveResponse = await api.move(selectedPlayerId, direction);
 		directionArrows[direction]?.clearTint();
-		directionArrows[direction]?.setAlpha(
-			ARROW_ALPHA_WHILE_MOVE_UNAVAILABLE,
-		);
+		directionArrows[direction]?.setAlpha(ARROW_ALPHA_WHILE_MOVE_UNAVAILABLE);
 		if (moveResponse?.my_new_coords) {
 			const x = moveResponse.my_new_coords.x;
 			const y = moveResponse.my_new_coords.y;
 			addActionLog({
-				message: `move ${direction.toUpperCase()} received: ${JSON.stringify(
-					{
-						response: "success",
-						x,
-						y,
-					},
-				)}`,
+				message: `move ${direction.toUpperCase()} received: ${JSON.stringify({
+					response: "success",
+					x,
+					y,
+				})}`,
 				color: "limegreen",
 			});
 			const newCoord = {
@@ -413,11 +408,9 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				direction,
 			});
 			addActionLog({
-				message: `move ${direction.toUpperCase()} received: ${JSON.stringify(
-					{
-						response: "failure",
-					},
-				)}`,
+				message: `move ${direction.toUpperCase()} received: ${JSON.stringify({
+					response: "failure",
+				})}`,
 				color: "red",
 			});
 		}
@@ -432,15 +425,8 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 			phaserConfig.tilemap.tileWidth,
 			phaserConfig.tilemap.tileHeight,
 		);
-		const go = game.mainScene.add.image(
-			pixelCoord.x,
-			pixelCoord.y,
-			assetKey,
-		);
-		go.setSize(
-			phaserConfig.tilemap.tileWidth,
-			phaserConfig.tilemap.tileHeight,
-		);
+		const go = game.mainScene.add.image(pixelCoord.x, pixelCoord.y, assetKey);
+		go.setSize(phaserConfig.tilemap.tileWidth, phaserConfig.tilemap.tileHeight);
 		go.setDisplaySize(
 			phaserConfig.tilemap.tileWidth,
 			phaserConfig.tilemap.tileHeight,
@@ -457,15 +443,8 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 			phaserConfig.tilemap.tileWidth,
 			phaserConfig.tilemap.tileHeight,
 		);
-		const go = game.mainScene.add.image(
-			pixelCoord.x,
-			pixelCoord.y,
-			assetKey,
-		);
-		go.setSize(
-			phaserConfig.tilemap.tileWidth,
-			phaserConfig.tilemap.tileHeight,
-		);
+		const go = game.mainScene.add.image(pixelCoord.x, pixelCoord.y, assetKey);
+		go.setSize(phaserConfig.tilemap.tileWidth, phaserConfig.tilemap.tileHeight);
 		go.setDisplaySize(
 			phaserConfig.tilemap.tileWidth,
 			phaserConfig.tilemap.tileHeight,
@@ -509,15 +488,11 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				// Handle directional input
 				if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.LEFT) {
 					handleMovePlayer(Direction.LEFT);
-				} else if (
-					key.keyCode === Phaser.Input.Keyboard.KeyCodes.RIGHT
-				) {
+				} else if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.RIGHT) {
 					handleMovePlayer(Direction.RIGHT);
 				} else if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.UP) {
 					handleMovePlayer(Direction.UP);
-				} else if (
-					key.keyCode === Phaser.Input.Keyboard.KeyCodes.DOWN
-				) {
+				} else if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.DOWN) {
 					handleMovePlayer(Direction.DOWN);
 				}
 			});

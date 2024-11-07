@@ -1,11 +1,17 @@
 import { useEffect, useState } from "react";
 import tileMapConfig from "../../const/tile.config.json";
-import { Button } from "../Button";
 import { TerrainType } from "../../game/store";
 import {
+<<<<<<< HEAD
 	findBorderCoordinates,
 	Grid,
 } from "../../utils/findBorderCoords";
+=======
+	type Grid,
+	findBorderingWaterCoordinates,
+} from "../../utils/findBorderingWaterCoordinates";
+import { Button } from "../Button";
+>>>>>>> 3999995 (chore(client): lint)
 
 /* TileMapEditor allows us to easily visualize and edit the game map.
 Clicking on the tiles toggles them between LAND and WATER.
@@ -69,14 +75,14 @@ export const TileMapEditor = () => {
 			{isVisible && (
 				<div
 					style={{
-						position: "absolute" as "absolute",
+						position: "absolute" as const,
 						top: 0,
 						left: 0,
 						minWidth: "100vw",
 						minHeight: "100vh",
 						backgroundColor: "rgba(0, 0, 0, 1)",
 						alignItems: "center",
-						textAlign: "center" as "center",
+						textAlign: "center" as const,
 						zIndex: 1000,
 					}}
 				>
@@ -97,8 +103,7 @@ export const TileMapEditor = () => {
 						{Object.keys(gridData).map((key) => {
 							const [x, y] = key.split(",").map(Number);
 							const terrainType =
-								gridData[key as keyof typeof gridData]
-									.terrainType;
+								gridData[key as keyof typeof gridData].terrainType;
 							return (
 								<div
 									key={key}
@@ -109,11 +114,9 @@ export const TileMapEditor = () => {
 										backgroundColor:
 											terrainType === "LAND"
 												? "green"
-												: waterCoordinatesBorderingLand.includes(
-														key,
-												  )
-												? "#03a9f4"
-												: "blue",
+												: waterCoordinatesBorderingLand.includes(key)
+													? "#03a9f4"
+													: "blue",
 										display: "flex",
 										alignItems: "center",
 										justifyContent: "center",
@@ -124,8 +127,8 @@ export const TileMapEditor = () => {
 									{PLAYER_COORDS.includes(key)
 										? "P"
 										: ITEM_COORDS.includes(key)
-										? "I"
-										: ""}
+											? "I"
+											: ""}
 								</div>
 							);
 						})}

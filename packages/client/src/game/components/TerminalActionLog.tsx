@@ -1,5 +1,6 @@
-import React, { useEffect, useRef } from "react";
-import useStore, { ActionLog } from "../store";
+import type React from "react";
+import { useEffect, useRef } from "react";
+import useStore, { type ActionLog } from "../store";
 
 const actionLogStyles = {
 	container: {
@@ -8,21 +9,21 @@ const actionLogStyles = {
 		height: "100vh",
 		width: "340px",
 		fontFamily: "monospace",
-		position: "absolute" as "absolute",
+		position: "absolute" as const,
 		top: "0",
 		right: "0",
 		display: "flex",
-		flexDirection: "column" as "column",
+		flexDirection: "column" as const,
 		padding: "0 15px",
 	},
 	log: {
-		overflowY: "scroll" as "scroll",
+		overflowY: "scroll" as const,
 		flex: 1,
 		maxHeight: "calc(100% - 45px)",
 	},
 	message: {
 		marginBottom: "5px",
-		wordBreak: "break-word" as "break-word",
+		wordBreak: "break-word" as const,
 		fontSize: "12px",
 	},
 	header: {
@@ -59,10 +60,7 @@ export const TerminalActionLog: React.FC = () => {
 							style={{
 								...actionLogStyles.message,
 								color: log?.color,
-								fontWeight:
-									index === logs.length - 1
-										? "bold"
-										: "normal",
+								fontWeight: index === logs.length - 1 ? "bold" : "normal",
 							}}
 						>
 							{ACTION_LOG_PREFIX} {log?.message}

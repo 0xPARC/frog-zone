@@ -34,13 +34,16 @@ const createApi = () => {
 			direction: direction,
 		};
 
-		const response = await fetch(`${serverUrl}/${IS_MOCK ? "mock_move" : "move"}`, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
+		const response = await fetch(
+			`${serverUrl}/${IS_MOCK ? "mock_move" : "move"}`,
+			{
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(moveRequest),
 			},
-			body: JSON.stringify(moveRequest),
-		});
+		);
 
 		if (!response.ok) {
 			throw new Error("Failed to queue move");

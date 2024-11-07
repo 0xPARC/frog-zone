@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from "react";
-import useStore from "../store";
+import type React from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../../components/Button";
-import { updatePlayer } from "../../utils/updatePlayer";
 import { updateGameStatus } from "../../utils/updateGameStatus";
+import { updatePlayer } from "../../utils/updatePlayer";
+import useStore from "../store";
 
 const TIME_UNTIL_ARE_YOU_THERE = 3000 * 1000;
 const TIME_UNTIL_AUTO_END = 3000 * 1000;
 
 const modalStyles = {
 	overlay: {
-		position: "fixed" as "fixed",
+		position: "fixed" as const,
 		top: 0,
 		left: 0,
 		right: 0,
@@ -24,7 +25,7 @@ const modalStyles = {
 		padding: "20px",
 		borderRadius: "8px",
 		maxWidth: "400px",
-		textAlign: "center" as "center",
+		textAlign: "center" as const,
 	},
 };
 
@@ -129,10 +130,7 @@ export const AreYouThere: React.FC = () => {
 	return (
 		<>
 			{showModal && (
-				<AreYouThereModal
-					onClose={closeModal}
-					onTimeout={handleGameEnd}
-				/>
+				<AreYouThereModal onClose={closeModal} onTimeout={handleGameEnd} />
 			)}
 		</>
 	);

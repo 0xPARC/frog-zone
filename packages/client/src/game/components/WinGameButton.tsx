@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import type React from "react";
+import { useState } from "react";
 import { updateGameStatus } from "../../utils/updateGameStatus";
-import useStore from "../store";
 import { updatePlayer } from "../../utils/updatePlayer";
+import useStore from "../store";
 
 interface WinGameButtonProps {
 	gameId: string;
@@ -53,9 +54,7 @@ const WinGameButton: React.FC<WinGameButtonProps> = ({ gameId }) => {
 				{loading ? "Updating..." : "Win Game"}
 			</button>
 			{error && <p style={{ color: "red" }}>{error}</p>}
-			{successMessage && (
-				<p style={{ color: "green" }}>{successMessage}</p>
-			)}
+			{successMessage && <p style={{ color: "green" }}>{successMessage}</p>}
 		</div>
 	);
 };

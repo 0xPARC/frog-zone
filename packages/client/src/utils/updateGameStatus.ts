@@ -1,4 +1,4 @@
-import { GameResponse } from "./fetchGame";
+import type { GameResponse } from "./fetchGame";
 
 export interface GameStatusResponse {
 	success: boolean;
@@ -23,9 +23,7 @@ export const updateGameStatus = async ({
 		});
 
 		if (!response.ok) {
-			throw new Error(
-				`Failed to update game status: ${response.statusText}`,
-			);
+			throw new Error(`Failed to update game status: ${response.statusText}`);
 		}
 
 		const data: GameStatusResponse = await response.json();

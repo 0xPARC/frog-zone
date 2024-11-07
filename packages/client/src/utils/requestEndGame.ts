@@ -1,4 +1,4 @@
-import { PlayerGame } from "./updatePlayer";
+import type { PlayerGame } from "./updatePlayer";
 
 export interface PlayerResponse {
 	success: boolean;
@@ -21,9 +21,7 @@ export const requestEndGame = async (args: {
 		});
 
 		if (!response.ok) {
-			throw new Error(
-				`Failed to end game for player: ${response.statusText}`,
-			);
+			throw new Error(`Failed to end game for player: ${response.statusText}`);
 		}
 
 		const data: PlayerResponse = await response.json();

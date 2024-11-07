@@ -1,5 +1,5 @@
 import { IS_MOCK, SERVER_URL } from "../const/env.const";
-import { Coord, Tile, TileWithCoord } from "../game/store";
+import type { Coord, Tile, TileWithCoord } from "../game/store";
 
 /*
 
@@ -88,14 +88,14 @@ export const fetchTiles = async (
 	coords_to_fetch: Coord[],
 ): Promise<TileWithCoord[]> => {
 	try {
-    const body = JSON.stringify({
-				coords: coords_to_fetch,
-			});
-    let route = "get_cells";
+		const body = JSON.stringify({
+			coords: coords_to_fetch,
+		});
+		let route = "get_cells";
 
-    if (coords_to_fetch.length === 5) route = "get_five_cells";
+		if (coords_to_fetch.length === 5) route = "get_five_cells";
 
-    /*
+		/*
 
     // 20% perf optimization we can add later
 
@@ -120,9 +120,9 @@ export const fetchTiles = async (
     }
     */
 
-    if (IS_MOCK) route = "mock_get_cells"
+		if (IS_MOCK) route = "mock_get_cells";
 
-    const response = await fetch(`${SERVER_URL}/${route}`, {
+		const response = await fetch(`${SERVER_URL}/${route}`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
