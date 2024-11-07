@@ -8,11 +8,8 @@ import { getCurveFromName } from "ffjavascript";
 
 const GPC_ARTIFACTS_PATH = path.join(
   process.cwd(),
-  "..",
-  "..",
-  "node_modules",
-  "@pcd",
-  "proto-pod-gpc-artifacts",
+  "public",
+  "artifacts",
 );
 
 export async function OPTIONS() {
