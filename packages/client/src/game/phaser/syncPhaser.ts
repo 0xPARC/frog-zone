@@ -1,4 +1,5 @@
 import {
+	awaitTween,
 	getCenterPixelCoord,
 	pixelCoordToTileCoord,
 } from "@smallbraingames/small-phaser";
@@ -324,8 +325,9 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				.image(newPxCoord.x, newPxCoord.y, phaserConfig.assetKeys.arrow)
 				.setInteractive();
 			arrow.setAlpha(ARROW_ALPHA_WHILE_MOVE_UNAVAILABLE);
+			arrow.setScale(1);
 			arrow.setSize(tileWidth, tileHeight);
-			arrow.setDisplaySize(tileWidth * 0.6, tileHeight * 0.6);
+			arrow.setDisplaySize(tileHeight * 0.6, tileWidth * 0.6);
 			arrow.setDepth(4);
 			arrow.setRotation(rotation[direction]);
 			arrow.on("pointerdown", () => {
@@ -459,18 +461,26 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		});
 	};
 
+	let wasMoveAvailable = true;
 	game.mainScene.time.addEvent({
 		delay: 200,
 		loop: true,
 		callback: () => {
-			if (isMoveAvailable()) {
+			if (isMoveAvailable() && !wasMoveAvailable) {
 				Object.keys(directionArrows).forEach((key) => {
 					const d = key as Direction;
 					if (directionArrows[d]) {
-						directionArrows[d].setAlpha(1);
+						awaitTween({
+							targets: directionArrows[d],
+							duration: phaserConfig.animationDuration,
+							alpha: 1,
+						});
 					}
+					wasMoveAvailable = true;
 				});
+				return;
 			}
+			wasMoveAvailable = false;
 		},
 	});
 
