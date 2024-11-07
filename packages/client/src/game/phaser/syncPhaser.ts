@@ -259,7 +259,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		);
 		const x = pixelCoord.x;
 		const y = pixelCoord.y;
-		game.mainScene.cameras.main.centerOn(x, y);
+		game.mainScene.cameras.main.pan(x, y);
 	};
 
 	const drawSelectedPlayer = (coord: Coord) => {
