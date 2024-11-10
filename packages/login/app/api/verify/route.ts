@@ -3,7 +3,7 @@ import { getTicketProofRequest } from "@/utils/ticketProof";
 import { gpcVerify } from "@pcd/gpc";
 import { NextResponse } from "next/server";
 import path from "path";
-// @ts-ignore ffjavascript does not have types
+// @ts-expect-error ffjavascript does not have types
 import { getCurveFromName } from "ffjavascript";
 
 const GPC_ARTIFACTS_PATH = path.join(
@@ -28,9 +28,9 @@ export async function POST(request: Request) {
     // Multi-threaded verification seems to be broken in NextJS, so we need to
     // initialize the curve in single-threaded mode.
 
-    // @ts-ignore
+    // @ts-expect-error ffjavascript does not have types
     if (!globalThis.curve_bn128) {
-      // @ts-ignore
+      // @ts-expect-error ffjavascript does not have types
       globalThis.curve_bn128 = getCurveFromName("bn128", {
         singleThread: true,
       });
