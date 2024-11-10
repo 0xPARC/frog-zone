@@ -5,6 +5,8 @@ import { NextResponse } from "next/server";
 // @ts-expect-error ffjavascript does not have types
 import { getCurveFromName } from "ffjavascript";
 import urljoin from "url-join";
+import path from "path";
+import fs from "fs";
 
 // const GPC_ARTIFACTS_PATH = path.join(
 //   "/var/task",
@@ -36,6 +38,8 @@ export async function POST(request: Request) {
         singleThread: true,
       });
     }
+
+    throw new Error(fs.readdirSync(path.join(process.cwd())).join("|"));
 
     console.log("VERIFY REQ");
 
