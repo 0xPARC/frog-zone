@@ -46,7 +46,7 @@ export async function POST(request: Request) {
         circuitIdentifier: boundConfig.circuitIdentifier,
       },
       revealedClaims,
-      GPC_ARTIFACTS_PATH,
+      new URL(request.url).origin,
     );
 
     console.log("GCP VERIFY", res);
