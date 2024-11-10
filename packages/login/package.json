@@ -21,7 +21,8 @@
 		"prisma": "^5.20.0",
 		"react": "^18",
 		"react-dom": "^18",
-		"sqlite3": "^5.1.7"
+		"sqlite3": "^5.1.7",
+		"url-join": "^5.0.0"
 	},
 	"devDependencies": {
 		"@types/node": "^20",

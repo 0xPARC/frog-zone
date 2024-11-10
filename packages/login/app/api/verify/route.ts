@@ -4,6 +4,7 @@ import { gpcVerify } from "@pcd/gpc";
 import { NextResponse } from "next/server";
 // @ts-expect-error ffjavascript does not have types
 import { getCurveFromName } from "ffjavascript";
+import urljoin from "url-join";
 
 // const GPC_ARTIFACTS_PATH = path.join(
 //   "/var/task",
@@ -45,7 +46,7 @@ export async function POST(request: Request) {
         circuitIdentifier: boundConfig.circuitIdentifier,
       },
       revealedClaims,
-      new URL(request.url).origin,
+      urljoin(new URL(request.url).origin, "artifacts"),
     );
 
     console.log("GCP VERIFY", res);
