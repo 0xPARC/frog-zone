@@ -20,8 +20,12 @@ export type Tile = {
 };
 
 export enum TerrainType {
-	LAND = "LAND",
+  NONE = "NONE",
+  GRASS = "GRASS",
 	WATER = "WATER",
+	SAND = "SAND",
+	ROCK = "ROCK",
+	ICE = "ICE"
 }
 
 export type TileWithCoord = Tile & {
