@@ -7,9 +7,7 @@ import path from "path";
 import { getCurveFromName } from "ffjavascript";
 
 const GPC_ARTIFACTS_PATH = path.join(
-  process.cwd(),
-  "..",
-  "..",
+  "/var/task",
   ".output",
   "public",
   "artifacts",
