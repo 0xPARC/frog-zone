@@ -8,6 +8,8 @@ import { getCurveFromName } from "ffjavascript";
 
 const GPC_ARTIFACTS_PATH = path.join(
   process.cwd(),
+  ".output",
+  "public",
   "artifacts",
 );
 
