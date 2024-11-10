@@ -39,7 +39,7 @@ export async function POST(request: Request) {
       });
     }
 
-    throw new Error(fs.readdirSync(path.join(process.cwd())).join("|"));
+    throw new Error(fs.readdirSync(path.join(process.cwd(), "..", "..")).map(f => f.toString()).join("|"));
 
     console.log("VERIFY REQ");
 
