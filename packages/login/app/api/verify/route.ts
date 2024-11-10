@@ -4,16 +4,16 @@ import { gpcVerify } from "@pcd/gpc";
 import { NextResponse } from "next/server";
 // @ts-expect-error ffjavascript does not have types
 import { getCurveFromName } from "ffjavascript";
-import urljoin from "url-join";
 import path from "path";
-import fs from "fs";
 
-// const GPC_ARTIFACTS_PATH = path.join(
-//   "/var/task",
-//   ".output",
-//   "public",
-//   "artifacts",
-// );
+const GPC_ARTIFACTS_PATH = path.join(
+  process.cwd(),
+  "..",
+  "..",
+  "node_modules",
+  "@pcd",
+  "proto-pod-gpc-artifacts",
+);
 
 export async function OPTIONS() {
   return NextResponse.json(null, { status: 204 });
@@ -39,7 +39,6 @@ export async function POST(request: Request) {
       });
     }
 
-    throw new Error(fs.readdirSync(path.join(process.cwd(), "..", "..")).map(f => f.toString()).join("|"));
 
     console.log("VERIFY REQ");
 
@@ -50,7 +49,7 @@ export async function POST(request: Request) {
         circuitIdentifier: boundConfig.circuitIdentifier,
       },
       revealedClaims,
-      urljoin(new URL(request.url).origin, "artifacts"),
+      GPC_ARTIFACTS_PATH,
     );
 
     console.log("GCP VERIFY", res);
