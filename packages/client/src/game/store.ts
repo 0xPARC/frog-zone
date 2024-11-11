@@ -11,6 +11,7 @@ export type TileEntityType = "None" | "Player" | "Item" | "Monster";
 
 export type Tile = {
 	atk: number;
+  points: number;
 	entity_id: number;
 	entity_type: TileEntityType;
 	hp: number;
@@ -37,17 +38,20 @@ export type Player = {
 	id: number;
 	hp: number;
 	atk: number;
+  points: number;
 	coord: Coord;
 };
 
 export type Item = {
 	hp: number;
 	atk: number;
+  points: number;
 };
 
 export type Monster = {
 	hp: number;
 	atk: number;
+  points: number;
 };
 
 type ItemEffect = {
@@ -98,7 +102,9 @@ interface State {
 	pickupItem: (playerId: number, coord: Coord, itemEffect: ItemEffect) => void;
 	setGameState: (state: GameState) => void;
 	setLastMoveTimeStamp: (time: number) => void;
-	getPlayerById: (id: number) => Player | null;
+	getPlayerById: (id: number | null) => Player | null;
+	getItemById: (id: number | null) => Item | null;
+	getMonsterById: (id: number | null) => Monster | null;
 	updateGrid: (viewportCoords: Coord[], newTiles: TileWithCoord[]) => void;
 	addActionLog: (log: ActionLog) => void;
 }
@@ -133,6 +139,7 @@ const initializeGrid = (
 				atk: 0,
 				entity_id: 0,
 				hp: 0,
+				points: 0,
 			});
 		}
 	}
@@ -203,9 +210,24 @@ const useStore = create<State>()(
 		setGameState: (state) => set({ gameState: state }),
 		setLastMoveTimeStamp: (time) => set({ lastMoveTimeStamp: time }),
 		getPlayerById: (id) => {
+		  if (id === null) return null;
 			const players = get().players;
 			return (
 				Array.from(players.values()).find((player) => player.id === id) || null
+			);
+		},
+		getItemById: (id) => {
+		  if (id === null) return null;
+			const items = get().items;
+			return (
+				Array.from(items.values()).find((item) => item.id === id) || null
+			);
+		},
+		getMonsterById: (id) => {
+		  if (id === null) return null;
+			const monsters = get().monsters;
+			return (
+				Array.from(monsters.values()).find((monster) => monster.id === id) || null
 			);
 		},
 		updateGrid: (viewportCoords, newTiles) => {

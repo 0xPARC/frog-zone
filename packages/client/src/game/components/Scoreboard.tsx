@@ -42,7 +42,7 @@ export const Scoreboard: React.FC = () => {
 										{index === 0 && " 🏆"}
 									</td>
 									<td style={styles.td}>
-										<span style={styles.score}>{player.score}</span>
+										<span style={styles.score}>{player.score * 10}</span>
 									</td>
 								</tr>
 							))}

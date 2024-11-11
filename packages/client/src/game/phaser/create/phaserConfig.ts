@@ -26,7 +26,7 @@ const config = {
 		"diamond sword": "diamond sword",
 		treasure: "treasure",
 		imp: "imp",
-		ogre: "ogre",
+		"heavy enemy": "heavy enemy",
 		bat: "bat",
 		dragon: "dragon",
 		"prickly bush": "prickly bush",

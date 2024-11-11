@@ -3,6 +3,7 @@ type PlayerData = {
 	player_data: {
 		atk: number;
 		hp: number;
+    points: number;
 		loc: {
 			x: number;
 			y: number;

@@ -6,6 +6,7 @@ import { PlayerInfo } from "./game/components/PlayerInfo";
 import { TileInfo } from "./game/components/TileInfo";
 import { WaitingForPlayersOverlay } from "./game/components/WaitingForPlayersOverlay";
 import WinGameButton from "./game/components/WinGameButton";
+import { GameTimer } from "./game/components/GameTimer";
 import useStore from "./game/store";
 import { getPlayerId } from "./utils/getPlayerId";
 
@@ -14,11 +15,12 @@ import { AreYouThere } from "./game/components/AreYouThere";
 import { EnterGameAnimation } from "./game/components/EnterGameAnimation";
 import { QuitGameModal } from "./game/components/QuitGameModal";
 import { TerminalActionLog } from "./game/components/TerminalActionLog";
+import Dead from "./game/components/Dead";
 
 const MIN_PLAYERS = 4;
 const MIN_PLAYERS_TO_FORCE_START = 1;
 function App() {
-	const playerId = getPlayerId();
+	const playerId = Number(getPlayerId());
 	const gameId = useStore((state) => state.game?.gameId);
 	const gameStatus = useStore((state) => state.game?.status);
 	const gameMachines = useStore((state) => state.game?.machines);
@@ -28,7 +30,8 @@ function App() {
 			{!DEV_MODE && <Login />}
 			{isLoggedIn && (
 				<>
-					<PlayerInfo playerId={Number(playerId)} />
+          <Dead playerId={playerId} />
+					<PlayerInfo playerId={playerId} />
 					<TileInfo />
 					<MoveCountdownTimer />
 					<TerminalActionLog />
@@ -36,7 +39,7 @@ function App() {
 					{gameId && gameStatus === "ongoing" && (
 						<>
 							<EnterGameAnimation />
-							<div
+              {/*<div
 								style={{
 									position: "absolute",
 									top: "10px",
@@ -45,8 +48,9 @@ function App() {
 								}}
 							>
 								<WinGameButton gameId={gameId} />
-							</div>
+							</div>*/}
 							<AreYouThere />
+							<GameTimer playerId={playerId} />
 						</>
 					)}
 

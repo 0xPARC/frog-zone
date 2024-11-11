@@ -61,6 +61,10 @@ const createPhaserGame = async () => {
 				"/assets/ITEM_09_WOODEN_SWORD.svg",
 			);
 			scene.load.image(
+				phaserConfig.assetKeys.treasure,
+				"/assets/ITEM_11_TREASURE.svg",
+			);
+			scene.load.image(
 				phaserConfig.assetKeys.dragon,
 				"/assets/MONSTER_00_DRAGON.svg",
 			);
@@ -69,7 +73,7 @@ const createPhaserGame = async () => {
 				"/assets/MONSTER_01_PRICKLY_BUSH.svg",
 			);
 			scene.load.image(
-				phaserConfig.assetKeys.ogre,
+				phaserConfig.assetKeys["heavy enemy"],
 				"/assets/MONSTER_10_HEAVY_ENEMY.svg",
 			);
 			scene.load.image(

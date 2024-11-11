@@ -212,6 +212,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 						hp: tile.hp,
 						atk: tile.atk,
 						coord: tile.coord,
+						points: tile.points,
 					});
 				}
 				if (tile.entity_type === "None") {
@@ -452,9 +453,12 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 			tileFetcher.updateCoordinates(newCoord);
 			const publicKey = useStore.getState().publicKey as string;
 			const gameId = useStore.getState().game?.gameId as string;
+
+			const selectedPlayerId = Number(getPlayerId());
+			const player = await fetchPlayer(selectedPlayerId);
 			updatePlayer({
 				publicKey,
-				score: Math.floor(Math.random() * 89), // TODO: implement real score, for now this is random between 0 - 88
+				score: player?.player_data.points || 0,
 				gameId,
 			});
 		} else {
