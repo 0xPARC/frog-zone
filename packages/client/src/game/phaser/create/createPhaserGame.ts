@@ -97,7 +97,7 @@ const createPhaserGame = async () => {
 			);
 			scene.load.audio(
 				phaserConfig.assetKeys.sounds.success,
-				"/assets/audio/success.wav",
+				"/assets/audio/success.m4a",
 			);
 		},
 	});

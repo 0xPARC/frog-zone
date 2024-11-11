@@ -49,6 +49,10 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 	};
 	const isPreviousMovePending = false;
 
+	const moveMadeSound = game.mainScene.sound.add(phaserConfig.assetKeys.sounds.click, {loop: false});
+	const moveSuccessSound = game.mainScene.sound.add(phaserConfig.assetKeys.sounds.success, {loop: false});
+	const moveReadySound = game.mainScene.sound.add(phaserConfig.assetKeys.sounds.ready, {loop: false});
+
 	const isMoveAvailable = () => {
 		const lastMoveTime = useStore.getState().lastMoveTimeStamp;
 		const now = Date.now();
@@ -370,7 +374,9 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 			color: "darkorange",
 		});
 
+    moveMadeSound.play();
 		const moveResponse = await api.move(selectedPlayerId, direction);
+    moveSuccessSound.play();
 		directionArrows[direction]?.clearTint();
 		directionArrows[direction]?.setAlpha(ARROW_ALPHA_WHILE_MOVE_UNAVAILABLE);
 		if (moveResponse?.my_new_coords) {
@@ -462,7 +468,8 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		delay: 200,
 		loop: true,
 		callback: () => {
-			if (isMoveAvailable() && !wasMoveAvailable) {
+      const moveAvailable = isMoveAvailable();
+			if (moveAvailable && !wasMoveAvailable) {
 				Object.keys(directionArrows).forEach((key) => {
 					const d = key as Direction;
 					if (directionArrows[d]) {
@@ -472,11 +479,12 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 							alpha: 1,
 						});
 					}
+					moveReadySound.play();
 					wasMoveAvailable = true;
 				});
 				return;
 			}
-			wasMoveAvailable = false;
+			wasMoveAvailable = moveAvailable;
 		},
 	});
 
