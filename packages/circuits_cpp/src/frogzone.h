@@ -1,10 +1,10 @@
 #ifndef FROGZONE_H
 #define FROGZONE_H
 
-// #define NUM_OBSTACLES 96
+#define NUM_OBSTACLES 193
 #define NUM_PLAYERS 4
-#define NUM_ITEMS 10
-#define NUM_MONSTERS 6
+#define NUM_ITEMS 12
+#define NUM_MONSTERS 23
 
 #define HEIGHT 32
 #define WIDTH 32
