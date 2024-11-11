@@ -388,7 +388,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		}
 
 		addActionLog({
-			message: `move ${direction.toUpperCase()} requested`,
+			message: `move request Encrypt(${direction.toUpperCase()}) submitted`,
 			color: "darkorange",
 		});
 
@@ -436,7 +436,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 			const x = moveResponse.my_new_coords.x;
 			const y = moveResponse.my_new_coords.y;
 			addActionLog({
-				message: `move ${direction.toUpperCase()} received: ${JSON.stringify({
+				message: `encrypted move ${direction.toUpperCase()} received: ${JSON.stringify({
 					response: "success",
 					x,
 					y,
@@ -468,7 +468,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				direction,
 			});
 			addActionLog({
-				message: `move ${direction.toUpperCase()} received: ${JSON.stringify({
+				message: `encrypted move ${direction.toUpperCase()} received: ${JSON.stringify({
 					response: "failure",
 				})}`,
 				color: "red",

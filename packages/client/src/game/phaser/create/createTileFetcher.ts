@@ -33,9 +33,12 @@ export const createTileFetcher = ({
 		const newTiles = await fetchTiles(initialCoordinate, nextBatch);
 
 		addActionLog({
-			message: `get cells received: ${JSON.stringify({
-				response: "success",
-			})}`,
+			message: `received 5 encrypted tiles from server`,
+			color: "#c2c5c7",
+		});
+
+		addActionLog({
+			message: `successfully decrypted`,
 			color: "#c2c5c7",
 		});
 
