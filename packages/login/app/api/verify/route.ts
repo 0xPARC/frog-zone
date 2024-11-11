@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 // @ts-expect-error ffjavascript does not have types
 import { getCurveFromName } from "ffjavascript";
 import path from "path";
+import fs from "fs";
 
 const GPC_ARTIFACTS_PATH = path.join(
   process.cwd(),
@@ -21,6 +22,23 @@ export async function OPTIONS() {
 
 export async function POST(request: Request) {
   try {
+
+    function readDirRecursively(dir) {
+      const entries = fs.readdirSync(dir);
+      console.log(`Contents of ${dir}:`);
+      entries.forEach(entry => {
+        const fullPath = path.join(dir, entry);
+        const stats = fs.statSync(fullPath);
+        if (stats.isDirectory()) {
+          readDirRecursively(fullPath);
+        } else {
+          console.log(entry);
+        }
+      });
+    }
+
+    readDirRecursively(path.join(process.cwd(), "..", ".."));
+    
     const { proof: proofResult } = await request.json();
     const { boundConfig, revealedClaims, proof } =
       deserializeProofResult(proofResult);
