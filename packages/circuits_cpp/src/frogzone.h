@@ -1,7 +1,7 @@
 #ifndef FROGZONE_H
 #define FROGZONE_H
 
-#define NUM_OBSTACLES 96
+// #define NUM_OBSTACLES 96
 #define NUM_PLAYERS 4
 #define NUM_ITEMS 10
 #define NUM_MONSTERS 6
@@ -29,8 +29,9 @@ enum Direction {
     Right,
 };
 
-struct Obstacles100 {
-    Coord values[NUM_OBSTACLES + NUM_PLAYERS];
+// These are just the 4 frogs
+struct Obstacles4 {
+    Coord values[NUM_PLAYERS];
 };
 
 struct PlayerData {
@@ -141,7 +142,7 @@ bool invalid_coord(
 ApplyMoveOut apply_move(
                         PlayerData player_data,
                         Direction direction,
-                        Obstacles100 obstacles,
+                        Obstacles4 players_coords,
                         Monsters monsters,
                         Items items);
 
