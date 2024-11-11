@@ -3,7 +3,7 @@ import { updateGameStatus } from "../../utils/updateGameStatus";
 import { updatePlayer } from "../../utils/updatePlayer";
 import useStore from "../store";
 
-const TIME_UNTIL_AUTO_END = 10 * 1000;
+const TIME_UNTIL_AUTO_END = 300 * 1000;
 
 export const GameTimer = ({playerId}: {playerId: number}) => {
   const gameId = useStore.getState().game?.gameId as string;
