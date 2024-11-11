@@ -6,8 +6,8 @@
 #define NUM_ITEMS 10
 #define NUM_MONSTERS 6
 
-#define HEIGHT 64
-#define WIDTH 64
+#define HEIGHT 32
+#define WIDTH 32
 
 struct Coord {
     unsigned char x;

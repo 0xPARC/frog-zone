@@ -237,7 +237,7 @@ async fn main() -> Result<(), rocket::Error> {
         .init();
 
     let shared_state: Arc<Mutex<WorkerState>> = Arc::new(Mutex::new(WorkerState {
-        zone: None, // 64x64 zone, will be initialized when /init is called.
+        zone: None, // 32x32 zone, will be initialized when /init is called.
         evaluator: PhantomEvaluator::new(PhantomParam::I_4P_60),
     }));
 

@@ -2,10 +2,11 @@ use core::array::from_fn;
 use serde::{Deserialize, Serialize};
 
 use crate::client::{Direction, EntityType};
+use crate::initial_data::{get_all_items, get_all_monsters, get_all_obstacles};
 
-const NUM_ITEMS: usize = 10;
-const NUM_MONSTERS: usize = 6;
-const NUM_OBSTACLES: usize = 96;
+const NUM_ITEMS: usize = 12;
+const NUM_MONSTERS: usize = 23;
+const NUM_OBSTACLES: usize = 193;
 
 pub type MockEncrypted<T> = T;
 
@@ -89,7 +90,7 @@ pub struct MockZone {
     pub items: [Item; NUM_ITEMS],
     pub monsters: [Monster; NUM_MONSTERS],
     pub obstacles: [MockEncryptedCoord; NUM_OBSTACLES],
-    pub precomputed_ids: [MockEncrypted<u8>; 20],
+    pub precomputed_ids: [MockEncrypted<u8>; 34],
 }
 
 pub fn fhe_apply_move_raw(
@@ -419,8 +420,8 @@ impl MockZone {
                 id: 0,
                 data: PlayerEncryptedData {
                     loc: MockEncryptedCoord {
-                        x: pk_encrypt(1),
-                        y: pk_encrypt(0),
+                        x: pk_encrypt(4),
+                        y: pk_encrypt(28),
                     },
                     hp: pk_encrypt(5),
                     atk: pk_encrypt(1),
@@ -430,8 +431,8 @@ impl MockZone {
                 id: 1,
                 data: PlayerEncryptedData {
                     loc: MockEncryptedCoord {
-                        x: pk_encrypt(11),
-                        y: pk_encrypt(0),
+                        x: pk_encrypt(20),
+                        y: pk_encrypt(28),
                     },
                     hp: pk_encrypt(5),
                     atk: pk_encrypt(1),
@@ -441,8 +442,8 @@ impl MockZone {
                 id: 2,
                 data: PlayerEncryptedData {
                     loc: MockEncryptedCoord {
-                        x: pk_encrypt(21),
-                        y: pk_encrypt(0),
+                        x: pk_encrypt(29),
+                        y: pk_encrypt(29),
                     },
                     hp: pk_encrypt(5),
                     atk: pk_encrypt(1),
@@ -452,8 +453,8 @@ impl MockZone {
                 id: 3,
                 data: PlayerEncryptedData {
                     loc: MockEncryptedCoord {
-                        x: pk_encrypt(2),
-                        y: pk_encrypt(0),
+                        x: pk_encrypt(13),
+                        y: pk_encrypt(30),
                     },
                     hp: pk_encrypt(5),
                     atk: pk_encrypt(1),
@@ -461,40 +462,74 @@ impl MockZone {
             },
         ];
 
-        let items = from_fn(|i| Item {
-            id: i,
+        let filler_item = Item {
+            id: 0,
             data: ItemEncryptedData {
                 loc: MockEncryptedCoord {
-                    x: pk_encrypt(i as _),
-                    y: pk_encrypt(i as _),
+                    x: pk_encrypt(0),
+                    y: pk_encrypt(0),
                 },
-                hp: pk_encrypt(1),
-                atk: pk_encrypt(1),
+                hp: pk_encrypt(0),
+                atk: pk_encrypt(0),
                 is_consumed: pk_encrypt(false),
             },
-        });
+        };
+        let mut items: [Item; NUM_ITEMS] = from_fn(|_| filler_item.clone());
+        let plaintext_items = get_all_items();
+        for (idx, plaintext_item) in plaintext_items.iter().enumerate() {
+            items[idx] = Item {
+                id: idx,
+                data: ItemEncryptedData {
+                    loc: MockEncryptedCoord {
+                        x: pk_encrypt(plaintext_item.x),
+                        y: pk_encrypt(plaintext_item.y),
+                    },
+                    hp: pk_encrypt(plaintext_item.hp),
+                    atk: pk_encrypt(plaintext_item.atk),
+                    is_consumed: pk_encrypt(false),
+                },
+            };
+        }
 
-        let monsters = from_fn(|i| Monster {
-            id: i,
+        let filler_monster = Monster {
+            id: 0,
             data: MonsterEncryptedData {
                 loc: MockEncryptedCoord {
-                    x: pk_encrypt(i as _),
-                    y: pk_encrypt((i + 2) as _),
+                    x: pk_encrypt(0),
+                    y: pk_encrypt(0),
                 },
-                hp: pk_encrypt(10),
-                atk: pk_encrypt(1),
+                hp: pk_encrypt(0),
+                atk: pk_encrypt(0),
             },
-        });
+        };
+        let mut monsters: [Monster; NUM_MONSTERS] = from_fn(|_| filler_monster.clone());
+        let plaintext_monsters = get_all_monsters();
+        for (idx, plaintext_monster) in plaintext_monsters.iter().enumerate() {
+            monsters[idx] = Monster {
+                id: idx,
+                data: MonsterEncryptedData {
+                    loc: MockEncryptedCoord {
+                        x: pk_encrypt(plaintext_monster.x),
+                        y: pk_encrypt(plaintext_monster.y),
+                    },
+                    hp: pk_encrypt(plaintext_monster.hp),
+                    atk: pk_encrypt(plaintext_monster.atk),
+                },
+            };
+        }
 
         let filler_coord = MockEncryptedCoord {
             x: pk_encrypt(255),
             y: pk_encrypt(255),
         };
         let mut obstacles: [MockEncryptedCoord; NUM_OBSTACLES] = from_fn(|_| filler_coord.clone());
-        obstacles[0] = MockEncryptedCoord {
-            x: pk_encrypt(0),
-            y: pk_encrypt(0),
-        };
+        let plaintext_obstacles = get_all_obstacles();
+        for (idx, plaintext_obstacle) in plaintext_obstacles.iter().enumerate() {
+            obstacles[idx] = MockEncryptedCoord {
+                x: pk_encrypt(plaintext_obstacle.x),
+                y: pk_encrypt(plaintext_obstacle.y),
+            };
+        }
 
         let precomputed_ids = [
             pk_encrypt(0),
@@ -517,6 +552,20 @@ impl MockZone {
             pk_encrypt(17),
             pk_encrypt(18),
             pk_encrypt(19),
+            pk_encrypt(20),
+            pk_encrypt(21),
+            pk_encrypt(22),
+            pk_encrypt(23),
+            pk_encrypt(24),
+            pk_encrypt(25),
+            pk_encrypt(26),
+            pk_encrypt(27),
+            pk_encrypt(28),
+            pk_encrypt(29),
+            pk_encrypt(30),
+            pk_encrypt(31),
+            pk_encrypt(32),
+            pk_encrypt(33),
         ];
 
         Self {
