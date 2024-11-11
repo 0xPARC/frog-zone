@@ -8,10 +8,11 @@ edition = "2021"
 #     "serde",
 #     "dev",
 # ] }
-phantom-zone-evaluator = { git = "https://github.com/gausslabs/phantom-zone", branch = "rewrite", features = [
-    "serde",
-    "dev",
-] }
+# phantom-zone-evaluator = { git = "https://github.com/gausslabs/phantom-zone", branch = "rewrite", features = [
+#     "serde",
+#     "dev",
+# ] }
+phantom-zone-evaluator = { git = "https://github.com/gausslabs/phantom-zone", rev = "55f650debffa5a23b9fd3acc58e08f509f2dd650", features = ["serde", "dev"] }
 
 rand = { version = "0.8.5", default-features = false, features = ["std_rng"] }
 rayon = "1.10.0"

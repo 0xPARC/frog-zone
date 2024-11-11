@@ -67,7 +67,7 @@ struct AppState {
 impl AppState {
     fn new(player_id: usize) -> Self {
         let seed = StdRng::from_entropy().gen::<[u8; 32]>().to_vec();
-        let user = PhantomUser::new(PhantomParam::I_4P_60, player_id, seed);
+        let user = PhantomUser::new(PhantomParam::I_4P_40, player_id, seed);
         Self {
             user,
             player_coord: Coord { x: 0, y: 0 },
