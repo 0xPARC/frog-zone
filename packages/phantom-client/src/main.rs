@@ -634,9 +634,10 @@ async fn mock_move(
     let post_data = {
         let app_state = state.lock().await;
 
+        let random_input = thread_rng().gen();
         proxy::MockMoveRequest {
             player_id: app_state.user.user_id(),
-            direction: request.direction,
+            direction_and_random_input: (request.direction, random_input),
         }
     };
 

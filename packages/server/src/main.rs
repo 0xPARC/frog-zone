@@ -305,7 +305,9 @@ async fn mock_move(
     {
         let mut game_state = state.lock().await;
         let zone = &mut game_state.mock_zone_mut().unwrap();
-        zone.move_player(move_request.player_id, move_request.direction);
+        let (direction, random_input) = move_request.direction_and_random_input;
+        zone.move_player(move_request.player_id, direction);
+        zone.mix_random_input(move_request.player_id, random_input);
     }
 
     {

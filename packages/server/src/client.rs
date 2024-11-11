@@ -68,7 +68,7 @@ pub struct GetPlayerResponse {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MockMoveRequest {
     pub player_id: usize,
-    pub direction: MockEncrypted<Direction>, // Encrypted<Direction>
+    pub direction_and_random_input: MockEncrypted<(Direction, u8)>, // Encrypted<Direction> || EncryptedRandomState
 }
 
 #[derive(Debug, Serialize, Deserialize)]
