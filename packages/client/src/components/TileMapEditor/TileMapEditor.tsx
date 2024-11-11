@@ -1,17 +1,8 @@
 import { useEffect, useState } from "react";
 import tileMapConfig from "../../const/tile.config.json";
 import { TerrainType } from "../../game/store";
-import {
-<<<<<<< HEAD
-	findBorderCoordinates,
-	Grid,
-} from "../../utils/findBorderCoords";
-=======
-	type Grid,
-	findBorderingWaterCoordinates,
-} from "../../utils/findBorderingWaterCoordinates";
+import { type Grid, findBorderCoordinates } from "../../utils/findBorderCoords";
 import { Button } from "../Button";
->>>>>>> 3999995 (chore(client): lint)
 
 /* TileMapEditor allows us to easily visualize and edit the game map.
 Clicking on the tiles toggles them between LAND and WATER.
@@ -24,9 +15,7 @@ const PLAYER_COORDS = ["1,2", "1,3", "4,5", "5,6"];
 export const TileMapEditor = () => {
 	const [gridData, setGridData] = useState(tileMapConfig);
 	const [isVisible, setIsVisible] = useState(false);
-	const waterCoordinatesBorderingLand = findBorderCoordinates(
-		gridData as Grid,
-	);
+	const waterCoordinatesBorderingLand = findBorderCoordinates(gridData as Grid);
 
 	const toggleTerrain = (x: number, y: number) => {
 		const key = `${x},${y}`;

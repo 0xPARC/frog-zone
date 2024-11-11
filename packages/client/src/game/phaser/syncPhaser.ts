@@ -12,10 +12,7 @@ import { updatePlayer } from "../../utils/updatePlayer";
 import { type Api, Direction } from "../createApi";
 import type { PhaserGame } from "../phaser/create/createPhaserGame";
 import type { Coord, TileWithCoord } from "../store";
-import useStore, {
-	GameState,
-	NEXT_MOVE_TIME_MILLIS,
-} from "../store";
+import useStore, { GameState, NEXT_MOVE_TIME_MILLIS } from "../store";
 import { createTileFetcher } from "./create/createTileFetcher";
 import phaserConfig from "./create/phaserConfig";
 
@@ -35,6 +32,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 	const monsters = new Map<EntityId, StoredImage>();
 	const items = new Map<EntityId, StoredImage>();
 	const selectedPlayerId = Number(getPlayerId());
+	if (selectedPlayerId === 0) game.playBackgroundMusic();
 	const player = await fetchPlayer(selectedPlayerId);
 	const initialPlayerCoord = {
 		x: player?.player_data?.loc.x,
@@ -297,8 +295,9 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		const key = `${tileCoord.x},${tileCoord.y}`;
 		const grid = useStore.getState().grid;
 		const tile = grid.get(key);
-		if (tile?.terrainType) return ["GRASS", "ICE", "SAND"].includes(tile?.terrainType);
-    return false;
+		if (tile?.terrainType)
+			return ["GRASS", "ICE", "SAND"].includes(tile?.terrainType);
+		return false;
 	};
 
 	const drawArrowsAroundPlayer = (playerImg: Phaser.GameObjects.Image) => {
@@ -342,8 +341,6 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 	const handleMovePlayer = async (direction: Direction) => {
 		if (!selectedPlayerImg) return;
 
-<<<<<<< HEAD
-=======
 		const newPxCoord = getNextPxCoord(selectedPlayerImg, direction);
 		// prevent the user from moving to an invalid tile, like into water
 		if (
@@ -352,7 +349,6 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 			return;
 		}
 
->>>>>>> 3999995 (chore(client): lint)
 		// record a move was made
 		useStore.getState().setLastMoveTimeStamp(Date.now());
 		// stop the fetcher so we can show the pending move
@@ -457,7 +453,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 	const drawTerrain = () => {
 		const grid = useStore.getState().grid;
 		grid.forEach((tile) => {
-      game.tilemap.putTileWithTerrainAt(tile.coord, tile.terrainType);
+			game.tilemap.putTileWithTerrainAt(tile.coord, tile.terrainType);
 		});
 	};
 

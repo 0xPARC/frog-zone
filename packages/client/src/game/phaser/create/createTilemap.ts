@@ -1,14 +1,8 @@
-<<<<<<< HEAD
-import { awaitTween, createTilemap as createPhaserTilemap } from "@smallbraingames/small-phaser";
-import type { Coord, TerrainType } from "../../store";
-import config from "./phaserConfig";
-=======
 import {
 	awaitTween,
 	createTilemap as createPhaserTilemap,
 } from "@smallbraingames/small-phaser";
-import type { Coord } from "../../store";
->>>>>>> 3999995 (chore(client): lint)
+import type { Coord, TerrainType } from "../../store";
 import useStore from "../../store";
 import config from "./phaserConfig";
 
@@ -112,42 +106,31 @@ const createTilemap = (scene: Phaser.Scene) => {
 		}
 	};
 
-<<<<<<< HEAD
-	const putFogAt = (tileCoord: Coord, opacity: number = 0.5) => {
-		const tileX =
-			(tileCoord.x + gridSize / 2) * tileWidth + startX * tileWidth;
-=======
-	const putFogAt = (tileCoord: Coord, opacity = 0.7) => {
+	const putFogAt = (tileCoord: Coord, opacity = 0.5) => {
 		const tileX = (tileCoord.x + gridSize / 2) * tileWidth + startX * tileWidth;
->>>>>>> 3999995 (chore(client): lint)
 		const tileY =
 			(tileCoord.y + gridSize / 2) * tileHeight + startY * tileHeight;
 
 		const key = `${tileCoord.x},${tileCoord.y}`;
-
-		// if fog already exists, update it
-		if (fogMap[key]) {
+		// if fog already exists, remove it
+		const existingFog = fogMap[key];
+		if (existingFog) {
 			awaitTween({
-				targets: fogMap[key],
-				alpha: opacity,
+				targets: existingFog,
 				duration: config.animationDuration,
+				alpha: opacity,
 			});
 			return;
 		}
 		const fogOverlay = scene.add.graphics();
-<<<<<<< HEAD
-		fogOverlay.fillStyle(0xffffff, 0);
-    fogOverlay.setAlpha(0);
-=======
-		fogOverlay.fillStyle(0xffffff, 1);
+		fogOverlay.fillStyle(0x303030, 1);
 		fogOverlay.setAlpha(0);
->>>>>>> 3999995 (chore(client): lint)
 		fogOverlay.fillRect(tileX, tileY, tileWidth, tileHeight);
 		fogMap[key] = fogOverlay;
 		awaitTween({
 			targets: fogOverlay,
-			alpha: opacity,
 			duration: config.animationDuration,
+			alpha: opacity,
 		});
 	};
 
@@ -166,71 +149,33 @@ const createTilemap = (scene: Phaser.Scene) => {
 		}
 	}
 
-<<<<<<< HEAD
-  const terrainTypeToColor = (terrainType: TerrainType): number => {
-    if (terrainType === "ICE") return 0xbcd9ee;
-    if (terrainType === "WATER") return 0x3fafe4;
-    if (terrainType === "SAND") return 0xfff3bf;
-    if (terrainType === "ROCK") return 0x7e4328;
-    if (terrainType === "GRASS") return 0x68be64;
-    return 0xffffff;
-  }
-=======
-	const putLandAt = (tileCoord: Coord) => {
-		const tileX = (tileCoord.x + gridSize / 2) * tileWidth + startX * tileWidth;
-		const tileY =
-			(tileCoord.y + gridSize / 2) * tileHeight + startY * tileHeight;
->>>>>>> 3999995 (chore(client): lint)
+	const terrainTypeToColor = (terrainType: TerrainType): number => {
+		if (terrainType === "ICE") return 0xbcd9ee;
+		if (terrainType === "WATER") return 0x3fafe4;
+		if (terrainType === "SAND") return 0xfff3bf;
+		if (terrainType === "ROCK") return 0x7e4328;
+		if (terrainType === "GRASS") return 0x68be64;
+		return 0xffffff;
+	};
 
 	const putTileWithTerrainAt = (tileCoord: Coord, terrainType: TerrainType) => {
-  	const tileX =
-  		(tileCoord.x + gridSize / 2) * tileWidth + startX * tileWidth;
-  	const tileY =
-  		(tileCoord.y + gridSize / 2) * tileHeight + startY * tileHeight;
-
-<<<<<<< HEAD
-  	const key = `${tileCoord.x},${tileCoord.y}`;
-  	const overlay = scene.add.graphics();
-    const color = terrainTypeToColor(terrainType);
-  	overlay.fillStyle(color, 1);
-  	overlay.fillRect(tileX, tileY, tileWidth, tileHeight);
-  	overlay.lineStyle(5, 0xffffff, 0.2);
-  	overlay.strokeRect(tileX, tileY, tileWidth, tileHeight);
-    if (terrainType === "ICE") iceMap[key] = overlay;
-    if (terrainType === "WATER") waterMap[key] = overlay;
-    if (terrainType === "SAND") sandMap[key] = overlay;
-    if (terrainType === "ROCK") rockMap[key] = overlay;
-    if (terrainType === "GRASS") grassMap[key] = overlay;
-	}
-=======
-	const putWaterAt = (tileCoord: Coord) => {
 		const tileX = (tileCoord.x + gridSize / 2) * tileWidth + startX * tileWidth;
 		const tileY =
 			(tileCoord.y + gridSize / 2) * tileHeight + startY * tileHeight;
 
 		const key = `${tileCoord.x},${tileCoord.y}`;
-		const waterOverlay = scene.add.graphics();
-		waterOverlay.fillStyle(0x035797, 1);
-		waterOverlay.fillRect(tileX, tileY, tileWidth, tileHeight);
-		waterOverlay.lineStyle(5, 0xffffff, 0.2);
-		waterOverlay.strokeRect(tileX, tileY, tileWidth, tileHeight);
-		waterMap[key] = waterOverlay;
+		const overlay = scene.add.graphics();
+		const color = terrainTypeToColor(terrainType);
+		overlay.fillStyle(color, 1);
+		overlay.fillRect(tileX, tileY, tileWidth, tileHeight);
+		overlay.lineStyle(5, 0xffffff, 0.2);
+		overlay.strokeRect(tileX, tileY, tileWidth, tileHeight);
+		if (terrainType === "ICE") iceMap[key] = overlay;
+		if (terrainType === "WATER") waterMap[key] = overlay;
+		if (terrainType === "SAND") sandMap[key] = overlay;
+		if (terrainType === "ROCK") rockMap[key] = overlay;
+		if (terrainType === "GRASS") grassMap[key] = overlay;
 	};
-
-	const putShallowWaterAt = (tileCoord: Coord) => {
-		const tileX = (tileCoord.x + gridSize / 2) * tileWidth + startX * tileWidth;
-		const tileY =
-			(tileCoord.y + gridSize / 2) * tileHeight + startY * tileHeight;
-
-		const key = `${tileCoord.x},${tileCoord.y}`;
-		const waterOverlay = scene.add.graphics();
-		waterOverlay.fillStyle(0x047dd9, 1);
-		waterOverlay.fillRect(tileX, tileY, tileWidth, tileHeight);
-		waterOverlay.lineStyle(5, 0xffffff, 0.2);
-		waterOverlay.strokeRect(tileX, tileY, tileWidth, tileHeight);
-		waterMap[key] = waterOverlay;
-	};
->>>>>>> 3999995 (chore(client): lint)
 
 	return {
 		tilemap,

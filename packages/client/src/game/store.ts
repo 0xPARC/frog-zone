@@ -5,16 +5,7 @@ enableMapSet();
 import { immer } from "zustand/middleware/immer";
 import tileConfig from "../const/tile.config.json";
 import type { GameResponse } from "../utils/fetchGame";
-import {
-<<<<<<< HEAD
-	findBorderCoordinates,
-	Grid,
-} from "../utils/findBorderCoords";
-=======
-	type Grid,
-	findBorderingWaterCoordinates,
-} from "../utils/findBorderingWaterCoordinates";
->>>>>>> 3999995 (chore(client): lint)
+import { type Grid, findBorderCoordinates } from "../utils/findBorderCoords";
 
 export type TileEntityType = "None" | "Player" | "Item" | "Monster";
 
@@ -26,12 +17,12 @@ export type Tile = {
 };
 
 export enum TerrainType {
-  NONE = "NONE",
-  GRASS = "GRASS",
+	NONE = "NONE",
+	GRASS = "GRASS",
 	WATER = "WATER",
 	SAND = "SAND",
 	ROCK = "ROCK",
-	ICE = "ICE"
+	ICE = "ICE",
 }
 
 export type TileWithCoord = Tile & {
@@ -117,16 +108,14 @@ const initializeGrid = (
 	config: Record<string, { terrainType: string }>,
 ) => {
 	const grid = new Map<string, TileWithCoord>();
-	const borderCoords = findBorderCoordinates(
-		config as Grid,
-	);
+	const borderCoords = findBorderCoordinates(config as Grid);
 
-  // let temp = "";
-  // for (const coord of borderCoords) {
-  //   const [x, y] = coord.split(",").map(Number);
-  //   temp += `PlaintextCoord { x: ${x}, y: ${y} },\n`;
-  // }
-  // console.log(temp);
+	// let temp = "";
+	// for (const coord of borderCoords) {
+	//   const [x, y] = coord.split(",").map(Number);
+	//   temp += `PlaintextCoord { x: ${x}, y: ${y} },\n`;
+	// }
+	// console.log(temp);
 
 	for (let x = 0; x < size; x++) {
 		for (let y = 0; y < size; y++) {
@@ -137,12 +126,7 @@ const initializeGrid = (
 			grid.set(key, {
 				coord: { x, y },
 				terrainType: tileConfig.terrainType as TerrainType,
-<<<<<<< HEAD
-				isBorderingLand:
-					borderCoords.includes(tileConfigKey),
-=======
-				isBorderingLand: waterCoordinatesBorderingLand.includes(tileConfigKey),
->>>>>>> 3999995 (chore(client): lint)
+				isBorderingLand: borderCoords.includes(tileConfigKey),
 				entity_type: "None",
 				fetchedAt: 0,
 				isShown: false,

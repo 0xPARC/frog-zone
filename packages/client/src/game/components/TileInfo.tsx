@@ -86,12 +86,8 @@ export const TileInfo: React.FC = () => {
 							</p>
 							<p>
 								description:{" "}
-<<<<<<< HEAD
 								{ENTITIES_CONFIG["monsters"][hoverTile.entity_id]
 									?.description ??
-=======
-								{ENTITIES_CONFIG["items"][hoverTile.entity_id]?.description ??
->>>>>>> 3999995 (chore(client): lint)
 									"Yikes... We don't know anything about this one!"}
 							</p>
 						</>

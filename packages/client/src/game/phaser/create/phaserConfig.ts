@@ -25,6 +25,14 @@ const config = {
 		bat: "bat",
 		dragon: "dragon",
 		"prickly bush": "prickly bush",
+		sounds: {
+			background: "background",
+			click: "click",
+			impact: "impact",
+			powerup: "powerup",
+			ready: "ready",
+			success: "success",
+		},
 	},
 	animationDuration: 300,
 };
