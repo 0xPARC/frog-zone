@@ -9,12 +9,13 @@ use rocket::serde::{json::Json, Deserialize, Serialize};
 use rocket::{Config, State};
 use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors, CorsOptions};
 use server::mock_zone::MockZone;
-use server::zone::{EncryptedDirection, Zone, ZoneDiff};
+use server::zone::{EncryptedDirection, EncryptedRandomState, Zone, ZoneDiff};
 use server::{
     bad_request,
     client::*,
     worker::{self, *},
 };
+use std::array::from_fn;
 use std::collections::VecDeque;
 use std::sync::{Arc, LazyLock};
 use std::{env, mem};
@@ -51,6 +52,7 @@ struct GameState {
         ActionType,
         Option<usize>,
         Option<EncryptedDirection>,
+        Option<EncryptedRandomState>, // random input
         Arc<Notify>,
     )>,
     player_last_move_time: [u64; 4],
@@ -148,7 +150,7 @@ async fn reset_game(
         let mut game_state = state.lock().await;
         game_state
             .action_queue
-            .push_back((ActionType::ResetGame, None, None, notify_clone));
+            .push_back((ActionType::ResetGame, None, None, None, notify_clone));
     }
 
     notify.notified().await;
@@ -356,15 +358,20 @@ async fn queue_move(
 
     {
         let mut game_state = state.lock().await;
-        let direction = game_state
+        let direction_and_random_input = game_state
             .evaluator
-            .unbatch(&move_request.direction)
-            .try_into()
-            .map_err(|_| bad_request("invalid direction"))?;
+            .unbatch(&move_request.direction_and_random_input);
+        if direction_and_random_input.len() != 10 {
+            return Err(bad_request("invalid direction_and_random_input"));
+        }
+        let mut direction_and_random_input = direction_and_random_input.into_iter();
+        let direction = from_fn(|_| direction_and_random_input.next().unwrap());
+        let random_input = from_fn(|_| direction_and_random_input.next().unwrap());
         game_state.action_queue.push_back((
             ActionType::Move,
             Some(move_request.player_id),
             Some(direction),
+            Some(random_input),
             notify_clone,
         ));
         game_state.player_last_move_time[move_request.player_id] = std::time::SystemTime::now()
@@ -393,7 +400,7 @@ async fn queue_move(
 
 async fn process_actions(state: SharedState) {
     loop {
-        let (action_type, player_id, direction, notify) = {
+        let (action_type, player_id, direction, random_input, notify) = {
             let mut game_state = state.lock().await;
             if let Some(action_request) = game_state.action_queue.pop_front() {
                 action_request
@@ -413,7 +420,9 @@ async fn process_actions(state: SharedState) {
                     let start = std::time::Instant::now();
                     let unwrapped_player_id = player_id.unwrap();
                     let unwrapped_direction = direction.unwrap();
+                    let unwrapped_random_input = random_input.unwrap();
                     zone.move_player(unwrapped_player_id, unwrapped_direction);
+                    zone.mix_random_input(unwrapped_player_id, unwrapped_random_input);
                     info!("zone.move_player takes: {:?}", start.elapsed());
 
                     // For each worker, mark the flag of `player_id` to be true.

@@ -80,7 +80,7 @@ pub struct MockMoveResponse {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MoveRequest {
     pub player_id: usize,
-    pub direction: PhantomBatchedCt, // Encrypted<Direction>
+    pub direction_and_random_input: PhantomBatchedCt, // Encrypted<Direction> || EncryptedRandomState
 }
 
 #[derive(Debug, Serialize, Deserialize)]

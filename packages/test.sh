@@ -29,9 +29,9 @@ cargo build --release >/dev/null 2>&1
 
 echo "Starting server..."
 
-nohup cargo run --release http://localhost:8005,http://localhost:8006,http://localhost:8007,http://localhost:8008 >/dev/null 2>&1 &
+nohup cargo run --bin server --release http://localhost:8005,http://localhost:8006,http://localhost:8007,http://localhost:8008 &
 
-sleep 2
+sleep 3
 
 cd ..
 
@@ -50,7 +50,7 @@ nohup cargo run --release 8006 >/dev/null 2>&1 &
 nohup cargo run --release 8007 >/dev/null 2>&1 &
 nohup cargo run --release 8008 >/dev/null 2>&1 &
 
-sleep 2
+sleep 3
 
 cd ..
 
@@ -98,6 +98,8 @@ curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o
 curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8002/submit_r2
 curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8003/submit_r2
 curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8004/submit_r2
+
+sleep 10
 
 echo "Getting player data..."
 
