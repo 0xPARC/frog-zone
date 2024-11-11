@@ -39,3 +39,5 @@ next-env.d.ts
 #db
 /prisma/dev.db-journal
 /prisma/dev.db
+
+public/artifacts
