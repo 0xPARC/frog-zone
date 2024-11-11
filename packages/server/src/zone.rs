@@ -332,7 +332,7 @@ pub fn fhe_apply_move(
     direction: EncryptedDirection,
     height: u8,
     width: u8,
-    obstacles: [EncryptedCoord; NUM_OBSTACLES + 4],
+    obstacles: [EncryptedCoord; 4],
     monsters: [MonsterEncryptedData; NUM_MONSTERS],
     items: [ItemEncryptedData; NUM_ITEMS],
 ) -> (
@@ -352,12 +352,12 @@ pub fn fhe_apply_move(
             .flat_map(|item| item.bits())
             .cloned()
             .collect_vec(),
+        &player_data.bits().cloned().collect_vec(),
         &obstacles
             .iter()
             .flat_map(|obstacle| obstacle.bits())
             .cloned()
             .collect_vec(),
-        &player_data.bits().cloned().collect_vec(),
     )
     .into_iter();
     let output = (
@@ -826,13 +826,7 @@ impl Zone {
 
         let monster_data = self.monsters.each_ref().map(|i| i.data.clone());
 
-        let obstacles: [_; NUM_OBSTACLES + 4] = from_fn(|i| {
-            if i < NUM_OBSTACLES {
-                self.obstacles[i].clone()
-            } else {
-                self.players[i - NUM_OBSTACLES].data.loc.clone()
-            }
-        });
+        let obstacles: [EncryptedCoord; 4] = from_fn(|i| self.players[i].data.loc.clone());
 
         let (new_player_data, new_item_data, new_monster_data) = fhe_apply_move(
             player_data,

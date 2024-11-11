@@ -113,6 +113,7 @@ fn cell_try_from_le_bits(
         entity_id: try_from_le_bits::<8>(bits)?,
         hp: try_from_le_bits::<8>(bits)?,
         atk: try_from_le_bits::<8>(bits)?,
+        points: try_from_le_bits::<8>(bits)?,
     })
 }
 
@@ -127,6 +128,7 @@ pub struct PlayerData {
     pub loc: Coord,
     pub hp: u8,
     pub atk: u8,
+    pub points: u8,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -135,6 +137,7 @@ pub struct CellData {
     pub entity_id: u8,
     pub hp: u8,
     pub atk: u8,
+    pub points: u8,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -306,6 +309,7 @@ fn mock_decrypt_cell(cell: CellEncryptedData) -> CellData {
         entity_id: cell.entity_id,
         atk: cell.atk,
         hp: cell.hp,
+        points: cell.points,
     };
 }
 
@@ -581,6 +585,7 @@ async fn mock_get_player(
         loc: mock_decrypt_coord(player_data.loc),
         hp: player_data.hp,
         atk: player_data.atk,
+        points: player_data.points,
     };
 
     state.lock().await.player_coord = player_data.loc;
@@ -619,6 +624,7 @@ async fn get_player(
         },
         hp: try_from_le_bits::<8>(&mut bits)?,
         atk: try_from_le_bits::<8>(&mut bits)?,
+        points: try_from_le_bits::<8>(&mut bits)?,
     };
 
     state.lock().await.player_coord = player_data.loc;

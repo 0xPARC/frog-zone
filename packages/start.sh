@@ -30,9 +30,9 @@ cargo build --release >/dev/null 2>&1
 
 echo "Starting server..."
 
-nohup cargo run --release http://localhost:8005,http://localhost:8006,http://localhost:8007,http://localhost:8008 >../logs.txt 2>&1 &
+nohup cargo run --bin server --release http://localhost:8005,http://localhost:8006,http://localhost:8007,http://localhost:8008 >../logs.txt 2>&1 &
 
-sleep 1
+sleep 3
 
 cd ..
 
@@ -51,7 +51,7 @@ nohup cargo run --release 8006 >../logs.txt 2>&1 &
 nohup cargo run --release 8007 >../logs.txt 2>&1 &
 nohup cargo run --release 8008 >../logs.txt 2>&1 &
 
-sleep 2
+sleep 3
 
 cd ..
 
