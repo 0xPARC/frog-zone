@@ -1,6 +1,7 @@
 use core::array::from_fn;
-use itertools::{chain, Itertools};
+use itertools::{chain, izip, Itertools};
 use phantom::{PhantomBool, PhantomCt, PhantomEvaluator};
+use rand::{thread_rng, Rng};
 use serde::{Deserialize, Serialize};
 
 use crate::initial_data::{get_all_items, get_all_monsters, get_all_obstacles};
@@ -20,6 +21,13 @@ pub type EncryptedDirection = [EncryptedBool; 2];
 
 /// Encrypted [`EntityType`] in little-endian 3-bits
 pub type EncryptedEntityType = [EncryptedBool; 3];
+
+/// Encrypted random input from client (to be mixed into random state).
+pub type EncryptedRandomState = EncryptedU8;
+
+pub fn encrypted_direction_from_random_state(state: &EncryptedRandomState) -> EncryptedDirection {
+    return [state[0].clone(), state[1].clone()];
+}
 
 #[derive(Clone, Debug)]
 pub struct EncryptedCoord {
@@ -252,6 +260,7 @@ pub struct Zone {
     pub items: [Item; NUM_ITEMS],
     pub monsters: [Monster; NUM_MONSTERS],
     pub obstacles: [EncryptedCoord; NUM_OBSTACLES],
+    pub random_state: EncryptedRandomState,
     pub precomputed_ids: [EncryptedU8; 34],
 }
 
@@ -753,6 +762,8 @@ impl Zone {
             };
         }
 
+        let random_state = pk_encrypt(evaluator, thread_rng().gen());
+
         let precomputed_ids = [
             pk_encrypt(evaluator, 0),
             pk_encrypt(evaluator, 1),
@@ -797,6 +808,7 @@ impl Zone {
             items,
             monsters,
             obstacles,
+            random_state,
             precomputed_ids,
         }
     }
@@ -843,6 +855,12 @@ impl Zone {
         }
 
         self.players[player_id].data.loc.clone()
+    }
+
+    pub fn mix_random_input(&mut self, player_id: usize, random_input: EncryptedRandomState) {
+        assert!(player_id < self.players.len());
+
+        izip!(&mut self.random_state, random_input).for_each(|(state, input)| *state ^= input);
     }
 
     fn fully_encrypted_players(&self) -> [PlayerWithEncryptedId; 4] {
@@ -958,7 +976,8 @@ impl Zone {
             self.players.iter().flat_map(|player| player.data.cts()),
             self.items.iter().flat_map(|item| item.data.cts()),
             self.monsters.iter().flat_map(|monster| monster.data.cts()),
-            self.obstacles.iter().flat_map(|obstacle| obstacle.cts())
+            self.obstacles.iter().flat_map(|obstacle| obstacle.cts()),
+            self.random_state.iter().map(|bit| bit.ct())
         ]
         .cloned()
         .collect()
@@ -987,6 +1006,7 @@ impl Zone {
                 data: MonsterEncryptedData::from_cts(&mut cts, evaluator),
             }),
             obstacles: from_fn(|_| EncryptedCoord::from_cts(&mut cts, evaluator)),
+            random_state: from_fn(|_| evaluator.wrap(cts.next().unwrap())),
             precomputed_ids: from_fn(|id| pk_encrypt(evaluator, id as _)),
         }
     }
@@ -1004,12 +1024,17 @@ impl Zone {
                 .flat_map(|monster| monster.data.cts())
                 .cloned()
                 .collect(),
+            self.random_state
+                .iter()
+                .map(|bit| bit.ct())
+                .cloned()
+                .collect(),
         )
     }
 
     pub fn apply_diff(
         &mut self,
-        (players, items, monsters): ZoneDiff,
+        (players, items, monsters, random_state): ZoneDiff,
         evaluator: &PhantomEvaluator,
     ) {
         for (id, player) in players.into_iter().enumerate() {
@@ -1030,10 +1055,17 @@ impl Zone {
             id,
             data: MonsterEncryptedData::from_cts(&mut monsters, evaluator),
         });
+        let mut random_state = random_state.into_iter();
+        self.random_state = from_fn(|_| evaluator.wrap(random_state.next().unwrap()));
     }
 }
 
 /// Diff of `players` and concatenation of `items` bits and cnocat of `mosnters` bits after some
 /// `Zone::move_player`, used to sync with workers. If player is not updated
 /// during the time, `players[id]` will be `None`.
-pub type ZoneDiff = ([Option<Vec<PhantomCt>>; 4], Vec<PhantomCt>, Vec<PhantomCt>);
+pub type ZoneDiff = (
+    [Option<Vec<PhantomCt>>; 4],
+    Vec<PhantomCt>,
+    Vec<PhantomCt>,
+    Vec<PhantomCt>,
+);

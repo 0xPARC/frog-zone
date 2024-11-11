@@ -1,4 +1,5 @@
 use core::array::from_fn;
+use rand::{thread_rng, Rng};
 use serde::{Deserialize, Serialize};
 
 use crate::client::{Direction, EntityType};
@@ -94,6 +95,7 @@ pub struct MockZone {
     pub items: [Item; NUM_ITEMS],
     pub monsters: [Monster; NUM_MONSTERS],
     pub obstacles: [MockEncryptedCoord; NUM_OBSTACLES],
+    pub random_state: u8,
     pub precomputed_ids: [MockEncrypted<u8>; 34],
 }
 
@@ -548,6 +550,8 @@ impl MockZone {
             };
         }
 
+        let random_state = thread_rng().gen();
+
         let precomputed_ids = [
             pk_encrypt(0),
             pk_encrypt(1),
@@ -592,6 +596,7 @@ impl MockZone {
             items,
             monsters,
             obstacles,
+            random_state,
             precomputed_ids,
         }
     }
@@ -638,6 +643,12 @@ impl MockZone {
         }
 
         self.players[player_id].data.loc.clone()
+    }
+
+    pub fn mix_random_input(&mut self, player_id: usize, random_input: u8) {
+        assert!(player_id < self.players.len());
+
+        self.random_state ^= random_input;
     }
 
     fn fully_encrypted_players(&self) -> [PlayerWithEncryptedId; 4] {

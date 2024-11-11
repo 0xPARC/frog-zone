@@ -2,6 +2,7 @@ mod proxy;
 
 use itertools::{chain, Itertools};
 use phantom::{PhantomPackedCt, PhantomPackedCtDecShare, PhantomParam, PhantomUser};
+use rand::thread_rng;
 use rand::{rngs::StdRng, Rng, SeedableRng};
 use reqwest::StatusCode;
 use rocket::futures::stream::FuturesUnordered;
@@ -14,6 +15,7 @@ use rocket::State;
 use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors, CorsOptions};
 use server::client::{Direction, EntityType};
 use server::mock_zone::{CellEncryptedData, MockEncryptedCoord};
+use std::array::from_fn;
 use std::env;
 use std::iter::repeat_with;
 use std::sync::{Arc, LazyLock};
@@ -632,9 +634,10 @@ async fn mock_move(
     let post_data = {
         let app_state = state.lock().await;
 
+        let random_input = thread_rng().gen();
         proxy::MockMoveRequest {
             player_id: app_state.user.user_id(),
-            direction: request.direction,
+            direction_and_random_input: (request.direction, random_input),
         }
     };
 
@@ -668,16 +671,23 @@ async fn queue_move(
     let post_data = {
         let app_state = state.lock().await;
 
-        let direction = app_state.user.batched_pk_encrypt(match request.direction {
+        let direction = match request.direction {
             Direction::Up => [false, false],
             Direction::Down => [true, false],
             Direction::Left => [false, true],
             Direction::Right => [true, true],
-        });
+        };
+        let random_input = {
+            let v: u8 = thread_rng().gen();
+            from_fn::<_, 8, _>(|i| (v >> i) & 1 == 1)
+        };
+        let direction_and_random_input = app_state
+            .user
+            .batched_pk_encrypt(chain![direction, random_input]);
 
         proxy::MoveRequest {
             player_id: app_state.user.user_id(),
-            direction,
+            direction_and_random_input,
         }
     };
 
