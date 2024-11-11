@@ -61,8 +61,12 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		phaserConfig.assetKeys.sounds.ready,
 		{ loop: false },
 	);
-	const getItemSound = game.mainScene.sound.add(
+	const gotItemSound = game.mainScene.sound.add(
 		phaserConfig.assetKeys.sounds.powerup,
+		{ loop: false },
+	);
+	const impactMonsterSound = game.mainScene.sound.add(
+		phaserConfig.assetKeys.sounds.impact,
 		{ loop: false },
 	);
 
@@ -393,6 +397,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 			tileWidth,
 			tileHeight,
 		);
+		let isMovingOnMonster = false;
 		let isMovingOnItem = false;
 		for (const [, item] of items) {
 			if (
@@ -403,12 +408,25 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				break;
 			}
 		}
+		for (const [, monster] of monsters) {
+			if (
+				monster.coord.x === nextTileCoord.x &&
+				monster.coord.y === nextTileCoord.y
+			) {
+				isMovingOnMonster = true;
+				break;
+			}
+		}
 
 		moveMadeSound.play();
 		const moveResponse = await api.move(selectedPlayerId, direction);
-		moveSuccessSound.play();
+
 		if (isMovingOnItem) {
-			getItemSound.play();
+			gotItemSound.play();
+		} else if (isMovingOnMonster) {
+			impactMonsterSound.play();
+		} else {
+			moveSuccessSound.play();
 		}
 
 		directionArrows[direction]?.clearTint();
