@@ -49,9 +49,22 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 	};
 	const isPreviousMovePending = false;
 
-	const moveMadeSound = game.mainScene.sound.add(phaserConfig.assetKeys.sounds.click, {loop: false});
-	const moveSuccessSound = game.mainScene.sound.add(phaserConfig.assetKeys.sounds.success, {loop: false});
-	const moveReadySound = game.mainScene.sound.add(phaserConfig.assetKeys.sounds.ready, {loop: false});
+	const moveMadeSound = game.mainScene.sound.add(
+		phaserConfig.assetKeys.sounds.click,
+		{ loop: false },
+	);
+	const moveSuccessSound = game.mainScene.sound.add(
+		phaserConfig.assetKeys.sounds.success,
+		{ loop: false },
+	);
+	const moveReadySound = game.mainScene.sound.add(
+		phaserConfig.assetKeys.sounds.ready,
+		{ loop: false },
+	);
+	const getItemSound = game.mainScene.sound.add(
+		phaserConfig.assetKeys.sounds.powerup,
+		{ loop: false },
+	);
 
 	const isMoveAvailable = () => {
 		const lastMoveTime = useStore.getState().lastMoveTimeStamp;
@@ -374,9 +387,30 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 			color: "darkorange",
 		});
 
-    moveMadeSound.play();
+		// This is bad, but ok
+		const nextTileCoord = pixelCoordToTileCoord(
+			newPxCoord,
+			tileWidth,
+			tileHeight,
+		);
+		let isMovingOnItem = false;
+		for (const [, item] of items) {
+			if (
+				item.coord.x === nextTileCoord.x &&
+				item.coord.y === nextTileCoord.y
+			) {
+				isMovingOnItem = true;
+				break;
+			}
+		}
+
+		moveMadeSound.play();
 		const moveResponse = await api.move(selectedPlayerId, direction);
-    moveSuccessSound.play();
+		moveSuccessSound.play();
+		if (isMovingOnItem) {
+			getItemSound.play();
+		}
+
 		directionArrows[direction]?.clearTint();
 		directionArrows[direction]?.setAlpha(ARROW_ALPHA_WHILE_MOVE_UNAVAILABLE);
 		if (moveResponse?.my_new_coords) {
@@ -468,7 +502,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		delay: 200,
 		loop: true,
 		callback: () => {
-      const moveAvailable = isMoveAvailable();
+			const moveAvailable = isMoveAvailable();
 			if (moveAvailable && !wasMoveAvailable) {
 				Object.keys(directionArrows).forEach((key) => {
 					const d = key as Direction;
