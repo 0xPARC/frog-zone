@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 getrandom = { version = "0.2", features = ["js"] }
 itertools = "0.13.0"
-phantom-zone-evaluator = { git = "https://github.com/gausslabs/phantom-zone", branch = "rewrite", features = ["serde"] }
+phantom-zone-evaluator = { git = "https://github.com/gausslabs/phantom-zone", rev = "55f650debffa5a23b9fd3acc58e08f509f2dd650", features = ["serde"] }
 rand = "0.8.5"
 serde = "1.0.210"
 

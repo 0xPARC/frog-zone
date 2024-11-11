@@ -524,7 +524,7 @@ async fn rocket() -> _ {
         mock_zone: None,
         action_queue: VecDeque::new(),
         player_last_move_time: [0, 0, 0, 0],
-        evaluator: PhantomEvaluator::new(PhantomParam::I_4P_60),
+        evaluator: PhantomEvaluator::new(PhantomParam::I_4P_40),
         player_round_1_key: [None, None, None, None],
         player_round_2_key: [None, None, None, None],
         work_counter: 0,

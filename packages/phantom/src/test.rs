@@ -8,7 +8,7 @@ use rand::{rngs::StdRng, Rng, SeedableRng};
 
 #[test]
 fn e2e() {
-    let param = PhantomParam::I_4P_60;
+    let param = PhantomParam::I_4P_40;
     let mut server = PhantomEvaluator::new(param);
     let mut users: [PhantomUser; 4] = from_fn(|user_id| {
         let seed = StdRng::from_entropy().gen::<[u8; 32]>().to_vec();

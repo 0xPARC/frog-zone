@@ -1,5 +1,5 @@
 use core::{fmt::Debug, ops::Deref};
-use phantom_zone_evaluator::boolean::fhew::{param::I_4P_60, prelude::*};
+use phantom_zone_evaluator::boolean::fhew::{param::I_4P_40, prelude::*};
 use rand::{rngs::StdRng, thread_rng, Rng, SeedableRng};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -17,8 +17,8 @@ pub struct PhantomParam {
 }
 
 impl PhantomParam {
-    pub const I_4P_60: Self = Self {
-        param: I_4P_60,
+    pub const I_4P_40: Self = Self {
+        param: I_4P_40,
         ring_packing_modulus: Some(Modulus::Prime(2305843009213554689)),
         ring_packing_auto_decomposition_param: DecompositionParam {
             log_base: 20,
