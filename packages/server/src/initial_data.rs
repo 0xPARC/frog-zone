@@ -31,7 +31,7 @@ pub fn get_all_monsters() -> Vec<PlaintextMonster> {
             x: 13,
             y: 3,
             hp: 100,
-            atk: 1,
+            atk: 2,
             points: 25,
         },
         PlaintextMonster {
@@ -60,8 +60,8 @@ pub fn get_all_monsters() -> Vec<PlaintextMonster> {
         },
         PlaintextMonster {
             id: 4,
-            x: 24,
-            y: 15,
+            x: 29,
+            y: 20,
             hp: 1,
             atk: 1,
             points: 1,

@@ -1,8 +1,9 @@
 import { AnimatePresence, motion } from "framer-motion";
-import React, { useEffect, useState } from "react";
+import type React from "react";
+import { useEffect, useState } from "react";
 import { useReward } from "react-rewards";
-import { getPlayerId } from "../../utils/getPlayerId";
 import ENTITIES_CONFIG from "../../const/entities.config";
+import { getPlayerId } from "../../utils/getPlayerId";
 
 const CONFETTI_ELEMENT_ID = "confettiReward";
 
@@ -45,12 +46,11 @@ export const EnterGameAnimation: React.FC = () => {
 						initial={{ opacity: 1 }}
 						animate={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
-						transition={{ duration: 1 }}
+						transition={{ duration: 2 }}
 					>
 						<h3>Get ready!</h3>
 						<h1>
-							YOU ARE PLAYER:{" "}
-							{ENTITIES_CONFIG.players[Number(playerId)].name}
+							YOU ARE PLAYER: {ENTITIES_CONFIG.players[Number(playerId)].name}
 						</h1>
 					</motion.div>
 				)}

@@ -1,4 +1,5 @@
-import React, { useEffect } from "react";
+import type React from "react";
+import { useEffect } from "react";
 
 interface ModalProps {
 	isOpen: boolean;
@@ -10,7 +11,7 @@ interface ModalProps {
 
 const modalStyles = {
 	overlay: {
-		position: "fixed" as "fixed",
+		position: "fixed" as const,
 		top: 0,
 		left: 0,
 		zIndex: 1000,

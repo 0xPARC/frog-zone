@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
 import tileMapConfig from "../../const/tile.config.json";
-import { Button } from "../Button";
 import { TerrainType } from "../../game/store";
-import {
-	findBorderCoordinates,
-	Grid,
-} from "../../utils/findBorderCoords";
+import { type Grid, findBorderCoordinates } from "../../utils/findBorderCoords";
+import { Button } from "../Button";
 
 /* TileMapEditor allows us to easily visualize and edit the game map.
 Clicking on the tiles toggles them between LAND and WATER.
@@ -18,9 +15,7 @@ const PLAYER_COORDS = ["1,2", "1,3", "4,5", "5,6"];
 export const TileMapEditor = () => {
 	const [gridData, setGridData] = useState(tileMapConfig);
 	const [isVisible, setIsVisible] = useState(false);
-	const waterCoordinatesBorderingLand = findBorderCoordinates(
-		gridData as Grid,
-	);
+	const waterCoordinatesBorderingLand = findBorderCoordinates(gridData as Grid);
 
 	const toggleTerrain = (x: number, y: number) => {
 		const key = `${x},${y}`;
@@ -69,14 +64,14 @@ export const TileMapEditor = () => {
 			{isVisible && (
 				<div
 					style={{
-						position: "absolute" as "absolute",
+						position: "absolute" as const,
 						top: 0,
 						left: 0,
 						minWidth: "100vw",
 						minHeight: "100vh",
 						backgroundColor: "rgba(0, 0, 0, 1)",
 						alignItems: "center",
-						textAlign: "center" as "center",
+						textAlign: "center" as const,
 						zIndex: 1000,
 					}}
 				>
@@ -97,8 +92,7 @@ export const TileMapEditor = () => {
 						{Object.keys(gridData).map((key) => {
 							const [x, y] = key.split(",").map(Number);
 							const terrainType =
-								gridData[key as keyof typeof gridData]
-									.terrainType;
+								gridData[key as keyof typeof gridData].terrainType;
 							return (
 								<div
 									key={key}
@@ -109,11 +103,9 @@ export const TileMapEditor = () => {
 										backgroundColor:
 											terrainType === "LAND"
 												? "green"
-												: waterCoordinatesBorderingLand.includes(
-														key,
-												  )
-												? "#03a9f4"
-												: "blue",
+												: waterCoordinatesBorderingLand.includes(key)
+													? "#03a9f4"
+													: "blue",
 										display: "flex",
 										alignItems: "center",
 										justifyContent: "center",
@@ -124,8 +116,8 @@ export const TileMapEditor = () => {
 									{PLAYER_COORDS.includes(key)
 										? "P"
 										: ITEM_COORDS.includes(key)
-										? "I"
-										: ""}
+											? "I"
+											: ""}
 								</div>
 							);
 						})}

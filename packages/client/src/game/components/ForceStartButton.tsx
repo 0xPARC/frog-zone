@@ -1,7 +1,8 @@
-import React, { useState } from "react";
-import useStore from "../store";
-import { updateGameStatus } from "../../utils/updateGameStatus";
+import type React from "react";
+import { useState } from "react";
 import { Button } from "../../components/Button";
+import { updateGameStatus } from "../../utils/updateGameStatus";
+import useStore from "../store";
 
 const ForceStartButton: React.FC = () => {
 	const [forceStartRequested, setForceStartRequested] = useState(false);

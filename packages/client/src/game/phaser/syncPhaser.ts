@@ -1,22 +1,20 @@
 import {
+	awaitTween,
 	getCenterPixelCoord,
 	pixelCoordToTileCoord,
 } from "@smallbraingames/small-phaser";
+import { debounceTime } from "rxjs/internal/operators/debounceTime";
+import ENTITIES_CONFIG from "../../const/entities.config";
 import { completedMoveAnimation } from "../../utils/animations";
 import { fetchPlayer } from "../../utils/fetchPlayer";
 import { getPlayerId } from "../../utils/getPlayerId";
+import { updatePlayer } from "../../utils/updatePlayer";
 import { type Api, Direction } from "../createApi";
 import type { PhaserGame } from "../phaser/create/createPhaserGame";
 import type { Coord, TileWithCoord } from "../store";
-import useStore, {
-	GameState,
-	NEXT_MOVE_TIME_MILLIS,
-} from "../store";
+import useStore, { GameState, NEXT_MOVE_TIME_MILLIS } from "../store";
 import { createTileFetcher } from "./create/createTileFetcher";
 import phaserConfig from "./create/phaserConfig";
-import { updatePlayer } from "../../utils/updatePlayer";
-import { debounceTime } from "rxjs/internal/operators/debounceTime";
-import ENTITIES_CONFIG from "../../const/entities.config";
 
 const ENABLE_KEYBOARD_NAV = true;
 const ARROW_ALPHA_WHILE_MOVE_UNAVAILABLE = 0.6;
@@ -34,6 +32,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 	const monsters = new Map<EntityId, StoredImage>();
 	const items = new Map<EntityId, StoredImage>();
 	const selectedPlayerId = Number(getPlayerId());
+	if (selectedPlayerId === 0) game.playBackgroundMusic();
 	const player = await fetchPlayer(selectedPlayerId);
 	const initialPlayerCoord = {
 		x: player?.player_data?.loc.x,
@@ -49,6 +48,27 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		[Direction.UP]: null,
 	};
 	const isPreviousMovePending = false;
+
+	const moveMadeSound = game.mainScene.sound.add(
+		phaserConfig.assetKeys.sounds.click,
+		{ loop: false },
+	);
+	const moveSuccessSound = game.mainScene.sound.add(
+		phaserConfig.assetKeys.sounds.success,
+		{ loop: false },
+	);
+	const moveReadySound = game.mainScene.sound.add(
+		phaserConfig.assetKeys.sounds.ready,
+		{ loop: false },
+	);
+	const gotItemSound = game.mainScene.sound.add(
+		phaserConfig.assetKeys.sounds.powerup,
+		{ loop: false },
+	);
+	const impactMonsterSound = game.mainScene.sound.add(
+		phaserConfig.assetKeys.sounds.impact,
+		{ loop: false },
+	);
 
 	const isMoveAvailable = () => {
 		const lastMoveTime = useStore.getState().lastMoveTimeStamp;
@@ -116,8 +136,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 					// check to see we didn't already add this item, in this specific spot
 					if (
 						!item ||
-						(item.coord.x !== tile.coord.x &&
-							item.coord.y !== tile.coord.y)
+						(item.coord.x !== tile.coord.x && item.coord.y !== tile.coord.y)
 					) {
 						// destroy the old item since its location changed
 						if (item) {
@@ -193,6 +212,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 						hp: tile.hp,
 						atk: tile.atk,
 						coord: tile.coord,
+						points: tile.points,
 					});
 				}
 				if (tile.entity_type === "None") {
@@ -231,15 +251,8 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 			phaserConfig.tilemap.tileWidth,
 			phaserConfig.tilemap.tileHeight,
 		);
-		const go = game.mainScene.add.image(
-			pixelCoord.x,
-			pixelCoord.y,
-			assetKey,
-		);
-		go.setSize(
-			phaserConfig.tilemap.tileWidth,
-			phaserConfig.tilemap.tileHeight,
-		);
+		const go = game.mainScene.add.image(pixelCoord.x, pixelCoord.y, assetKey);
+		go.setSize(phaserConfig.tilemap.tileWidth, phaserConfig.tilemap.tileHeight);
 		go.setDisplaySize(
 			phaserConfig.tilemap.tileWidth,
 			phaserConfig.tilemap.tileHeight,
@@ -259,7 +272,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		);
 		const x = pixelCoord.x;
 		const y = pixelCoord.y;
-		game.mainScene.cameras.main.centerOn(x, y);
+		game.mainScene.cameras.main.pan(x, y);
 	};
 
 	const drawSelectedPlayer = (coord: Coord) => {
@@ -304,8 +317,9 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		const key = `${tileCoord.x},${tileCoord.y}`;
 		const grid = useStore.getState().grid;
 		const tile = grid.get(key);
-		if (tile?.terrainType) return ["GRASS", "ICE", "SAND"].includes(tile?.terrainType);
-    return false;
+		if (tile?.terrainType)
+			return ["GRASS", "ICE", "SAND"].includes(tile?.terrainType);
+		return false;
 	};
 
 	const drawArrowsAroundPlayer = (playerImg: Phaser.GameObjects.Image) => {
@@ -327,17 +341,14 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				directionArrows[direction].destroy();
 				directionArrows[direction] = null;
 			}
-			const newPxCoord = getNextPxCoord(
-				playerImg,
-				direction,
-				tileWidth * 0.72,
-			);
+			const newPxCoord = getNextPxCoord(playerImg, direction, tileWidth * 0.72);
 			const arrow = game.mainScene.add
 				.image(newPxCoord.x, newPxCoord.y, phaserConfig.assetKeys.arrow)
 				.setInteractive();
 			arrow.setAlpha(ARROW_ALPHA_WHILE_MOVE_UNAVAILABLE);
+			arrow.setScale(1);
 			arrow.setSize(tileWidth, tileHeight);
-			arrow.setDisplaySize(tileWidth * 0.6, tileHeight * 0.6);
+			arrow.setDisplaySize(tileHeight * 0.6, tileWidth * 0.6);
 			arrow.setDepth(4);
 			arrow.setRotation(rotation[direction]);
 			arrow.on("pointerdown", () => {
@@ -351,6 +362,14 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 
 	const handleMovePlayer = async (direction: Direction) => {
 		if (!selectedPlayerImg) return;
+
+		const newPxCoord = getNextPxCoord(selectedPlayerImg, direction);
+		// prevent the user from moving to an invalid tile, like into water
+		if (
+			!isValidTile(pixelCoordToTileCoord(newPxCoord, tileWidth, tileHeight))
+		) {
+			return;
+		}
 
 		// record a move was made
 		useStore.getState().setLastMoveTimeStamp(Date.now());
@@ -373,22 +392,55 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 			color: "darkorange",
 		});
 
-		const moveResponse = await api.move(selectedPlayerId, direction);
-		directionArrows[direction]?.clearTint();
-		directionArrows[direction]?.setAlpha(
-			ARROW_ALPHA_WHILE_MOVE_UNAVAILABLE,
+		// This is bad, but ok
+		const nextTileCoord = pixelCoordToTileCoord(
+			newPxCoord,
+			tileWidth,
+			tileHeight,
 		);
+		let isMovingOnMonster = false;
+		let isMovingOnItem = false;
+		for (const [, item] of items) {
+			if (
+				item.coord.x === nextTileCoord.x &&
+				item.coord.y === nextTileCoord.y
+			) {
+				isMovingOnItem = true;
+				break;
+			}
+		}
+		for (const [, monster] of monsters) {
+			if (
+				monster.coord.x === nextTileCoord.x &&
+				monster.coord.y === nextTileCoord.y
+			) {
+				isMovingOnMonster = true;
+				break;
+			}
+		}
+
+		moveMadeSound.play();
+		const moveResponse = await api.move(selectedPlayerId, direction);
+
+		if (isMovingOnItem) {
+			gotItemSound.play();
+		} else if (isMovingOnMonster) {
+			impactMonsterSound.play();
+		} else {
+			moveSuccessSound.play();
+		}
+
+		directionArrows[direction]?.clearTint();
+		directionArrows[direction]?.setAlpha(ARROW_ALPHA_WHILE_MOVE_UNAVAILABLE);
 		if (moveResponse?.my_new_coords) {
 			const x = moveResponse.my_new_coords.x;
 			const y = moveResponse.my_new_coords.y;
 			addActionLog({
-				message: `move ${direction.toUpperCase()} received: ${JSON.stringify(
-					{
-						response: "success",
-						x,
-						y,
-					},
-				)}`,
+				message: `move ${direction.toUpperCase()} received: ${JSON.stringify({
+					response: "success",
+					x,
+					y,
+				})}`,
 				color: "limegreen",
 			});
 			const newCoord = {
@@ -401,9 +453,12 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 			tileFetcher.updateCoordinates(newCoord);
 			const publicKey = useStore.getState().publicKey as string;
 			const gameId = useStore.getState().game?.gameId as string;
+
+			const selectedPlayerId = Number(getPlayerId());
+			const player = await fetchPlayer(selectedPlayerId);
 			updatePlayer({
 				publicKey,
-				score: Math.floor(Math.random() * 89), // TODO: implement real score, for now this is random between 0 - 88
+				score: player?.player_data.points || 0,
 				gameId,
 			});
 		} else {
@@ -413,11 +468,9 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				direction,
 			});
 			addActionLog({
-				message: `move ${direction.toUpperCase()} received: ${JSON.stringify(
-					{
-						response: "failure",
-					},
-				)}`,
+				message: `move ${direction.toUpperCase()} received: ${JSON.stringify({
+					response: "failure",
+				})}`,
 				color: "red",
 			});
 		}
@@ -432,15 +485,8 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 			phaserConfig.tilemap.tileWidth,
 			phaserConfig.tilemap.tileHeight,
 		);
-		const go = game.mainScene.add.image(
-			pixelCoord.x,
-			pixelCoord.y,
-			assetKey,
-		);
-		go.setSize(
-			phaserConfig.tilemap.tileWidth,
-			phaserConfig.tilemap.tileHeight,
-		);
+		const go = game.mainScene.add.image(pixelCoord.x, pixelCoord.y, assetKey);
+		go.setSize(phaserConfig.tilemap.tileWidth, phaserConfig.tilemap.tileHeight);
 		go.setDisplaySize(
 			phaserConfig.tilemap.tileWidth,
 			phaserConfig.tilemap.tileHeight,
@@ -457,15 +503,8 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 			phaserConfig.tilemap.tileWidth,
 			phaserConfig.tilemap.tileHeight,
 		);
-		const go = game.mainScene.add.image(
-			pixelCoord.x,
-			pixelCoord.y,
-			assetKey,
-		);
-		go.setSize(
-			phaserConfig.tilemap.tileWidth,
-			phaserConfig.tilemap.tileHeight,
-		);
+		const go = game.mainScene.add.image(pixelCoord.x, pixelCoord.y, assetKey);
+		go.setSize(phaserConfig.tilemap.tileWidth, phaserConfig.tilemap.tileHeight);
 		go.setDisplaySize(
 			phaserConfig.tilemap.tileWidth,
 			phaserConfig.tilemap.tileHeight,
@@ -476,22 +515,32 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 	const drawTerrain = () => {
 		const grid = useStore.getState().grid;
 		grid.forEach((tile) => {
-      game.tilemap.putTileWithTerrainAt(tile.coord, tile.terrainType);
+			game.tilemap.putTileWithTerrainAt(tile.coord, tile.terrainType);
 		});
 	};
 
+	let wasMoveAvailable = true;
 	game.mainScene.time.addEvent({
 		delay: 200,
 		loop: true,
 		callback: () => {
-			if (isMoveAvailable()) {
+			const moveAvailable = isMoveAvailable();
+			if (moveAvailable && !wasMoveAvailable) {
 				Object.keys(directionArrows).forEach((key) => {
 					const d = key as Direction;
 					if (directionArrows[d]) {
-						directionArrows[d].setAlpha(1);
+						awaitTween({
+							targets: directionArrows[d],
+							duration: phaserConfig.animationDuration,
+							alpha: 1,
+						});
 					}
+					moveReadySound.play();
+					wasMoveAvailable = true;
 				});
+				return;
 			}
+			wasMoveAvailable = moveAvailable;
 		},
 	});
 
@@ -509,15 +558,11 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 				// Handle directional input
 				if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.LEFT) {
 					handleMovePlayer(Direction.LEFT);
-				} else if (
-					key.keyCode === Phaser.Input.Keyboard.KeyCodes.RIGHT
-				) {
+				} else if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.RIGHT) {
 					handleMovePlayer(Direction.RIGHT);
 				} else if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.UP) {
 					handleMovePlayer(Direction.UP);
-				} else if (
-					key.keyCode === Phaser.Input.Keyboard.KeyCodes.DOWN
-				) {
+				} else if (key.keyCode === Phaser.Input.Keyboard.KeyCodes.DOWN) {
 					handleMovePlayer(Direction.DOWN);
 				}
 			});

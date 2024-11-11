@@ -2,10 +2,15 @@ const config = {
 	tilemap: {
 		tileWidth: 200,
 		tileHeight: 200,
-		gridSize: 128,
+		gridSize: 64,
 	},
 	assetKeys: {
 		tileset: "tileset",
+		grass: "grass",
+		ice: "ice",
+		rock: "rock",
+		sand: "sand",
+		water: "water",
 		frog: "frog",
 		arrow: "arrow",
 		item: "item",
@@ -21,11 +26,20 @@ const config = {
 		"diamond sword": "diamond sword",
 		treasure: "treasure",
 		imp: "imp",
-		ogre: "ogre",
+		"heavy enemy": "heavy enemy",
 		bat: "bat",
 		dragon: "dragon",
 		"prickly bush": "prickly bush",
+		sounds: {
+			background: "background",
+			click: "click",
+			impact: "impact",
+			powerup: "powerup",
+			ready: "ready",
+			success: "success",
+		},
 	},
+	animationDuration: 300,
 };
 
 export default config;

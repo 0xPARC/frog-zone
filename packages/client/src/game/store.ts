@@ -3,29 +3,27 @@ import { enableMapSet } from "immer";
 import { create } from "zustand";
 enableMapSet();
 import { immer } from "zustand/middleware/immer";
-import { GameResponse } from "../utils/fetchGame";
 import tileConfig from "../const/tile.config.json";
-import {
-	findBorderCoordinates,
-	Grid,
-} from "../utils/findBorderCoords";
+import type { GameResponse } from "../utils/fetchGame";
+import { type Grid, findBorderCoordinates } from "../utils/findBorderCoords";
 
 export type TileEntityType = "None" | "Player" | "Item" | "Monster";
 
 export type Tile = {
 	atk: number;
+  points: number;
 	entity_id: number;
 	entity_type: TileEntityType;
 	hp: number;
 };
 
 export enum TerrainType {
-  NONE = "NONE",
-  GRASS = "GRASS",
+	NONE = "NONE",
+	GRASS = "GRASS",
 	WATER = "WATER",
 	SAND = "SAND",
 	ROCK = "ROCK",
-	ICE = "ICE"
+	ICE = "ICE",
 }
 
 export type TileWithCoord = Tile & {
@@ -40,17 +38,20 @@ export type Player = {
 	id: number;
 	hp: number;
 	atk: number;
+  points: number;
 	coord: Coord;
 };
 
 export type Item = {
 	hp: number;
 	atk: number;
+  points: number;
 };
 
 export type Monster = {
 	hp: number;
 	atk: number;
+  points: number;
 };
 
 type ItemEffect = {
@@ -98,14 +99,12 @@ interface State {
 	addItem: (item: Item, coord: Coord) => void;
 	addMonster: (item: Monster, coord: Coord) => void;
 	movePlayer: (id: number, coord: Coord) => void;
-	pickupItem: (
-		playerId: number,
-		coord: Coord,
-		itemEffect: ItemEffect,
-	) => void;
+	pickupItem: (playerId: number, coord: Coord, itemEffect: ItemEffect) => void;
 	setGameState: (state: GameState) => void;
 	setLastMoveTimeStamp: (time: number) => void;
-	getPlayerById: (id: number) => Player | null;
+	getPlayerById: (id: number | null) => Player | null;
+	getItemById: (id: number | null) => Item | null;
+	getMonsterById: (id: number | null) => Monster | null;
 	updateGrid: (viewportCoords: Coord[], newTiles: TileWithCoord[]) => void;
 	addActionLog: (log: ActionLog) => void;
 }
@@ -115,16 +114,14 @@ const initializeGrid = (
 	config: Record<string, { terrainType: string }>,
 ) => {
 	const grid = new Map<string, TileWithCoord>();
-	const borderCoords = findBorderCoordinates(
-		config as Grid,
-	);
+	const borderCoords = findBorderCoordinates(config as Grid);
 
-  // let temp = "";
-  // for (const coord of borderCoords) {
-  //   const [x, y] = coord.split(",").map(Number);
-  //   temp += `PlaintextCoord { x: ${x}, y: ${y} },\n`;
-  // }
-  // console.log(temp);
+	// let temp = "";
+	// for (const coord of borderCoords) {
+	//   const [x, y] = coord.split(",").map(Number);
+	//   temp += `PlaintextCoord { x: ${x}, y: ${y} },\n`;
+	// }
+	// console.log(temp);
 
 	for (let x = 0; x < size; x++) {
 		for (let y = 0; y < size; y++) {
@@ -135,14 +132,14 @@ const initializeGrid = (
 			grid.set(key, {
 				coord: { x, y },
 				terrainType: tileConfig.terrainType as TerrainType,
-				isBorderingLand:
-					borderCoords.includes(tileConfigKey),
+				isBorderingLand: borderCoords.includes(tileConfigKey),
 				entity_type: "None",
 				fetchedAt: 0,
 				isShown: false,
 				atk: 0,
 				entity_id: 0,
 				hp: 0,
+				points: 0,
 			});
 		}
 	}
@@ -213,11 +210,24 @@ const useStore = create<State>()(
 		setGameState: (state) => set({ gameState: state }),
 		setLastMoveTimeStamp: (time) => set({ lastMoveTimeStamp: time }),
 		getPlayerById: (id) => {
+		  if (id === null) return null;
 			const players = get().players;
 			return (
-				Array.from(players.values()).find(
-					(player) => player.id === id,
-				) || null
+				Array.from(players.values()).find((player) => player.id === id) || null
+			);
+		},
+		getItemById: (id) => {
+		  if (id === null) return null;
+			const items = get().items;
+			return (
+				Array.from(items.values()).find((item) => item.id === id) || null
+			);
+		},
+		getMonsterById: (id) => {
+		  if (id === null) return null;
+			const monsters = get().monsters;
+			return (
+				Array.from(monsters.values()).find((monster) => monster.id === id) || null
 			);
 		},
 		updateGrid: (viewportCoords, newTiles) => {

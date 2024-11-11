@@ -1,4 +1,4 @@
-import { Coord } from "../game/store";
+import type { Coord } from "../game/store";
 
 /**
  * Generates an array of coordinates in a 5x5 grid around a given center coordinate.

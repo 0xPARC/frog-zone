@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { Modal } from "../../components/Modal";
+import type React from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../../components/Button";
-import useStore from "../store";
-import { requestEndGame } from "../../utils/requestEndGame";
+import { Modal } from "../../components/Modal";
 import { getPlayerId } from "../../utils/getPlayerId";
+import { requestEndGame } from "../../utils/requestEndGame";
+import useStore from "../store";
 
 // CTRL + Q triggers the modal. Allows users to quit the game, the game will end if all users quit
 
@@ -77,10 +78,7 @@ export const QuitGameModal: React.FC = () => {
 							>
 								Cancel
 							</Button>
-							<Button
-								onClick={handleQuit}
-								style={{ backgroundColor: "red" }}
-							>
+							<Button onClick={handleQuit} style={{ backgroundColor: "red" }}>
 								Quit
 							</Button>
 						</div>

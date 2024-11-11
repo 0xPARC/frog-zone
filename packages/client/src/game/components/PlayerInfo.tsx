@@ -1,6 +1,8 @@
-import React from "react";
-import useStore from "../store";
+import type React from "react";
 import ENTITIES_CONFIG from "../../const/entities.config";
+import useStore from "../store";
+import heart from "../../../public/assets/heart_cropped.png";
+import sword from "../../../public/assets/sword_cropped.png";
 
 type PlayerInfoProps = {
 	playerId: number;
@@ -8,7 +10,7 @@ type PlayerInfoProps = {
 
 const styles = {
 	infoBox: {
-		position: "absolute" as "absolute",
+		position: "absolute" as const,
 		top: "10px",
 		left: "10px",
 		backgroundColor: "rgba(0,0,0,0.8)",
@@ -24,6 +26,7 @@ const styles = {
 
 export const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId }) => {
 	const player = useStore((state) => state.getPlayerById(playerId));
+	const publicKey = useStore.getState().publicKey as string;
 
 	if (!player) {
 		return null;
@@ -32,10 +35,20 @@ export const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId }) => {
 	return (
 		<div style={styles.infoBox}>
 			<h4>
-				<b>Player: {ENTITIES_CONFIG.players[Number(playerId)].name}</b>
+        <b>Player: {ENTITIES_CONFIG.players[Number(playerId)].name}</b>
 			</h4>
-			<p>HP: {player.hp}</p>
-			<p>ATK: {player.atk}</p>
+			<p>Your Semaphore ID: ${publicKey}</p>
+			<p>SCORE: {player.points * 10}</p>
+			<div style={{display: "flex", alignItems: "center"}}>
+			<p style={{ marginRight: "5px" }}>HP:</p>
+			{[...Array(player.hp)].map((_, i) =>
+        <img  key={i} src={heart} style={{ width: '20px', height: '20px'}} />)}
+			</div>
+			<div style={{display: "flex", alignItems: "center"}}>
+			<p style={{ marginRight: "5px" }}>ATK:</p>
+			{[...Array(player.atk)].map((_, i) =>
+        <img  key={i} src={sword} style={{ width: '20px', height: '20px'}} />)}
+			</div>
 			<p>
 				x: {player.coord.x} y: {player.coord.y}
 			</p>

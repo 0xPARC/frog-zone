@@ -1,7 +1,7 @@
+import { IS_MOCK } from "../../../const/env.const";
 import { fetchTiles } from "../../../utils/fetchTiles";
 import { getSurroundingCoordinates } from "../../../utils/getSurroundingCoordinates";
-import useStore, { Coord, TileWithCoord } from "../../store";
-import { IS_MOCK } from "../../../const/env.const";
+import useStore, { type Coord, type TileWithCoord } from "../../store";
 
 const FETCH_INTERVAL = IS_MOCK ? 1000 : 15000;
 const STALE_TIME_MS = 5000;
@@ -9,7 +9,6 @@ const STALE_TIME_MS = 5000;
 export const createTileFetcher = ({
 	initialCoordinate,
 	batchSize,
-	playerId,
 	onSuccessfulFetch,
 }: {
 	initialCoordinate: Coord; // the center coordinate of the viewport
@@ -29,10 +28,7 @@ export const createTileFetcher = ({
 	const addActionLog = useStore.getState().addActionLog;
 
 	const fetchNextBatch = async () => {
-		const nextBatch = coordinates.slice(
-			currentIndex,
-			currentIndex + batchSize,
-		);
+		const nextBatch = coordinates.slice(currentIndex, currentIndex + batchSize);
 
 		const newTiles = await fetchTiles(initialCoordinate, nextBatch);
 
@@ -85,8 +81,7 @@ export const createTileFetcher = ({
 		const staleCoordinates = nonPriorityCoords.filter((coord) => {
 			const tile = grid.get(`${coord.x},${coord.y}`);
 			return (
-				tile &&
-				(tile.fetchedAt === 0 || now - tile.fetchedAt >= STALE_TIME_MS)
+				tile && (tile.fetchedAt === 0 || now - tile.fetchedAt >= STALE_TIME_MS)
 			);
 		});
 
