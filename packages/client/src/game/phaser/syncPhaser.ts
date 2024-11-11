@@ -1,4 +1,3 @@
-import { Player } from "./../store";
 import {
 	getCenterPixelCoord,
 	pixelCoordToTileCoord,
@@ -12,7 +11,6 @@ import type { Coord, TileWithCoord } from "../store";
 import useStore, {
 	GameState,
 	NEXT_MOVE_TIME_MILLIS,
-	TerrainType,
 } from "../store";
 import { createTileFetcher } from "./create/createTileFetcher";
 import phaserConfig from "./create/phaserConfig";
@@ -44,7 +42,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 	const tileWidth = phaserConfig.tilemap.tileWidth;
 	const tileHeight = phaserConfig.tilemap.tileHeight;
 	const addActionLog = useStore.getState().addActionLog;
-	let directionArrows: Record<Direction, Phaser.GameObjects.Image | null> = {
+	const directionArrows: Record<Direction, Phaser.GameObjects.Image | null> = {
 		[Direction.DOWN]: null,
 		[Direction.LEFT]: null,
 		[Direction.RIGHT]: null,
@@ -108,7 +106,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 					game.tilemap.putFogAt(tile.coord, 0.1);
 				}
 			} else {
-				game.tilemap.putFogAt(tile.coord, tile.fetchedAt ? 0.7 : 1);
+				game.tilemap.putFogAt(tile.coord, tile.fetchedAt ? 0.7 : 0.7);
 				destroyImageAtTileCoord({ tileCoord: tile.coord });
 			}
 			if (tile.entity_type && tile.entity_id !== undefined) {
@@ -306,7 +304,8 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 		const key = `${tileCoord.x},${tileCoord.y}`;
 		const grid = useStore.getState().grid;
 		const tile = grid.get(key);
-		return tile?.terrainType === TerrainType.LAND;
+		if (tile?.terrainType) return ["GRASS", "ICE", "SAND"].includes(tile?.terrainType);
+    return false;
 	};
 
 	const drawArrowsAroundPlayer = (playerImg: Phaser.GameObjects.Image) => {
@@ -352,16 +351,6 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 
 	const handleMovePlayer = async (direction: Direction) => {
 		if (!selectedPlayerImg) return;
-
-		const newPxCoord = getNextPxCoord(selectedPlayerImg, direction);
-		// prevent the user from moving to an invalid tile, like into water
-		if (
-			!isValidTile(
-				pixelCoordToTileCoord(newPxCoord, tileWidth, tileHeight),
-			)
-		) {
-			return;
-		}
 
 		// record a move was made
 		useStore.getState().setLastMoveTimeStamp(Date.now());
@@ -487,16 +476,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 	const drawTerrain = () => {
 		const grid = useStore.getState().grid;
 		grid.forEach((tile) => {
-			if (tile.terrainType === TerrainType.LAND) {
-				game.tilemap.putLandAt(tile.coord);
-			}
-			if (tile.terrainType === TerrainType.WATER) {
-				if (tile.isBorderingLand) {
-					game.tilemap.putShallowWaterAt(tile.coord);
-				} else {
-					game.tilemap.putWaterAt(tile.coord);
-				}
-			}
+      game.tilemap.putTileWithTerrainAt(tile.coord, tile.terrainType);
 		});
 	};
 

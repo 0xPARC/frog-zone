@@ -425,8 +425,8 @@ async fn process_actions(state: SharedState) {
                 ActionType::ResetGame => {
                     let mut game_state = state.lock().await;
 
-                    game_state.zone = Some(Zone::new(64, 64, &game_state.evaluator));
-                    game_state.mock_zone = Some(MockZone::new(64, 64));
+                    game_state.zone = Some(Zone::new(32, 32, &game_state.evaluator));
+                    game_state.mock_zone = Some(MockZone::new(32, 32));
                     game_state.action_queue = VecDeque::new();
                     game_state.player_last_move_time = [0, 0, 0, 0];
                 }
@@ -487,13 +487,13 @@ async fn submit_r2(
             .cloned()
             .collect();
         game_state.evaluator.aggregate_round_2_keys(&round_2_keys);
-        game_state.zone = Some(Zone::new(64, 64, &game_state.evaluator));
-        game_state.mock_zone = Some(MockZone::new(64, 64));
+        game_state.zone = Some(Zone::new(32, 32, &game_state.evaluator));
+        game_state.mock_zone = Some(MockZone::new(32, 32));
 
         // Call /init to all workers
         let request = InitRequest {
-            zone_width: 64,
-            zone_height: 64,
+            zone_width: 32,
+            zone_height: 32,
             zone_cts: game_state.zone.as_ref().unwrap().cts(),
             pk: game_state.evaluator.pk().unwrap().clone(),
             bs_key: game_state.evaluator.bs_key().unwrap().clone(),
@@ -520,7 +520,7 @@ async fn rocket() -> _ {
         .init();
 
     let shared_state: Arc<Mutex<GameState>> = Arc::new(Mutex::new(GameState {
-        zone: None, // 64x64 zone, will be initialized when keygen is finished.
+        zone: None, // 32x32 zone, will be initialized when keygen is finished.
         mock_zone: None,
         action_queue: VecDeque::new(),
         player_last_move_time: [0, 0, 0, 0],

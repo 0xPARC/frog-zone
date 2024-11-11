@@ -3,11 +3,11 @@ import tileMapConfig from "../../const/tile.config.json";
 import { Button } from "../Button";
 import { TerrainType } from "../../game/store";
 import {
-	findBorderingWaterCoordinates,
+	findBorderCoordinates,
 	Grid,
-} from "../../utils/findBorderingWaterCoordinates";
+} from "../../utils/findBorderCoords";
 
-/* TileMapEditor allows us to easily visualize and edit the game map. 
+/* TileMapEditor allows us to easily visualize and edit the game map.
 Clicking on the tiles toggles them between LAND and WATER.
 Exporting the JSON exports a the json to paste into the tile.config.json */
 
@@ -18,7 +18,7 @@ const PLAYER_COORDS = ["1,2", "1,3", "4,5", "5,6"];
 export const TileMapEditor = () => {
 	const [gridData, setGridData] = useState(tileMapConfig);
 	const [isVisible, setIsVisible] = useState(false);
-	const waterCoordinatesBorderingLand = findBorderingWaterCoordinates(
+	const waterCoordinatesBorderingLand = findBorderCoordinates(
 		gridData as Grid,
 	);
 
@@ -29,9 +29,9 @@ export const TileMapEditor = () => {
 			[key]: {
 				terrainType:
 					prevData[key as keyof typeof prevData].terrainType ===
-					TerrainType.LAND
+					TerrainType.GRASS
 						? TerrainType.WATER
-						: TerrainType.LAND,
+						: TerrainType.GRASS,
 			},
 		}));
 	};
@@ -90,7 +90,7 @@ export const TileMapEditor = () => {
 						className="grid"
 						style={{
 							display: "grid",
-							gridTemplateColumns: "repeat(64, 1.5vw)",
+							gridTemplateColumns: "repeat(32, 1.5vw)",
 							gridGap: "2px",
 						}}
 					>

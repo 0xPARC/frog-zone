@@ -6,9 +6,9 @@ import { immer } from "zustand/middleware/immer";
 import { GameResponse } from "../utils/fetchGame";
 import tileConfig from "../const/tile.config.json";
 import {
-	findBorderingWaterCoordinates,
+	findBorderCoordinates,
 	Grid,
-} from "../utils/findBorderingWaterCoordinates";
+} from "../utils/findBorderCoords";
 
 export type TileEntityType = "None" | "Player" | "Item" | "Monster";
 
@@ -115,9 +115,16 @@ const initializeGrid = (
 	config: Record<string, { terrainType: string }>,
 ) => {
 	const grid = new Map<string, TileWithCoord>();
-	const waterCoordinatesBorderingLand = findBorderingWaterCoordinates(
+	const borderCoords = findBorderCoordinates(
 		config as Grid,
 	);
+
+  // let temp = "";
+  // for (const coord of borderCoords) {
+  //   const [x, y] = coord.split(",").map(Number);
+  //   temp += `PlaintextCoord { x: ${x}, y: ${y} },\n`;
+  // }
+  // console.log(temp);
 
 	for (let x = 0; x < size; x++) {
 		for (let y = 0; y < size; y++) {
@@ -129,10 +136,13 @@ const initializeGrid = (
 				coord: { x, y },
 				terrainType: tileConfig.terrainType as TerrainType,
 				isBorderingLand:
-					waterCoordinatesBorderingLand.includes(tileConfigKey),
+					borderCoords.includes(tileConfigKey),
 				entity_type: "None",
 				fetchedAt: 0,
 				isShown: false,
+				atk: 0,
+				entity_id: 0,
+				hp: 0,
 			});
 		}
 	}
@@ -148,7 +158,7 @@ const useStore = create<State>()(
 		players: new Map<number, Player>(),
 		items: new Map<number, Item>(),
 		monsters: new Map<number, Monster>(),
-		grid: initializeGrid(64, tileConfig),
+		grid: initializeGrid(32, tileConfig),
 		lastMoveTimeStamp: 0,
 		actionLogs: [],
 		hoverTile: null,
