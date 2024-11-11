@@ -53,12 +53,13 @@ pub struct PlayerEncryptedData {
     pub loc: EncryptedCoord,
     pub hp: EncryptedU8,
     pub atk: EncryptedU8,
+    pub points: EncryptedU8,
 }
 
 impl PlayerEncryptedData {
     /// Returns concatenation of each field as bits in little-endian.
     pub fn bits(&self) -> impl Iterator<Item = &PhantomBool> {
-        chain![self.loc.bits(), &self.hp, &self.atk]
+        chain![self.loc.bits(), &self.hp, &self.atk, &self.points]
     }
 
     pub fn cts(&self) -> impl Iterator<Item = &PhantomCt> {
@@ -73,6 +74,7 @@ impl PlayerEncryptedData {
             loc: EncryptedCoord::from_cts(cts, evaluator),
             hp: from_fn(|_| evaluator.wrap(cts.next().unwrap())),
             atk: from_fn(|_| evaluator.wrap(cts.next().unwrap())),
+            points: from_fn(|_| evaluator.wrap(cts.next().unwrap())),
         }
     }
 }
@@ -106,12 +108,19 @@ pub struct ItemEncryptedData {
     pub hp: EncryptedU8,
     pub atk: EncryptedU8,
     pub is_consumed: EncryptedBool,
+    pub points: EncryptedU8,
 }
 
 impl ItemEncryptedData {
     /// Returns concatenation of each field as bits in little-endian.
     pub fn bits(&self) -> impl Iterator<Item = &PhantomBool> {
-        chain![self.loc.bits(), &self.hp, &self.atk, [&self.is_consumed]]
+        chain![
+            self.loc.bits(),
+            &self.hp,
+            &self.atk,
+            [&self.is_consumed],
+            &self.points
+        ]
     }
 
     pub fn cts(&self) -> impl Iterator<Item = &PhantomCt> {
@@ -127,6 +136,7 @@ impl ItemEncryptedData {
             hp: from_fn(|_| evaluator.wrap(cts.next().unwrap())),
             atk: from_fn(|_| evaluator.wrap(cts.next().unwrap())),
             is_consumed: evaluator.wrap(cts.next().unwrap()),
+            points: from_fn(|_| evaluator.wrap(cts.next().unwrap())),
         }
     }
 }
@@ -159,12 +169,13 @@ pub struct MonsterEncryptedData {
     pub loc: EncryptedCoord,
     pub hp: EncryptedU8,
     pub atk: EncryptedU8,
+    pub points: EncryptedU8,
 }
 
 impl MonsterEncryptedData {
     /// Returns concatenation of each field as bits in little-endian.
     pub fn bits(&self) -> impl Iterator<Item = &PhantomBool> {
-        chain![self.loc.bits(), &self.hp, &self.atk]
+        chain![self.loc.bits(), &self.hp, &self.atk, &self.points]
     }
 
     pub fn cts(&self) -> impl Iterator<Item = &PhantomCt> {
@@ -179,6 +190,7 @@ impl MonsterEncryptedData {
             loc: EncryptedCoord::from_cts(cts, evaluator),
             hp: from_fn(|_| evaluator.wrap(cts.next().unwrap())),
             atk: from_fn(|_| evaluator.wrap(cts.next().unwrap())),
+            points: from_fn(|_| evaluator.wrap(cts.next().unwrap())),
         }
     }
 }
@@ -212,12 +224,19 @@ pub struct CellEncryptedData {
     pub entity_id: EncryptedU8,
     pub hp: EncryptedU8,
     pub atk: EncryptedU8,
+    pub points: EncryptedU8,
 }
 
 impl CellEncryptedData {
     /// Returns concatenation of each field as bits in little-endian.
     pub fn bits(&self) -> impl Iterator<Item = &PhantomBool> {
-        chain![&self.entity_type, &self.entity_id, &self.hp, &self.atk]
+        chain![
+            &self.entity_type,
+            &self.entity_id,
+            &self.hp,
+            &self.atk,
+            &self.points
+        ]
     }
 
     pub fn cts(&self) -> impl Iterator<Item = &PhantomCt> {
@@ -340,6 +359,7 @@ pub fn fhe_apply_move(
             },
             hp: from_fn(|_| output_bits.next().unwrap()),
             atk: from_fn(|_| output_bits.next().unwrap()),
+            points: from_fn(|_| output_bits.next().unwrap()),
         },
         from_fn(|_| ItemEncryptedData {
             loc: EncryptedCoord {
@@ -349,6 +369,7 @@ pub fn fhe_apply_move(
             hp: from_fn(|_| output_bits.next().unwrap()),
             atk: from_fn(|_| output_bits.next().unwrap()),
             is_consumed: output_bits.next().unwrap(),
+            points: from_fn(|_| output_bits.next().unwrap()),
         }),
         from_fn(|_| MonsterEncryptedData {
             loc: EncryptedCoord {
@@ -357,6 +378,7 @@ pub fn fhe_apply_move(
             },
             hp: from_fn(|_| output_bits.next().unwrap()),
             atk: from_fn(|_| output_bits.next().unwrap()),
+            points: from_fn(|_| output_bits.next().unwrap()),
         }),
     );
     assert!(output_bits.next().is_none());
@@ -436,6 +458,7 @@ fn fhe_get_cell(
         entity_id: from_fn(|_| output_bits.next().unwrap()),
         hp: from_fn(|_| output_bits.next().unwrap()),
         atk: from_fn(|_| output_bits.next().unwrap()),
+        points: from_fn(|_| output_bits.next().unwrap()),
     };
     assert!(output_bits.next().is_none());
     output
@@ -477,6 +500,7 @@ fn fhe_get_five_cells(
         entity_id: from_fn(|_| output_bits.next().unwrap()),
         hp: from_fn(|_| output_bits.next().unwrap()),
         atk: from_fn(|_| output_bits.next().unwrap()),
+        points: from_fn(|_| output_bits.next().unwrap()),
     });
     assert!(output_bits.next().is_none());
     output
@@ -512,6 +536,7 @@ fn fhe_get_cross_cells(
         entity_id: from_fn(|_| output_bits.next().unwrap()),
         hp: from_fn(|_| output_bits.next().unwrap()),
         atk: from_fn(|_| output_bits.next().unwrap()),
+        points: from_fn(|_| output_bits.next().unwrap()),
     });
     assert!(output_bits.next().is_none());
     output
@@ -550,6 +575,7 @@ fn fhe_get_vertical_cells(
         entity_id: from_fn(|_| output_bits.next().unwrap()),
         hp: from_fn(|_| output_bits.next().unwrap()),
         atk: from_fn(|_| output_bits.next().unwrap()),
+        points: from_fn(|_| output_bits.next().unwrap()),
     });
     assert!(output_bits.next().is_none());
     output
@@ -588,6 +614,7 @@ fn fhe_get_horizontal_cells(
         entity_id: from_fn(|_| output_bits.next().unwrap()),
         hp: from_fn(|_| output_bits.next().unwrap()),
         atk: from_fn(|_| output_bits.next().unwrap()),
+        points: from_fn(|_| output_bits.next().unwrap()),
     });
     assert!(output_bits.next().is_none());
     output
@@ -612,6 +639,7 @@ impl Zone {
                     },
                     hp: pk_encrypt(evaluator, 5),
                     atk: pk_encrypt(evaluator, 1),
+                    points: pk_encrypt(evaluator, 0),
                 },
             },
             Player {
@@ -623,6 +651,7 @@ impl Zone {
                     },
                     hp: pk_encrypt(evaluator, 5),
                     atk: pk_encrypt(evaluator, 1),
+                    points: pk_encrypt(evaluator, 0),
                 },
             },
             Player {
@@ -634,6 +663,7 @@ impl Zone {
                     },
                     hp: pk_encrypt(evaluator, 5),
                     atk: pk_encrypt(evaluator, 1),
+                    points: pk_encrypt(evaluator, 0),
                 },
             },
             Player {
@@ -645,6 +675,7 @@ impl Zone {
                     },
                     hp: pk_encrypt(evaluator, 5),
                     atk: pk_encrypt(evaluator, 1),
+                    points: pk_encrypt(evaluator, 0),
                 },
             },
         ];
@@ -659,6 +690,7 @@ impl Zone {
                 hp: pk_encrypt(evaluator, 0),
                 atk: pk_encrypt(evaluator, 0),
                 is_consumed: pk_encrypt::<1>(evaluator, 0)[0].clone(),
+                points: pk_encrypt(evaluator, 0),
             },
         };
         let mut items: [Item; NUM_ITEMS] = from_fn(|_| filler_item.clone());
@@ -674,6 +706,7 @@ impl Zone {
                     hp: pk_encrypt(evaluator, plaintext_item.hp),
                     atk: pk_encrypt(evaluator, plaintext_item.atk),
                     is_consumed: pk_encrypt::<1>(evaluator, 0)[0].clone(),
+                    points: pk_encrypt(evaluator, plaintext_item.points),
                 },
             };
         }
@@ -687,6 +720,7 @@ impl Zone {
                 },
                 hp: pk_encrypt(evaluator, 0),
                 atk: pk_encrypt(evaluator, 0),
+                points: pk_encrypt(evaluator, 0),
             },
         };
         let mut monsters: [Monster; NUM_MONSTERS] = from_fn(|_| filler_monster.clone());
@@ -701,6 +735,7 @@ impl Zone {
                     },
                     hp: pk_encrypt(evaluator, plaintext_monster.hp),
                     atk: pk_encrypt(evaluator, plaintext_monster.atk),
+                    points: pk_encrypt(evaluator, plaintext_monster.points),
                 },
             };
         }

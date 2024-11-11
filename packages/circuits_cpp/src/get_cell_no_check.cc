@@ -15,6 +15,7 @@ CellData get_cell_no_check(
       cell.entity_id = monster.id;
       cell.hp = monster.data.hp;
       cell.atk = monster.data.atk;
+      cell.points = monster.data.points;
     }
   }
 
@@ -26,6 +27,7 @@ CellData get_cell_no_check(
       cell.entity_id = item.id;
       cell.hp = item.data.hp;
       cell.atk = item.data.atk;
+      cell.points = item.data.points;
     }
   }
 
@@ -37,6 +39,7 @@ CellData get_cell_no_check(
       cell.entity_id = player.id;
       cell.hp = player.data.hp;
       cell.atk = player.data.atk;
+      cell.points = player.data.points;
     }
   }
 

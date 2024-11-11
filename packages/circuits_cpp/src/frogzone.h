@@ -38,6 +38,7 @@ struct PlayerData {
     Coord loc;
     unsigned char hp;
     unsigned char atk;
+    unsigned char points;
 };
 
 
@@ -51,6 +52,7 @@ struct ItemData {
     unsigned char hp;
     unsigned char atk;
     bool is_consumed;
+    unsigned char points;
 };
 
 struct ItemWithId {
@@ -70,6 +72,7 @@ struct MonsterData {
     Coord loc;
     unsigned char hp;
     unsigned char atk;
+    unsigned char points;
 };
 
 struct MonsterWithId {
@@ -108,12 +111,14 @@ struct CellData {
     unsigned char entity_id;
     unsigned char hp;
     unsigned char atk;
+    unsigned char points;
 
     CellData() {
         entity_type = None;
         entity_id = 0;
         hp = 0;
         atk = 0;
+        points = 0;
     }
 };
 

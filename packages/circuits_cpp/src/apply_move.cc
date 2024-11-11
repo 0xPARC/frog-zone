@@ -260,6 +260,7 @@ ApplyMoveOut apply_move(
       new_items.values[i].is_consumed = true;
       new_player_data.atk += item.atk;
       new_player_data.hp += item.hp;
+      new_player_data.points += item.points;
     }
   }
 
@@ -276,6 +277,7 @@ ApplyMoveOut apply_move(
         if (player_data.atk >= monster.hp) {
             new_monsters.values[i].hp = 0;
             new_player_data.atk += monster.atk;
+            new_player_data.points += monster.points;
         } else {
             new_monsters.values[i].hp -= player_data.atk;
         }

@@ -21,6 +21,7 @@ pub struct PlayerEncryptedData {
     pub loc: MockEncryptedCoord,
     pub hp: MockEncrypted<u8>,
     pub atk: MockEncrypted<u8>,
+    pub points: MockEncrypted<u8>,
 }
 
 #[derive(Clone, Debug)]
@@ -41,6 +42,7 @@ pub struct ItemEncryptedData {
     pub hp: MockEncrypted<u8>,
     pub atk: MockEncrypted<u8>,
     pub is_consumed: MockEncrypted<bool>,
+    pub points: MockEncrypted<u8>,
 }
 
 #[derive(Clone, Debug)]
@@ -60,6 +62,7 @@ pub struct MonsterEncryptedData {
     pub loc: MockEncryptedCoord,
     pub hp: MockEncrypted<u8>,
     pub atk: MockEncrypted<u8>,
+    pub points: MockEncrypted<u8>,
 }
 
 #[derive(Clone, Debug)]
@@ -80,6 +83,7 @@ pub struct CellEncryptedData {
     pub entity_id: MockEncrypted<u8>,
     pub hp: MockEncrypted<u8>,
     pub atk: MockEncrypted<u8>,
+    pub points: MockEncrypted<u8>,
 }
 
 #[derive(Clone, Debug)]
@@ -175,6 +179,7 @@ pub fn fhe_apply_move(
             new_item_data[idx].is_consumed = true;
             new_player_data.atk += new_item_data[idx].atk;
             new_player_data.hp += new_item_data[idx].hp;
+            new_player_data.points += new_item_data[idx].points;
         }
     }
 
@@ -191,6 +196,7 @@ pub fn fhe_apply_move(
             if monster.hp <= player_data.atk {
                 new_monster_data[idx].hp = 0;
                 new_player_data.atk += monster.atk;
+                new_player_data.points += monster.points;
             } else {
                 new_monster_data[idx].hp -= player_data.atk
             }
@@ -219,6 +225,7 @@ fn fhe_get_cell_no_check(
             cell.entity_id = monster.id;
             cell.hp = monster.data.hp;
             cell.atk = monster.data.atk;
+            cell.points = monster.data.points;
         }
     }
 
@@ -228,6 +235,7 @@ fn fhe_get_cell_no_check(
             cell.entity_id = item.id;
             cell.hp = item.data.hp;
             cell.atk = item.data.atk;
+            cell.points = item.data.points;
         }
     }
 
@@ -237,6 +245,7 @@ fn fhe_get_cell_no_check(
             cell.entity_id = player.id;
             cell.hp = player.data.hp;
             cell.atk = player.data.atk;
+            cell.points = player.data.points;
         }
     }
 
@@ -425,6 +434,7 @@ impl MockZone {
                     },
                     hp: pk_encrypt(5),
                     atk: pk_encrypt(1),
+                    points: pk_encrypt(0),
                 },
             },
             Player {
@@ -436,6 +446,7 @@ impl MockZone {
                     },
                     hp: pk_encrypt(5),
                     atk: pk_encrypt(1),
+                    points: pk_encrypt(0),
                 },
             },
             Player {
@@ -447,6 +458,7 @@ impl MockZone {
                     },
                     hp: pk_encrypt(5),
                     atk: pk_encrypt(1),
+                    points: pk_encrypt(0),
                 },
             },
             Player {
@@ -458,6 +470,7 @@ impl MockZone {
                     },
                     hp: pk_encrypt(5),
                     atk: pk_encrypt(1),
+                    points: pk_encrypt(0),
                 },
             },
         ];
@@ -471,6 +484,7 @@ impl MockZone {
                 },
                 hp: pk_encrypt(0),
                 atk: pk_encrypt(0),
+                points: pk_encrypt(0),
                 is_consumed: pk_encrypt(false),
             },
         };
@@ -486,6 +500,7 @@ impl MockZone {
                     },
                     hp: pk_encrypt(plaintext_item.hp),
                     atk: pk_encrypt(plaintext_item.atk),
+                    points: pk_encrypt(plaintext_item.points),
                     is_consumed: pk_encrypt(false),
                 },
             };
@@ -500,6 +515,7 @@ impl MockZone {
                 },
                 hp: pk_encrypt(0),
                 atk: pk_encrypt(0),
+                points: pk_encrypt(0),
             },
         };
         let mut monsters: [Monster; NUM_MONSTERS] = from_fn(|_| filler_monster.clone());
@@ -514,6 +530,7 @@ impl MockZone {
                     },
                     hp: pk_encrypt(plaintext_monster.hp),
                     atk: pk_encrypt(plaintext_monster.atk),
+                    points: pk_encrypt(plaintext_monster.points),
                 },
             };
         }
