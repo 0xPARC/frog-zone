@@ -3,7 +3,7 @@
 void test_apply_move() {
   PlayerData player_data;
   Direction direction;
-  Obstacles100 obstacles;
+  Obstacles4 obstacles;
   Monsters monsters;
   Items items;
   apply_move(player_data, direction, obstacles, monsters, items);
