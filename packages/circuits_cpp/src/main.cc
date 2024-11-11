@@ -9,6 +9,24 @@ void test_apply_move() {
   apply_move(player_data, direction, obstacles, monsters, items);
 }
 
+void test_apply_move_monster() {
+  Coord old_coords;
+  Direction direction;
+  Obstacles4 player_coords;
+  Obstacles23 monster_coords;
+  Obstacles12 item_coords;
+  apply_move_monster(old_coords, direction, player_coords, monster_coords, item_coords);
+}
+
+void test_apply_move_flying() {
+  Coord old_coords;
+  Direction direction;
+  Obstacles4 player_coords;
+  Obstacles23 monster_coords;
+  Obstacles12 item_coords;
+  apply_move_flying(old_coords, direction, player_coords, monster_coords, item_coords);
+}
+
 void test_get_cell() {
   Coord player_coord;
   Coord query_coord;
@@ -55,6 +73,8 @@ void test_get_vertical_cells() {
 
 int main() {
   test_apply_move();
+  test_apply_move_monster();
+  test_apply_move_flying();
   test_get_cell();
   test_get_five_cells();
   test_get_cross_cells();

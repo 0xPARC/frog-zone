@@ -7,6 +7,8 @@
 set -ex
 
 g++ apply_move.cc \
+    apply_move_monster.cc \
+    apply_move_flying.cc \
     get_cell_no_check.cc \
     get_cell.cc \
     get_five_cells.cc \

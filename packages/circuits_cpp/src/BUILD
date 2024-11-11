@@ -13,6 +13,22 @@ fhe_rust_library(
 )
 
 fhe_rust_library(
+    name = "apply_move_monster_rs_fhe_lib",
+    lut_size = 0,
+    loop_unroll_rlimit = 256,
+    src = "apply_move_monster.cc",
+    hdrs = ["frogzone.h"],
+)
+
+fhe_rust_library(
+    name = "apply_move_flying_rs_fhe_lib",
+    lut_size = 0,
+    loop_unroll_rlimit = 256,
+    src = "apply_move_flying.cc",
+    hdrs = ["frogzone.h"],
+)
+
+fhe_rust_library(
     name = "get_cell_rs_fhe_lib",
     lut_size = 0,
     loop_unroll_rlimit = 256,

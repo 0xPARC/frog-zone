@@ -6,6 +6,8 @@ project="frogzone"
 
 if [ -z "${func}" ]; then
 	funcs="apply_move
+	apply_move_monster
+	apply_move_flying
 	get_cell
 	get_five_cells
 	get_cross_cells
@@ -28,4 +30,3 @@ done
 
 chmod +w-x+X -R "/projects/${project}/out/"
 chown 1000 -R "/projects/${project}/out/"
-

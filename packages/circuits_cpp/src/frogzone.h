@@ -34,6 +34,16 @@ struct Obstacles4 {
     Coord values[NUM_PLAYERS];
 };
 
+// These are the monster coords
+struct Obstacles23 {
+    Coord values[NUM_MONSTERS];
+};
+
+// These are the item coords
+struct Obstacles12 {
+    Coord values[NUM_ITEMS];
+};
+
 struct PlayerData {
     Coord loc;
     unsigned char hp;
@@ -143,6 +153,20 @@ bool invalid_coord(
                  Coord player_coord,
                  Coord query_coord
                  );
+
+Coord apply_move_monster(
+                        Coord old_coords,
+                        Direction direction,
+                        Obstacles4 players_coords,
+                        Obstacles23 monster_coords,
+                        Obstacles12 item_coords);
+
+Coord apply_move_flying(
+                        Coord old_coords,
+                        Direction direction,
+                        Obstacles4 players_coords,
+                        Obstacles23 monster_coords,
+                        Obstacles12 item_coords);
 
 ApplyMoveOut apply_move(
                         PlayerData player_data,
