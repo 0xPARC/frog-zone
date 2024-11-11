@@ -21,7 +21,7 @@ const nextConfig = {
     outputFileTracingRoot: path.join(__dirname, "..", ".."),
     outputFileTracing: true,
     outputFileTracingIncludes: {
-      "/api/login": ["node_modules/@pcd/proto-pod-gpc-artifacts/**/*"],
+      "/api/login": ["./node_modules/@pcd/proto-pod-gpc-artifacts/**/*"],
     }
   }
 };
