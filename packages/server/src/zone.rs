@@ -25,6 +25,10 @@ pub type EncryptedEntityType = [EncryptedBool; 3];
 /// Encrypted random input from client (to be mixed into random state).
 pub type EncryptedRandomState = EncryptedU8;
 
+pub fn encrypted_direction_from_random_state(state: &EncryptedRandomState) -> EncryptedDirection {
+    return [state[0].clone(), state[1].clone()];
+}
+
 #[derive(Clone, Debug)]
 pub struct EncryptedCoord {
     pub x: EncryptedU8,
