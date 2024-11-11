@@ -14,6 +14,11 @@ const createPhaserGame = async () => {
 	const MainScene = createPhaserScene({
 		key: MAIN_SCENE_KEY,
 		preload: (scene: Phaser.Scene) => {
+			scene.load.image(phaserConfig.assetKeys.ice, "/assets/ICE.png");
+			scene.load.image(phaserConfig.assetKeys.rock, "/assets/ROCK.png");
+			scene.load.image(phaserConfig.assetKeys.sand, "/assets/SAND.png");
+			scene.load.image(phaserConfig.assetKeys.water, "/assets/WATER.png");
+
 			scene.load.image(phaserConfig.assetKeys.tileset, "/assets/tile.png");
 			scene.load.image(phaserConfig.assetKeys.frog, "/assets/frog.png");
 			scene.load.image(phaserConfig.assetKeys.item, "/assets/potion.png");
@@ -107,7 +112,6 @@ const createPhaserGame = async () => {
 		width: (window.innerWidth - 370) * window.devicePixelRatio,
 		height: window.innerHeight * window.devicePixelRatio,
 		backgroundColor: "#201e1e",
-
 		pixelArt: true,
 		scale: {
 			mode: Phaser.Scale.CENTER_BOTH,

@@ -15,7 +15,8 @@ const setupMainScene = async (scene: Phaser.Scene) => {
 	await getSceneLoadPromise(scene);
 
 	const tilemap = createTilemap(scene);
-	const camera = createCamera(scene.cameras.main, 1, 1, 1, 1, 2);
+	const camera = createCamera(scene.cameras.main, 0.6, 0.6, 1, 1, 2);
+	camera.setZoom(0.6);
 	const x = player?.coord.x || 1;
 	const y = player?.coord.y || 1;
 	camera.centerOn(tileHeight * x, tileHeight * y);

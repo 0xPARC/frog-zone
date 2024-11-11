@@ -6,6 +6,8 @@ import type { Coord, TerrainType } from "../../store";
 import useStore from "../../store";
 import config from "./phaserConfig";
 
+const INITIAL_FOG_DURATION = 3000;
+
 const createTilemap = (scene: Phaser.Scene) => {
 	const {
 		tilemap: { tileWidth, tileHeight, gridSize },
@@ -60,11 +62,11 @@ const createTilemap = (scene: Phaser.Scene) => {
 	// Create a fog map to store the fog overlays for each tile
 	const fogMap: { [key: string]: Phaser.GameObjects.Graphics } = {};
 	// Create map to store the tiles
-	const waterMap: { [key: string]: Phaser.GameObjects.Graphics } = {};
-	const grassMap: { [key: string]: Phaser.GameObjects.Graphics } = {};
-	const sandMap: { [key: string]: Phaser.GameObjects.Graphics } = {};
-	const rockMap: { [key: string]: Phaser.GameObjects.Graphics } = {};
-	const iceMap: { [key: string]: Phaser.GameObjects.Graphics } = {};
+	const waterMap: { [key: string]: Phaser.GameObjects.Image } = {};
+	const grassMap: { [key: string]: Phaser.GameObjects.Image } = {};
+	const sandMap: { [key: string]: Phaser.GameObjects.Image } = {};
+	const rockMap: { [key: string]: Phaser.GameObjects.Image } = {};
+	const iceMap: { [key: string]: Phaser.GameObjects.Image } = {};
 
 	// Create a hover map to store the hover tiles
 	const hoverMap: { [key: string]: Phaser.GameObjects.Graphics } = {};
@@ -106,6 +108,7 @@ const createTilemap = (scene: Phaser.Scene) => {
 		}
 	};
 
+	const start = Date.now();
 	const putFogAt = (tileCoord: Coord, opacity = 0.5) => {
 		const tileX = (tileCoord.x + gridSize / 2) * tileWidth + startX * tileWidth;
 		const tileY =
@@ -127,6 +130,10 @@ const createTilemap = (scene: Phaser.Scene) => {
 		fogOverlay.setAlpha(0);
 		fogOverlay.fillRect(tileX, tileY, tileWidth, tileHeight);
 		fogMap[key] = fogOverlay;
+		if (Date.now() - start < INITIAL_FOG_DURATION) {
+			fogOverlay.setAlpha(opacity);
+			return;
+		}
 		awaitTween({
 			targets: fogOverlay,
 			duration: config.animationDuration,
@@ -149,13 +156,12 @@ const createTilemap = (scene: Phaser.Scene) => {
 		}
 	}
 
-	const terrainTypeToColor = (terrainType: TerrainType): number => {
-		if (terrainType === "ICE") return 0xbcd9ee;
-		if (terrainType === "WATER") return 0x3fafe4;
-		if (terrainType === "SAND") return 0xfff3bf;
-		if (terrainType === "ROCK") return 0x7e4328;
-		if (terrainType === "GRASS") return 0x68be64;
-		return 0xffffff;
+	const getTerrainAssetKey = (terrainType: TerrainType): string | undefined => {
+		if (terrainType === "ICE") return config.assetKeys.ice;
+		if (terrainType === "WATER") return config.assetKeys.water;
+		if (terrainType === "SAND") return config.assetKeys.sand;
+		if (terrainType === "ROCK") return config.assetKeys.rock;
+		return undefined;
 	};
 
 	const putTileWithTerrainAt = (tileCoord: Coord, terrainType: TerrainType) => {
@@ -164,12 +170,17 @@ const createTilemap = (scene: Phaser.Scene) => {
 			(tileCoord.y + gridSize / 2) * tileHeight + startY * tileHeight;
 
 		const key = `${tileCoord.x},${tileCoord.y}`;
-		const overlay = scene.add.graphics();
-		const color = terrainTypeToColor(terrainType);
-		overlay.fillStyle(color, 1);
-		overlay.fillRect(tileX, tileY, tileWidth, tileHeight);
-		overlay.lineStyle(5, 0xffffff, 0.2);
-		overlay.strokeRect(tileX, tileY, tileWidth, tileHeight);
+		const assetKey = getTerrainAssetKey(terrainType);
+		if (!assetKey) {
+			// Grass tile
+			const overlay = scene.add.graphics();
+			overlay.fillStyle(0x68be64, 1);
+			overlay.fillRect(tileX, tileY, tileWidth, tileHeight);
+			return;
+		}
+		const overlay = scene.add.image(tileX, tileY, assetKey);
+		overlay.setDisplaySize(tileWidth, tileHeight);
+		overlay.setOrigin(0, 0);
 		if (terrainType === "ICE") iceMap[key] = overlay;
 		if (terrainType === "WATER") waterMap[key] = overlay;
 		if (terrainType === "SAND") sandMap[key] = overlay;
