@@ -106,7 +106,7 @@ const syncPhaser = async (game: PhaserGame, api: Api) => {
 					game.tilemap.putFogAt(tile.coord, 0.1);
 				}
 			} else {
-				game.tilemap.putFogAt(tile.coord, tile.fetchedAt ? 0.7 : 0.7);
+				game.tilemap.putFogAt(tile.coord, tile.fetchedAt ? 0.7 : 1);
 				destroyImageAtTileCoord({ tileCoord: tile.coord });
 			}
 			if (tile.entity_type && tile.entity_id !== undefined) {
