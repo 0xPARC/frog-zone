@@ -607,8 +607,8 @@ impl Zone {
                 id: 0,
                 data: PlayerEncryptedData {
                     loc: EncryptedCoord {
-                        x: pk_encrypt(evaluator, 1),
-                        y: pk_encrypt(evaluator, 0),
+                        x: pk_encrypt(evaluator, 3),
+                        y: pk_encrypt(evaluator, 27),
                     },
                     hp: pk_encrypt(evaluator, 5),
                     atk: pk_encrypt(evaluator, 1),
@@ -618,8 +618,8 @@ impl Zone {
                 id: 1,
                 data: PlayerEncryptedData {
                     loc: EncryptedCoord {
-                        x: pk_encrypt(evaluator, 11),
-                        y: pk_encrypt(evaluator, 0),
+                        x: pk_encrypt(evaluator, 19),
+                        y: pk_encrypt(evaluator, 27),
                     },
                     hp: pk_encrypt(evaluator, 5),
                     atk: pk_encrypt(evaluator, 1),
@@ -629,8 +629,8 @@ impl Zone {
                 id: 2,
                 data: PlayerEncryptedData {
                     loc: EncryptedCoord {
-                        x: pk_encrypt(evaluator, 21),
-                        y: pk_encrypt(evaluator, 0),
+                        x: pk_encrypt(evaluator, 28),
+                        y: pk_encrypt(evaluator, 28),
                     },
                     hp: pk_encrypt(evaluator, 5),
                     atk: pk_encrypt(evaluator, 1),
@@ -640,8 +640,8 @@ impl Zone {
                 id: 3,
                 data: PlayerEncryptedData {
                     loc: EncryptedCoord {
-                        x: pk_encrypt(evaluator, 2),
-                        y: pk_encrypt(evaluator, 0),
+                        x: pk_encrypt(evaluator, 12),
+                        y: pk_encrypt(evaluator, 29),
                     },
                     hp: pk_encrypt(evaluator, 5),
                     atk: pk_encrypt(evaluator, 1),

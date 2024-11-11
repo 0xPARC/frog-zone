@@ -420,8 +420,8 @@ impl MockZone {
                 id: 0,
                 data: PlayerEncryptedData {
                     loc: MockEncryptedCoord {
-                        x: pk_encrypt(4),
-                        y: pk_encrypt(28),
+                        x: pk_encrypt(3),
+                        y: pk_encrypt(27),
                     },
                     hp: pk_encrypt(5),
                     atk: pk_encrypt(1),
@@ -431,8 +431,8 @@ impl MockZone {
                 id: 1,
                 data: PlayerEncryptedData {
                     loc: MockEncryptedCoord {
-                        x: pk_encrypt(20),
-                        y: pk_encrypt(28),
+                        x: pk_encrypt(19),
+                        y: pk_encrypt(27),
                     },
                     hp: pk_encrypt(5),
                     atk: pk_encrypt(1),
@@ -442,8 +442,8 @@ impl MockZone {
                 id: 2,
                 data: PlayerEncryptedData {
                     loc: MockEncryptedCoord {
-                        x: pk_encrypt(29),
-                        y: pk_encrypt(29),
+                        x: pk_encrypt(28),
+                        y: pk_encrypt(28),
                     },
                     hp: pk_encrypt(5),
                     atk: pk_encrypt(1),
@@ -453,8 +453,8 @@ impl MockZone {
                 id: 3,
                 data: PlayerEncryptedData {
                     loc: MockEncryptedCoord {
-                        x: pk_encrypt(13),
-                        y: pk_encrypt(30),
+                        x: pk_encrypt(12),
+                        y: pk_encrypt(29),
                     },
                     hp: pk_encrypt(5),
                     atk: pk_encrypt(1),
