@@ -22,6 +22,20 @@ const createPhaserGame = async () => {
 			scene.load.image(phaserConfig.assetKeys.item, "/assets/potion.png");
 			scene.load.image(phaserConfig.assetKeys.arrow, "/assets/arrow.png");
 			scene.load.image(phaserConfig.assetKeys.monster, "/assets/monster.png");
+			scene.load.image(phaserConfig.assetKeys["frog blue"], "/assets/PLAYER_00_FROG_BLUE.svg");
+			scene.load.image(phaserConfig.assetKeys["frog green"], "/assets/PLAYER_01_FROG_GREEN.svg");
+			scene.load.image(phaserConfig.assetKeys["frog teal"], "/assets/PLAYER_02_FROG_TEAL.svg");
+			scene.load.image(phaserConfig.assetKeys["frog pink"], "/assets/PLAYER_03_FROG_PINK.svg");
+			scene.load.image(phaserConfig.assetKeys["blue potion"], "/assets/ITEM_00_BLUE_POTION.svg");
+			scene.load.image(phaserConfig.assetKeys["red potion"], "/assets/ITEM_02_RED_POTION.svg");
+			scene.load.image(phaserConfig.assetKeys["diamond sword"], "/assets/ITEM_05_DIAMOND_SWORD.svg");
+			scene.load.image(phaserConfig.assetKeys["iron sword"], "/assets/ITEM_07_IRON_SWORD.svg");
+			scene.load.image(phaserConfig.assetKeys["wooden sword"], "/assets/ITEM_09_WOODEN_SWORD.svg");
+			scene.load.image(phaserConfig.assetKeys.dragon, "/assets/MONSTER_00_DRAGON.svg");
+			scene.load.image(phaserConfig.assetKeys["prickly bush"], "/assets/MONSTER_01_PRICKLY_BUSH.svg");
+			scene.load.image(phaserConfig.assetKeys.ogre, "/assets/MONSTER_10_HEAVY_ENEMY.svg");
+			scene.load.image(phaserConfig.assetKeys.imp, "/assets/MONSTER_13_IMP.svg");
+			scene.load.image(phaserConfig.assetKeys.bat, "/assets/MONSTER_17_BAT.svg");
 		},
 	});
 	const config: Phaser.Types.Core.GameConfig = {

@@ -90,7 +90,7 @@ export const TileInfo: React.FC = () => {
 							</p>
 							<p>
 								description:{" "}
-								{ENTITIES_CONFIG["items"][hoverTile.entity_id]
+								{ENTITIES_CONFIG["monsters"][hoverTile.entity_id]
 									?.description ??
 									"Yikes... We don't know anything about this one!"}
 							</p>
