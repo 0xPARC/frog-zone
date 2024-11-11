@@ -23,11 +23,11 @@ export async function OPTIONS() {
 export async function POST(request: Request) {
   try {
 
-    function readDirRecursively(dir) {
+    function readDirRecursively(dir: fs.PathLike) {
       const entries = fs.readdirSync(dir);
       console.log(`Contents of ${dir}:`);
       entries.forEach(entry => {
-        const fullPath = path.join(dir, entry);
+        const fullPath = path.join(dir.toString(), entry);
         const stats = fs.statSync(fullPath);
         if (stats.isDirectory()) {
           readDirRecursively(fullPath);
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     }
 
     readDirRecursively(path.join(process.cwd(), "..", ".."));
-    
+
     const { proof: proofResult } = await request.json();
     const { boundConfig, revealedClaims, proof } =
       deserializeProofResult(proofResult);
