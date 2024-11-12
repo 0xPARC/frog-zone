@@ -1,8 +1,7 @@
 import type React from "react";
 import ENTITIES_CONFIG from "../../const/entities.config";
 import useStore from "../store";
-import heart from "../../../public/assets/heart_cropped.png";
-import sword from "../../../public/assets/sword_cropped.png";
+import { PlayerHealthStat, PlayerHealthStatType } from "./PlayerHealthStat";
 
 type PlayerInfoProps = {
 	playerId: number;
@@ -21,12 +20,15 @@ const styles = {
 		border: "1px solid #fff",
 		zIndex: 10,
 		minWidth: "150px",
+		maxWidth: "360px",
 	},
 };
 
 export const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId }) => {
 	const player = useStore((state) => state.getPlayerById(playerId));
 	const publicKey = useStore.getState().publicKey as string;
+	const atk = Number(player?.atk ?? 0);
+	const hp = Number(player?.hp ?? 0);
 
 	if (!player) {
 		return null;
@@ -35,20 +37,12 @@ export const PlayerInfo: React.FC<PlayerInfoProps> = ({ playerId }) => {
 	return (
 		<div style={styles.infoBox}>
 			<h4>
-        <b>Player: {ENTITIES_CONFIG.players[Number(playerId)].name}</b>
+				<b>Player: {ENTITIES_CONFIG.players[Number(playerId)].name}</b>
 			</h4>
 			<p>Your Semaphore ID: ${publicKey}</p>
 			<p>SCORE: {player.points * 10}</p>
-			<div style={{display: "flex", alignItems: "center"}}>
-			<p style={{ marginRight: "5px" }}>HP:</p>
-			{[...Array(player.hp)].map((_, i) =>
-        <img  key={i} src={heart} style={{ width: '20px', height: '20px'}} />)}
-			</div>
-			<div style={{display: "flex", alignItems: "center"}}>
-			<p style={{ marginRight: "5px" }}>ATK:</p>
-			{[...Array(player.atk)].map((_, i) =>
-        <img  key={i} src={sword} style={{ width: '20px', height: '20px'}} />)}
-			</div>
+			<PlayerHealthStat type={PlayerHealthStatType.HP} value={hp} />
+			<PlayerHealthStat type={PlayerHealthStatType.ATK} value={atk} />
 			<p>
 				x: {player.coord.x} y: {player.coord.y}
 			</p>

@@ -3,6 +3,7 @@ import ENTITIES_CONFIG from "../../const/entities.config";
 import useStore from "../store";
 import heart from "../../../public/assets/heart_cropped.png";
 import sword from "../../../public/assets/sword_cropped.png";
+import { PlayerHealthStat, PlayerHealthStatType } from "./PlayerHealthStat";
 
 const styles = {
 	infoBox: {
@@ -16,7 +17,7 @@ const styles = {
 		paddingRight: "10px",
 		border: "1px solid #fff",
 		zIndex: 10,
-		width: "250px",
+		width: "360px",
 	},
 	tileInfo: {
 		paddingBottom: "10px",
@@ -32,6 +33,8 @@ const entityTypeToInfoMap: Record<string, string> = {
 
 export const TileInfo: React.FC = () => {
 	const hoverTile = useStore((state) => state.hoverTile);
+	const hp = Number(hoverTile?.hp ?? 0);
+	const atk = Number(hoverTile?.atk ?? 0);
 
 	if (!hoverTile) {
 		return null;
@@ -46,75 +49,75 @@ export const TileInfo: React.FC = () => {
 						<p>
 							x: {hoverTile.coord.x} y: {hoverTile.coord.y}
 						</p>
-						<p>contains: {entityTypeToInfoMap[hoverTile.entity_type]}</p>
+						<p>
+							contains:{" "}
+							{entityTypeToInfoMap[hoverTile.entity_type]}
+						</p>
 						<p>terrain: {hoverTile.terrainType}</p>
 					</div>
-					{(hoverTile.entity_type === "Player") && (
+					{hoverTile.entity_type === "Player" && (
 						<>
 							<h4>Player Details</h4>
 							<p>
 								Name:{" "}
-								{ENTITIES_CONFIG["players"][hoverTile.entity_id]?.name ??
-									"UNKNOWN"}
+								{ENTITIES_CONFIG["players"][hoverTile.entity_id]
+									?.name ?? "UNKNOWN"}
 							</p>
 							<p>
 								Description:{" "}
-								{ENTITIES_CONFIG["players"][hoverTile.entity_id]?.description ??
-									"???"}
+								{ENTITIES_CONFIG["players"][hoverTile.entity_id]
+									?.description ?? "???"}
 							</p>
-							<div style={{display: "flex", alignItems: "center"}}>
-							<p style={{ marginRight: "5px" }}>HP:</p>
-							{[...Array(hoverTile.hp)].map((_, i) =>
-              <img  key={i} src={heart} style={{ width: '20px', height: '20px'}} />)}
-							</div>
-							<div style={{display: "flex", alignItems: "center"}}>
-							<p style={{ marginRight: "5px" }}>ATK:</p>
-							{[...Array(hoverTile.atk)].map((_, i) =>
-              <img  key={i} src={sword} style={{ width: '20px', height: '20px'}} />)}
-							</div>
+							<PlayerHealthStat
+								type={PlayerHealthStatType.HP}
+								value={hp}
+							/>
+							<PlayerHealthStat
+								type={PlayerHealthStatType.ATK}
+								value={atk}
+							/>
 						</>
 					)}
-					{(hoverTile.entity_type === "Item") && (
+					{hoverTile.entity_type === "Item" && (
 						<>
 							<h4>Item Details</h4>
 							<p>
 								Name:{" "}
-								{ENTITIES_CONFIG["items"][hoverTile.entity_id]?.name ??
-									"UNKNOWN"}
+								{ENTITIES_CONFIG["items"][hoverTile.entity_id]
+									?.name ?? "UNKNOWN"}
 							</p>
 							<p>
 								Description:{" "}
-								{ENTITIES_CONFIG["items"][hoverTile.entity_id]?.description ??
-									"???"}
+								{ENTITIES_CONFIG["items"][hoverTile.entity_id]
+									?.description ?? "???"}
 							</p>
 						</>
 					)}
-					{(hoverTile.entity_type === "Monster") && (
+					{hoverTile.entity_type === "Monster" && (
 						<>
 							<h4>Monster Details</h4>
 							<p>
 								Name:{" "}
-								{ENTITIES_CONFIG["monsters"][hoverTile.entity_id]?.name ??
-									"UNKNOWN"}
+								{ENTITIES_CONFIG["monsters"][
+									hoverTile.entity_id
+								]?.name ?? "UNKNOWN"}
 							</p>
 							<p>
 								Description:{" "}
-								{ENTITIES_CONFIG["monsters"][hoverTile.entity_id]
-									?.description ??
+								{ENTITIES_CONFIG["monsters"][
+									hoverTile.entity_id
+								]?.description ??
 									"Yikes... We don't know anything about this one!"}
 							</p>
 
-
-							<div style={{display: "flex", alignItems: "center"}}>
-							<p style={{ marginRight: "5px" }}>HP:</p>
-							{[...Array(hoverTile.hp)].map((_, i) =>
-              <img  key={i} src={heart} style={{ width: '20px', height: '20px'}} />)}
-							</div>
-							<div style={{display: "flex", alignItems: "center"}}>
-							<p style={{ marginRight: "5px" }}>ATK:</p>
-							{[...Array(hoverTile.atk)].map((_, i) =>
-              <img  key={i} src={sword} style={{ width: '20px', height: '20px'}} />)}
-							</div>
+							<PlayerHealthStat
+								type={PlayerHealthStatType.HP}
+								value={hp}
+							/>
+							<PlayerHealthStat
+								type={PlayerHealthStatType.ATK}
+								value={atk}
+							/>
 						</>
 					)}
 				</>
