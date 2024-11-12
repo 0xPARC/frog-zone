@@ -56,32 +56,6 @@ export default function Home() {
 
       if (zInstance) {
         const pKey = await zInstance.identity.getPublicKey();
-        const proofRequest = getTicketProofRequest();
-        // gpc proof code follows this sample: https://github.com/robknight/gpc-sample/
-        const proof = await zInstance?.gpc.prove({
-          request: proofRequest.schema,
-          collectionIds: ["Devcon SEA"],
-        });
-
-        if (!proof?.success) {
-          console.error("Failed to prove ticket.", proof);
-          setIsConnecting(false);
-          setError(
-            "Sorry. It looks like we failed to find your ticket. Please try again and make sure your account is correct.",
-          );
-          return;
-        }
-
-        const result = await verifyProof({ proof });
-
-        if (!result.verified) {
-          console.error("Failed to verify proof.", result);
-          setError(
-            "Sorry. It looks like we failed to verify your ticket. Please try again.",
-          );
-          setIsConnecting(false);
-          return;
-        }
 
         const loginData = await postNewLogIn({
           publicKey: pKey,
