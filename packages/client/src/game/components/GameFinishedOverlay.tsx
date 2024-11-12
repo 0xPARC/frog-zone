@@ -22,7 +22,7 @@ export const GameFinishedOverlay: React.FC = () => {
 	}, [wasAborted]);
 
 	const handleNewGame = async () => {
-		await resetGame({ playerId });
+		resetGame({ playerId });
 		window.location.reload();
 	};
 
@@ -47,8 +47,8 @@ export const GameFinishedOverlay: React.FC = () => {
 			<div>
 				<Button onClick={handleNewGame}>Start New Game Now</Button>
 				<p style={styles.countdownMessage}>
-					A new game will start automatically in <strong>{countdown}</strong>{" "}
-					seconds.
+					A new game will start automatically in{" "}
+					<strong>{countdown}</strong> seconds.
 				</p>
 			</div>
 		</div>
