@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { fetchMachineStatus, postNewLogIn } from "@/utils/api";
 import { connect, Zapp } from "@parcnet-js/app-connector";
-import { postNewLogIn, fetchMachineStatus, verifyProof } from "@/utils/api";
-import { getTicketProofRequest } from "@/utils/ticketProof";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const myApp: Zapp = {
   name: "Devcon Ticket Authentication",
@@ -22,7 +21,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const params = useParams();
   const machineId = params.slug as string;
-
+  ß;
   useEffect(() => {
     setIsClient(true);
   }, []);
