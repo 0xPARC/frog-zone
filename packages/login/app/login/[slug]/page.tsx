@@ -21,7 +21,6 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const params = useParams();
   const machineId = params.slug as string;
-  ß;
   useEffect(() => {
     setIsClient(true);
   }, []);
