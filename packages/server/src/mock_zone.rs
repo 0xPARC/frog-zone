@@ -9,6 +9,9 @@ const NUM_ITEMS: usize = 12;
 const NUM_MONSTERS: usize = 23;
 const NUM_OBSTACLES: usize = 193;
 
+// const NUM_MOVABLE_MONSTERS: usize = 4;
+// const NUM_MOVABLE_FLYERS: usize = 6;
+
 pub type MockEncrypted<T> = T;
 
 #[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -599,6 +602,14 @@ impl MockZone {
             random_state,
             precomputed_ids,
         }
+    }
+
+    pub fn move_random_monster(&mut self) {
+        println!("MOCK: Moving random monster");
+    }
+
+    pub fn move_random_flyer(&mut self) {
+        println!("MOCK: Moving random flyer");
     }
 
     pub fn move_player(

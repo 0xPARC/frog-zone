@@ -42,6 +42,8 @@ const MOVE_TIME_RATE_LIMIT_MILLIS: u64 = 3500;
 pub enum ActionType {
     None,
     Move,
+    MoveMonster,
+    MoveFlyer,
     ResetGame,
 }
 
@@ -53,7 +55,7 @@ struct GameState {
         Option<usize>,
         Option<EncryptedDirection>,
         Option<EncryptedRandomState>, // random input
-        Arc<Notify>,
+        Option<Arc<Notify>>,
     )>,
     player_last_move_time: [u64; 4],
     // Phantom
@@ -148,9 +150,13 @@ async fn reset_game(
 
     {
         let mut game_state = state.lock().await;
-        game_state
-            .action_queue
-            .push_back((ActionType::ResetGame, None, None, None, notify_clone));
+        game_state.action_queue.push_back((
+            ActionType::ResetGame,
+            None,
+            None,
+            None,
+            Some(notify_clone),
+        ));
     }
 
     notify.notified().await;
@@ -374,7 +380,7 @@ async fn queue_move(
             Some(move_request.player_id),
             Some(direction),
             Some(random_input),
-            notify_clone,
+            Some(notify_clone),
         ));
         game_state.player_last_move_time[move_request.player_id] = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
@@ -402,7 +408,7 @@ async fn queue_move(
 
 async fn process_actions(state: SharedState) {
     loop {
-        let (action_type, player_id, direction, random_input, notify) = {
+        let (action_type, entity_id, direction, random_input, notify) = {
             let mut game_state = state.lock().await;
             if let Some(action_request) = game_state.action_queue.pop_front() {
                 action_request
@@ -420,7 +426,7 @@ async fn process_actions(state: SharedState) {
                     let mut game_state = state.lock().await;
                     let zone = game_state.zone_mut().unwrap();
                     let start = std::time::Instant::now();
-                    let unwrapped_player_id = player_id.unwrap();
+                    let unwrapped_player_id = entity_id.unwrap();
                     let unwrapped_direction = direction.unwrap();
                     let unwrapped_random_input = random_input.unwrap();
                     zone.move_player(unwrapped_player_id, unwrapped_direction);
@@ -432,6 +438,9 @@ async fn process_actions(state: SharedState) {
                         .worker_diff
                         .iter_mut()
                         .for_each(|flag| flag[unwrapped_player_id] = true);
+
+                    let unwrapped_notify = notify.unwrap();
+                    unwrapped_notify.notify_one();
                 }
                 ActionType::ResetGame => {
                     let mut game_state = state.lock().await;
@@ -440,12 +449,91 @@ async fn process_actions(state: SharedState) {
                     game_state.mock_zone = Some(MockZone::new(32, 32));
                     game_state.action_queue = VecDeque::new();
                     game_state.player_last_move_time = [0, 0, 0, 0];
+
+                    let unwrapped_notify = notify.unwrap();
+                    unwrapped_notify.notify_one();
+                }
+                ActionType::MoveMonster => {
+                    let mut game_state = state.lock().await;
+                    let mut has_started = false;
+                    for move_time in game_state.player_last_move_time.iter() {
+                        if *move_time > 0 {
+                            has_started = true;
+                            break;
+                        }
+                    }
+                    if has_started {
+                        let zone = game_state.zone_mut().unwrap();
+                        let start = std::time::Instant::now();
+                        zone.move_random_monster();
+                        info!("zone.move_random_monster takes: {:?}", start.elapsed());
+                    } else {
+                        println!("Game has not started yet, waiting for players to move");
+                    }
+                }
+                ActionType::MoveFlyer => {
+                    let mut game_state = state.lock().await;
+                    let mut has_started = false;
+                    for move_time in game_state.player_last_move_time.iter() {
+                        if *move_time > 0 {
+                            has_started = true;
+                            break;
+                        }
+                    }
+                    if has_started {
+                        let zone = game_state.zone_mut().unwrap();
+                        let start = std::time::Instant::now();
+                        zone.move_random_flyer();
+                        info!("zone.move_random_flyer takes: {:?}", start.elapsed());
+                    } else {
+                        println!("Game has not started yet, waiting for players to move");
+                    }
                 }
                 ActionType::None => {}
             }
         }
+    }
+}
 
-        notify.notify_one();
+async fn start_monster_loop(state: SharedState) {
+    loop {
+        {
+            let mut game_state = state.lock().await;
+
+            game_state
+                .action_queue
+                .push_back((ActionType::MoveMonster, None, None, None, None));
+            game_state
+                .action_queue
+                .push_back((ActionType::MoveFlyer, None, None, None, None));
+        }
+        tokio::time::sleep(tokio::time::Duration::from_millis(5000)).await;
+    }
+}
+
+async fn start_mock_monster_loop(state: SharedState) {
+    loop {
+        {
+            let mut game_state = state.lock().await;
+
+            let mut has_started = false;
+            for move_time in game_state.player_last_move_time.iter() {
+                if *move_time > 0 {
+                    has_started = true;
+                    break;
+                }
+            }
+
+            if has_started {
+                let mock_zone = game_state.mock_zone_mut().unwrap();
+                mock_zone.move_random_monster();
+                mock_zone.move_random_flyer();
+            } else {
+                println!("MOCK: Game has not started yet, waiting for players to move");
+            }
+        }
+
+        tokio::time::sleep(tokio::time::Duration::from_millis(5000)).await;
     }
 }
 
@@ -542,9 +630,19 @@ async fn rocket() -> _ {
         worker_diff: vec![Default::default(); WORKER_URIS.len()],
     }));
 
-    let state_clone = shared_state.clone();
+    let state_clone_process_actions = shared_state.clone();
     tokio::spawn(async move {
-        process_actions(state_clone).await;
+        process_actions(state_clone_process_actions).await;
+    });
+
+    let state_clone_monsters_loop = shared_state.clone();
+    tokio::spawn(async move {
+        start_monster_loop(state_clone_monsters_loop).await;
+    });
+
+    let state_clone_mock_monsters_loop = shared_state.clone();
+    tokio::spawn(async move {
+        start_mock_monster_loop(state_clone_mock_monsters_loop).await;
     });
 
     let limits = Limits::default().limit("json", 750.mebibytes());

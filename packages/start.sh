@@ -47,8 +47,11 @@ cargo build --release >/dev/null 2>&1
 echo "Starting worker..."
 
 nohup cargo run --release 8005 >../logs.txt 2>&1 &
+sleep 1
 nohup cargo run --release 8006 >../logs.txt 2>&1 &
+sleep 1
 nohup cargo run --release 8007 >../logs.txt 2>&1 &
+sleep 1
 nohup cargo run --release 8008 >../logs.txt 2>&1 &
 
 sleep 3
@@ -66,8 +69,11 @@ cargo build --release >/dev/null 2>&1
 echo "Starting phantom-client..."
 
 nohup cargo run --release 8001 0 http://localhost:8000 http://localhost:8002,http://localhost:8003,http://localhost:8004 >../logs.txt 2>&1 &
+sleep 1
 nohup cargo run --release 8002 1 http://localhost:8000 http://localhost:8001,http://localhost:8003,http://localhost:8004 >../logs.txt 2>&1 &
+sleep 1
 nohup cargo run --release 8003 2 http://localhost:8000 http://localhost:8001,http://localhost:8002,http://localhost:8004 >../logs.txt 2>&1 &
+sleep 1
 nohup cargo run --release 8004 3 http://localhost:8000 http://localhost:8001,http://localhost:8002,http://localhost:8003 >../logs.txt 2>&1 &
 
 sleep 2
@@ -84,17 +90,24 @@ sleep 1
 echo "Submitting round 1 keys..."
 
 curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8001/submit_r1
+sleep 1
 curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8002/submit_r1
+sleep 1
 curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8003/submit_r1
+sleep 1
 curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8004/submit_r1
+sleep 1
 
 sleep 1
 
 echo "Get public key..."
 
 curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8001/get_pk
+sleep 1
 curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8002/get_pk
+sleep 1
 curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8003/get_pk
+sleep 1
 curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8004/get_pk
 
 sleep 1
@@ -102,8 +115,11 @@ sleep 1
 echo "Submitting round 2 keys..."
 
 curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8001/submit_r2
+sleep 1
 curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8002/submit_r2
+sleep 1
 curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8003/submit_r2
+sleep 1
 curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8004/submit_r2
 
 sleep 1

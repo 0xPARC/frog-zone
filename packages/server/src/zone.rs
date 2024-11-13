@@ -10,6 +10,9 @@ const NUM_ITEMS: usize = 12;
 const NUM_MONSTERS: usize = 23;
 const NUM_OBSTACLES: usize = 193;
 
+const NUM_MOVABLE_MONSTERS: usize = 4;
+const NUM_MOVABLE_FLYERS: usize = 6;
+
 /// Encrypted [`bool`]
 pub type EncryptedBool = PhantomBool;
 
@@ -325,6 +328,78 @@ pub fn fhe_apply_move_check_collisions(
     // }
 
     // new_coords
+}
+
+pub fn fhe_apply_move_monster(
+    old_coords: EncryptedCoord,
+    direction: EncryptedDirection,
+    player_coords: [EncryptedCoord; 4],
+    monster_coords: [EncryptedCoord; NUM_MONSTERS],
+    item_coords: [EncryptedCoord; NUM_ITEMS],
+) -> EncryptedCoord {
+    let mut output_bits = phantom_benchs::frogzone_apply_move_flying_rs_fhe_lib::apply_move_flying(
+        &direction.to_vec(),
+        &item_coords
+            .iter()
+            .flat_map(|item| item.bits())
+            .cloned()
+            .collect_vec(),
+        &monster_coords
+            .iter()
+            .flat_map(|item| item.bits())
+            .cloned()
+            .collect_vec(),
+        &old_coords.bits().cloned().collect_vec(),
+        &player_coords
+            .iter()
+            .flat_map(|item| item.bits())
+            .cloned()
+            .collect_vec(),
+    )
+    .into_iter();
+
+    let output = EncryptedCoord {
+        x: from_fn(|_| output_bits.next().unwrap()),
+        y: from_fn(|_| output_bits.next().unwrap()),
+    };
+    assert!(output_bits.next().is_none());
+    output
+}
+
+pub fn fhe_apply_move_flying(
+    old_coords: EncryptedCoord,
+    direction: EncryptedDirection,
+    player_coords: [EncryptedCoord; 4],
+    monster_coords: [EncryptedCoord; NUM_MONSTERS],
+    item_coords: [EncryptedCoord; NUM_ITEMS],
+) -> EncryptedCoord {
+    let mut output_bits = phantom_benchs::frogzone_apply_move_flying_rs_fhe_lib::apply_move_flying(
+        &direction.to_vec(),
+        &item_coords
+            .iter()
+            .flat_map(|item| item.bits())
+            .cloned()
+            .collect_vec(),
+        &monster_coords
+            .iter()
+            .flat_map(|item| item.bits())
+            .cloned()
+            .collect_vec(),
+        &old_coords.bits().cloned().collect_vec(),
+        &player_coords
+            .iter()
+            .flat_map(|item| item.bits())
+            .cloned()
+            .collect_vec(),
+    )
+    .into_iter();
+
+    let output = EncryptedCoord {
+        x: from_fn(|_| output_bits.next().unwrap()),
+        y: from_fn(|_| output_bits.next().unwrap()),
+    };
+    assert!(output_bits.next().is_none());
+    output
 }
 
 pub fn fhe_apply_move(
@@ -811,6 +886,73 @@ impl Zone {
             random_state,
             precomputed_ids,
         }
+    }
+
+    pub fn move_random_monster(&mut self) {
+        let temp = bincode::serialize(self.random_state[0].ct()).unwrap();
+        let data = temp[temp.len() - 1];
+        let idx = (data % (NUM_MOVABLE_MONSTERS as u8))
+            + ((NUM_MONSTERS - NUM_MOVABLE_MONSTERS - NUM_MOVABLE_FLYERS) as u8);
+        let old_coords = self.monsters[idx as usize].data.loc.clone();
+
+        let direction = [
+            self.random_state[0].clone() as EncryptedBool,
+            self.random_state[1].clone() as EncryptedBool,
+        ] as EncryptedDirection;
+
+        let player_coords = self.players.each_ref().map(|i| i.data.loc.clone());
+
+        let monster_coords = self.monsters.each_ref().map(|i| i.data.loc.clone());
+
+        let item_coords = self.items.each_ref().map(|i| i.data.loc.clone());
+
+        let new_coords = fhe_apply_move_monster(
+            old_coords,
+            direction,
+            player_coords,
+            monster_coords,
+            item_coords,
+        );
+
+        self.monsters[idx as usize].data.loc = new_coords;
+
+        // just pick some prime number to increment by
+        self.mix_random_input(0, self.precomputed_ids[17].clone());
+        println!("Moving random monster {}", idx);
+    }
+
+    pub fn move_random_flyer(&mut self) {
+        let temp = bincode::serialize(self.random_state[0].ct()).unwrap();
+        let data = temp[temp.len() - 1];
+        let idx = (data % (NUM_MOVABLE_FLYERS as u8)) + ((NUM_MONSTERS - NUM_MOVABLE_FLYERS) as u8);
+
+        let old_coords = self.monsters[idx as usize].data.loc.clone();
+
+        let direction = [
+            self.random_state[0].clone() as EncryptedBool,
+            self.random_state[1].clone() as EncryptedBool,
+        ] as EncryptedDirection;
+
+        let player_coords = self.players.each_ref().map(|i| i.data.loc.clone());
+
+        let monster_coords = self.monsters.each_ref().map(|i| i.data.loc.clone());
+
+        let item_coords = self.items.each_ref().map(|i| i.data.loc.clone());
+
+        let new_coords = fhe_apply_move_monster(
+            old_coords,
+            direction,
+            player_coords,
+            monster_coords,
+            item_coords,
+        );
+
+        self.monsters[idx as usize].data.loc = new_coords;
+
+        // just pick some prime number to increment by
+        self.mix_random_input(0, self.precomputed_ids[13].clone());
+
+        println!("Moving random flyer {}", idx);
     }
 
     pub fn move_player(
