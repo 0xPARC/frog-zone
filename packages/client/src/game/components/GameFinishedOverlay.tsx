@@ -24,7 +24,7 @@ export const GameFinishedOverlay: React.FC = () => {
 	}, [wasAborted]);
 
 	const handleNewGame = async () => {
-		resetGame({ playerId });
+		await resetGame({ playerId });
 		window.location.reload();
 	};
 
