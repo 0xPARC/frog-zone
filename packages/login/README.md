@@ -30,6 +30,24 @@ To open the Prisma studio:
 npx prisma studio
 ```
 
+## Setting up your own DB for development
+
+To use your own db for development purposes:
+
+1. Set up a postgreSQL db of you own. For example you can go to supabase and create a new project https://supabase.com/
+Click "Connect" to get the url values, add them to the .env like so:
+
+```bash
+DATABASE_URL=postgresql://postgres.[address]:[password]@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true
+DIRECT_URL=postgresql://postgres.[address]:[password]@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres
+```
+2. Push the current schema
+```bash
+npx prisma db push
+```
+
+3. You are ready to start the server
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
