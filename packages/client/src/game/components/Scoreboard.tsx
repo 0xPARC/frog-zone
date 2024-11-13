@@ -9,11 +9,17 @@ export const Scoreboard: React.FC = () => {
 	const selectedPlayerId = getPlayerId();
 
 	return (
-		<div>
+		<div
+			style={{
+				border: "10px solid white",
+				padding: "20px",
+				margin: "20px",
+			}}
+		>
 			{sortedPlayers.length > 0 ? (
 				<>
 					{sortedPlayers[0].machineId === selectedPlayerId ? (
-						<h1>Congratulations! You won!! 🎉</h1>
+						<h1>Congratulations! You won this game!! 🎉</h1>
 					) : (
 						<h1>Thank you for playing FROG ZONE!</h1>
 					)}
@@ -31,18 +37,25 @@ export const Scoreboard: React.FC = () => {
 									key={player.publicKey}
 									style={{
 										color:
-											player.machineId === selectedPlayerId
+											player.machineId ===
+											selectedPlayerId
 												? "yellow"
 												: "white",
 									}}
 								>
 									<td>{index + 1}.</td>
 									<td style={styles.td}>
-										{ENTITIES_CONFIG.players[Number(player.machineId)].name}
+										{
+											ENTITIES_CONFIG.players[
+												Number(player.machineId)
+											].name
+										}
 										{index === 0 && " 🏆"}
 									</td>
 									<td style={styles.td}>
-										<span style={styles.score}>{player.score * 10}</span>
+										<span style={styles.score}>
+											{player.score * 10}
+										</span>
 									</td>
 								</tr>
 							))}

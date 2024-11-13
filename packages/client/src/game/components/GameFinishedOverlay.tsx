@@ -5,11 +5,13 @@ import { getPlayerId } from "../../utils/getPlayerId";
 import { resetGame } from "../../utils/resetGame";
 import useStore from "../store";
 import { Scoreboard } from "./Scoreboard";
+import { LOGIN_SERVER_URL } from "../../const/env.const";
 
 const TIME_TO_AUTO_START_NEW_GAME = 60 * 1000;
 
 export const GameFinishedOverlay: React.FC = () => {
 	const wasAborted = useStore.getState().game?.wasAborted;
+	const publicKey = useStore.getState().publicKey as string;
 	const [countdown, setCountdown] = useState(
 		TIME_TO_AUTO_START_NEW_GAME / 1000,
 	);
@@ -44,6 +46,12 @@ export const GameFinishedOverlay: React.FC = () => {
 	return (
 		<div style={styles.overlay}>
 			<Scoreboard />
+			<iframe
+				src={`${LOGIN_SERVER_URL}/score-board?publicKey=${encodeURIComponent(
+					publicKey,
+				)}`}
+				style={{ border: "none", width: "700px", height: "500px" }}
+			/>
 			<div>
 				<Button onClick={handleNewGame}>Start New Game Now</Button>
 				<p style={styles.countdownMessage}>

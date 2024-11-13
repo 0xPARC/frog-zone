@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface Player {
@@ -8,6 +9,9 @@ interface Player {
 }
 
 export default function Scoreboard() {
+  const searchParams = useSearchParams();
+  const queryPublicKey = searchParams.get("publicKey");
+
   const [players, setPlayers] = useState<Player[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,12 +39,19 @@ export default function Scoreboard() {
     return key.length > 10 ? `${key.slice(0, 6)}...${key.slice(-3)}` : key;
   };
 
-  if (isLoading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
+  if (isLoading)
+    return <p className="text-center p-4">Loading all scores...</p>;
+  if (error)
+    return <p className="text-center p-4">Error loading all scores: {error}</p>;
+
+  const highlightedIndex = players.findIndex(
+    (player) => player.publicKey === queryPublicKey,
+  );
+  const lastIndex = players.length - 1;
 
   return (
     <div className="bg-black text-white min-h-screen p-8">
-      <h1 className="font-bold text-2xl mb-6">Scoreboard</h1>
+      <h4 className="font-bold text-lg mb-6 text-center">Station Scoreboard</h4>
       <table className="w-full">
         <thead>
           <tr>
@@ -51,15 +62,118 @@ export default function Scoreboard() {
           </tr>
         </thead>
         <tbody>
-          {players.map((player, index) => (
-            <tr key={index} className="even:bg-gray-900">
-              <td className="p-4">
-                {index + 1}. {truncatePublicKey(player.publicKey)}
-                {index === 0 && " 🏆"}
-              </td>
-              <td className="p-4">{player.score}</td>
-            </tr>
-          ))}
+          {/* If no queryPublicKey, display all players */}
+          {!queryPublicKey &&
+            players.map((player, index) => (
+              <tr
+                key={index}
+                className={`${
+                  index === 0 ? "bg-white text-black" : "even:bg-gray-900"
+                }`}
+              >
+                <td className="p-4">
+                  {index + 1}. {truncatePublicKey(player.publicKey)}
+                  {index === 0 && " 🏆"}
+                </td>
+                <td className="p-4">{player.score}</td>
+              </tr>
+            ))}
+
+          {/* If a queryPublicKey is provided, show selected rows */}
+          {queryPublicKey && players[0] && (
+            <>
+              {/* Show the first player */}
+              <tr
+                className={`${
+                  highlightedIndex === 0 ? "bg-yellow-500 text-black" : ""
+                }`}
+              >
+                <td className="p-4">
+                  1. {truncatePublicKey(players[0].publicKey)} 🏆
+                  {highlightedIndex === 0 && " (you)"}
+                </td>
+                <td className="p-4">{players[0].score}</td>
+              </tr>
+
+              {/* Show ellipsis if the highlighted player isn't the first player */}
+              {highlightedIndex > 2 && (
+                <tr>
+                  <td className="p-4 text-center" colSpan={2}>
+                    ...
+                  </td>
+                </tr>
+              )}
+
+              {/* Show the player before, highlighted player, and player after */}
+              {highlightedIndex > 0 && (
+                <>
+                  {highlightedIndex > 1 && (
+                    <tr className="even:bg-gray-900">
+                      <td className="p-4">
+                        {highlightedIndex}.{" "}
+                        {truncatePublicKey(
+                          players[highlightedIndex - 1].publicKey,
+                        )}
+                      </td>
+                      <td className="p-4">
+                        {players[highlightedIndex - 1].score}
+                      </td>
+                    </tr>
+                  )}
+
+                  <tr className="bg-yellow-500 text-black">
+                    <td className="p-4">
+                      {highlightedIndex + 1}.{" "}
+                      {truncatePublicKey(players[highlightedIndex].publicKey)}
+                      {" (you)"}
+                    </td>
+                    <td className="p-4">{players[highlightedIndex].score}</td>
+                  </tr>
+
+                  {highlightedIndex < lastIndex && (
+                    <tr className="even:bg-gray-900">
+                      <td className="p-4">
+                        {highlightedIndex + 2}.{" "}
+                        {truncatePublicKey(
+                          players[highlightedIndex + 1].publicKey,
+                        )}
+                      </td>
+                      <td className="p-4">
+                        {players[highlightedIndex + 1].score}
+                      </td>
+                    </tr>
+                  )}
+                </>
+              )}
+
+              {/* Show ellipsis if the highlighted player is not second-to-last or last */}
+              {highlightedIndex < lastIndex - 1 && (
+                <tr>
+                  <td className="p-4 text-center" colSpan={2}>
+                    ...
+                  </td>
+                </tr>
+              )}
+
+              {/* Show the last player only if it’s not the highlighted player */}
+              {highlightedIndex !== lastIndex && players[lastIndex] && (
+                <tr
+                  className={`${
+                    highlightedIndex === lastIndex
+                      ? "bg-yellow-500 text-black"
+                      : "even:bg-gray-900"
+                  }`}
+                >
+                  <td className="p-4">
+                    {lastIndex + 1}.{" "}
+                    {truncatePublicKey(players[lastIndex].publicKey)}
+                    {" (you)"}
+                  </td>
+                  <td className="p-4">{players[lastIndex].score}</td>
+                </tr>
+              )}
+            </>
+          )}
         </tbody>
       </table>
     </div>
