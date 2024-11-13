@@ -27,6 +27,12 @@ pub enum Direction {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct ResetRequest {}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ResetResponse {}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ResetGameRequest {
     pub player_id: usize,
 }

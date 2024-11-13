@@ -1,5 +1,5 @@
 use itertools::Itertools;
-use phantom::{PhantomEvaluator, PhantomParam};
+use phantom::{PhantomBsKey, PhantomEvaluator, PhantomParam, PhantomPk, PhantomRpKey};
 use rocket::figment::{util::map, Figment};
 use rocket::http::Status;
 use rocket::response::status::Custom;
@@ -57,14 +57,14 @@ async fn init(state: &State<SharedState>, request: Json<InitRequest>) -> Json<In
         zone_width,
         zone_height,
         zone_cts,
-        pk,
-        bs_key,
-        rp_key,
+        keys,
     } = request.0;
     let mut app_state = state.lock().await;
-    app_state.evaluator.set_pk(pk);
-    app_state.evaluator.set_bs_key(bs_key);
-    app_state.evaluator.set_rp_key(rp_key);
+    // if let Some((pk, bs_key, rp_key)) = keys {
+    //     app_state.evaluator.set_pk(pk);
+    //     app_state.evaluator.set_bs_key(bs_key);
+    //     app_state.evaluator.set_rp_key(rp_key);
+    // }
     app_state.zone = Some(Zone::from_cts(
         zone_width,
         zone_height,
@@ -236,9 +236,18 @@ async fn main() -> Result<(), rocket::Error> {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
+    let pk: PhantomPk = bincode::deserialize(include_bytes!("../../server/pk")).unwrap();
+    let rp_key: PhantomRpKey = bincode::deserialize(include_bytes!("../../server/rp_key")).unwrap();
+    let bs_key: PhantomBsKey = bincode::deserialize(include_bytes!("../../server/bs_key")).unwrap();
+
+    let mut evaluator = PhantomEvaluator::new(PhantomParam::I_4P_40);
+    evaluator.set_pk(pk);
+    evaluator.set_rp_key(rp_key);
+    evaluator.set_bs_key(bs_key);
+
     let shared_state: Arc<Mutex<WorkerState>> = Arc::new(Mutex::new(WorkerState {
         zone: None, // 32x32 zone, will be initialized when /init is called.
-        evaluator: PhantomEvaluator::new(PhantomParam::I_4P_40),
+        evaluator,
     }));
 
     rocket::Rocket::custom(

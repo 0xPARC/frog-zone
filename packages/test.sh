@@ -75,50 +75,60 @@ nohup cargo run --release 8003 2 http://localhost:8000 http://localhost:8001,htt
 sleep 1
 nohup cargo run --release 8004 3 http://localhost:8000 http://localhost:8001,http://localhost:8002,http://localhost:8003 >/dev/null 2>&1 &
 
-sleep 2
+sleep 3
 
-echo "Setting player ids..."
+echo "Starting game..."
 
-curl -sS --header "Content-Type: application/json" --request POST --data '{"player_id":0}' -o /dev/null http://localhost:8001/set_id
-curl -sS --header "Content-Type: application/json" --request POST --data '{"player_id":1}' -o /dev/null http://localhost:8002/set_id
-curl -sS --header "Content-Type: application/json" --request POST --data '{"player_id":2}' -o /dev/null http://localhost:8003/set_id
-curl -sS --header "Content-Type: application/json" --request POST --data '{"player_id":3}' -o /dev/null http://localhost:8004/set_id
+curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8001/reset_game
+curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8002/reset_game
+curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8003/reset_game
+curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8004/reset_game
 
-echo "Submitting round 1 keys..."
+echo "Getting player data..."
 
-curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8001/submit_r1
-sleep 1
-curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8002/submit_r1
-sleep 1
-curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8003/submit_r1
-sleep 1
-curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8004/submit_r1
+log "  Player 1:" $(curl -sS --header "Content-Type: application/json" --request POST --data '{}' http://localhost:8001/get_player)
+log "  Player 2:" $(curl -sS --header "Content-Type: application/json" --request POST --data '{}' http://localhost:8002/get_player)
+log "  Player 3:" $(curl -sS --header "Content-Type: application/json" --request POST --data '{}' http://localhost:8003/get_player)
+log "  Player 4:" $(curl -sS --header "Content-Type: application/json" --request POST --data '{}' http://localhost:8004/get_player)
 
-sleep 1
+echo "Getting cells..."
 
-echo "Get public key..."
+log "  Player 1 (get_cells [(0,0)]):"                              $(curl -sS --header "Content-Type: application/json" --request POST --data '{"coords":[{"x":0,"y":0}]}' http://localhost:8001/get_cells)
+log "  Player 1 (get_five_cells [(0,0),(1,0),(2,0),(3,0),(4,0)]):" $(curl -sS --header "Content-Type: application/json" --request POST --data '{"coords":[{"x":0,"y":0},{"x":1,"y":0},{"x":2,"y":0},{"x":3,"y":0},{"x":4,"y":0}]}' http://localhost:8001/get_five_cells)
+log "  Player 1 (get_cross_cells):"                                $(curl -sS --header "Content-Type: application/json" --request POST --data '{}' http://localhost:8001/get_cross_cells)
+log "  Player 1 (get_vertical_cells):"                             $(curl -sS --header "Content-Type: application/json" --request POST --data '{"center_coord": {"x":2,"y":0}}' http://localhost:8001/get_vertical_cells)
+log "  Player 1 (get_horizontal_cells):"                           $(curl -sS --header "Content-Type: application/json" --request POST --data '{"center_coord": {"x":1,"y":1}}' http://localhost:8001/get_horizontal_cells)
 
-curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8001/get_pk
-sleep 1
-curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8002/get_pk
-sleep 1
-curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8003/get_pk
-sleep 1
-curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8004/get_pk
+echo "Moving around..."
 
-sleep 1
+log "  Player 1 (Down):"  $(curl -sS --header "Content-Type: application/json" --request POST --data '{"direction":"Down"}'  http://localhost:8001/move)
+log "  Player 2 (Up):"    $(curl -sS --header "Content-Type: application/json" --request POST --data '{"direction":"Up"}'    http://localhost:8002/move)
+log "  Player 3 (Left):"  $(curl -sS --header "Content-Type: application/json" --request POST --data '{"direction":"Left"}'  http://localhost:8003/move)
+log "  Player 4 (Right):" $(curl -sS --header "Content-Type: application/json" --request POST --data '{"direction":"Right"}' http://localhost:8004/move)
 
-echo "Submitting round 2 keys..."
+echo "Getting updated player data..."
 
-curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8001/submit_r2
-sleep 1
-curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8002/submit_r2
-sleep 1
-curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8003/submit_r2
-sleep 1
-curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8004/submit_r2
+log "  Player 1:" $(curl -sS --header "Content-Type: application/json" --request POST --data '{}' http://localhost:8001/get_player)
+log "  Player 2:" $(curl -sS --header "Content-Type: application/json" --request POST --data '{}' http://localhost:8002/get_player)
+log "  Player 3:" $(curl -sS --header "Content-Type: application/json" --request POST --data '{}' http://localhost:8003/get_player)
+log "  Player 4:" $(curl -sS --header "Content-Type: application/json" --request POST --data '{}' http://localhost:8004/get_player)
 
-sleep 10
+echo "Getting updated cells..."
+
+log "  Player 1 (get_cells [(0,0)]):"                              $(curl -sS --header "Content-Type: application/json" --request POST --data '{"coords":[{"x":0,"y":0}]}' http://localhost:8001/get_cells)
+log "  Player 1 (get_five_cells [(0,0),(1,0),(2,0),(3,0),(4,0)]):" $(curl -sS --header "Content-Type: application/json" --request POST --data '{"coords":[{"x":0,"y":0},{"x":1,"y":0},{"x":2,"y":0},{"x":3,"y":0},{"x":4,"y":0}]}' http://localhost:8001/get_five_cells)
+log "  Player 1 (get_cross_cells):"                                $(curl -sS --header "Content-Type: application/json" --request POST --data '{}' http://localhost:8001/get_cross_cells)
+log "  Player 1 (get_vertical_cells):"                             $(curl -sS --header "Content-Type: application/json" --request POST --data '{"center_coord": {"x":2,"y":1}}' http://localhost:8001/get_vertical_cells)
+log "  Player 1 (get_horizontal_cells):"                           $(curl -sS --header "Content-Type: application/json" --request POST --data '{"center_coord": {"x":1,"y":1}}' http://localhost:8001/get_horizontal_cells)
+
+echo "Resetting game and go over everything again..."
+
+curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8001/reset_game
+curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8002/reset_game
+curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8003/reset_game
+curl -sS --header "Content-Type: application/json" --request POST --data '{}' -o /dev/null http://localhost:8004/reset_game
+
+sleep 3
 
 echo "Getting player data..."
 

@@ -2546,6 +2546,7 @@ dependencies = [
 name = "worker"
 version = "0.1.0"
 dependencies = [
+ "bincode",
  "itertools",
  "phantom",
  "phantom-benchs",
