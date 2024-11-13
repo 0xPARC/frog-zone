@@ -8,7 +8,7 @@ interface Player {
   score: number;
 }
 
-export default function Scoreboard() {
+function Scoreboard() {
   const searchParams = useSearchParams();
   const queryPublicKey = searchParams.get("publicKey");
 
@@ -50,138 +50,141 @@ export default function Scoreboard() {
   const lastIndex = players.length - 1;
 
   return (
+    <div className="bg-black text-white min-h-screen p-8">
+      <h4 className="font-bold text-lg mb-6 text-center">Station Scoreboard</h4>
+      <table className="w-full">
+        <thead>
+          <tr>
+            <th className="border-b border-gray-700 p-4 text-left">
+              Player Public Key
+            </th>
+            <th className="border-b border-gray-700 p-4 text-left">Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          {/* If no queryPublicKey, display all players */}
+          {!queryPublicKey &&
+            players.map((player, index) => (
+              <tr
+                key={index}
+                className={`${
+                  index === 0 ? "bg-white text-black" : "even:bg-gray-900"
+                }`}
+              >
+                <td className="p-4">
+                  {index + 1}. {truncatePublicKey(player.publicKey)}
+                  {index === 0 && " 🏆"}
+                </td>
+                <td className="p-4">{player.score}</td>
+              </tr>
+            ))}
+
+          {/* If a queryPublicKey is provided, show selected rows */}
+          {queryPublicKey && players[0] && (
+            <>
+              {/* Show the first player */}
+              <tr
+                className={`${
+                  highlightedIndex === 0 ? "bg-yellow-500 text-black" : ""
+                }`}
+              >
+                <td className="p-4">
+                  1. {truncatePublicKey(players[0].publicKey)} 🏆
+                  {highlightedIndex === 0 && " (you)"}
+                </td>
+                <td className="p-4">{players[0].score}</td>
+              </tr>
+
+              {/* Show ellipsis if the highlighted player isn't the first player */}
+              {highlightedIndex > 2 && (
+                <tr>
+                  <td className="p-4 text-center" colSpan={2}>
+                    ...
+                  </td>
+                </tr>
+              )}
+
+              {/* Show the player before, highlighted player, and player after */}
+              {highlightedIndex > 0 && (
+                <>
+                  {highlightedIndex > 1 && (
+                    <tr className="even:bg-gray-900">
+                      <td className="p-4">
+                        {highlightedIndex}.{" "}
+                        {truncatePublicKey(
+                          players[highlightedIndex - 1].publicKey,
+                        )}
+                      </td>
+                      <td className="p-4">
+                        {players[highlightedIndex - 1].score}
+                      </td>
+                    </tr>
+                  )}
+
+                  <tr className="bg-yellow-500 text-black">
+                    <td className="p-4">
+                      {highlightedIndex + 1}.{" "}
+                      {truncatePublicKey(players[highlightedIndex].publicKey)}
+                      {" (you)"}
+                    </td>
+                    <td className="p-4">{players[highlightedIndex].score}</td>
+                  </tr>
+
+                  {highlightedIndex < lastIndex && (
+                    <tr className="even:bg-gray-900">
+                      <td className="p-4">
+                        {highlightedIndex + 2}.{" "}
+                        {truncatePublicKey(
+                          players[highlightedIndex + 1].publicKey,
+                        )}
+                      </td>
+                      <td className="p-4">
+                        {players[highlightedIndex + 1].score}
+                      </td>
+                    </tr>
+                  )}
+                </>
+              )}
+
+              {/* Show ellipsis if the highlighted player is not second-to-last or last */}
+              {highlightedIndex < lastIndex - 1 && (
+                <tr>
+                  <td className="p-4 text-center" colSpan={2}>
+                    ...
+                  </td>
+                </tr>
+              )}
+
+              {/* Show the last player only if it’s not the highlighted player */}
+              {highlightedIndex !== lastIndex && players[lastIndex] && (
+                <tr
+                  className={`${
+                    highlightedIndex === lastIndex
+                      ? "bg-yellow-500 text-black"
+                      : "even:bg-gray-900"
+                  }`}
+                >
+                  <td className="p-4">
+                    {lastIndex + 1}.{" "}
+                    {truncatePublicKey(players[lastIndex].publicKey)}
+                    {" (you)"}
+                  </td>
+                  <td className="p-4">{players[lastIndex].score}</td>
+                </tr>
+              )}
+            </>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+export default function ScoreboardPage() {
+  return (
     <Suspense
       fallback={<p className="text-center p-4">Loading all scores...</p>}
     >
-      <div className="bg-black text-white min-h-screen p-8">
-        <h4 className="font-bold text-lg mb-6 text-center">
-          Station Scoreboard
-        </h4>
-        <table className="w-full">
-          <thead>
-            <tr>
-              <th className="border-b border-gray-700 p-4 text-left">
-                Player Public Key
-              </th>
-              <th className="border-b border-gray-700 p-4 text-left">Score</th>
-            </tr>
-          </thead>
-          <tbody>
-            {/* If no queryPublicKey, display all players */}
-            {!queryPublicKey &&
-              players.map((player, index) => (
-                <tr
-                  key={index}
-                  className={`${
-                    index === 0 ? "bg-white text-black" : "even:bg-gray-900"
-                  }`}
-                >
-                  <td className="p-4">
-                    {index + 1}. {truncatePublicKey(player.publicKey)}
-                    {index === 0 && " 🏆"}
-                  </td>
-                  <td className="p-4">{player.score}</td>
-                </tr>
-              ))}
-
-            {/* If a queryPublicKey is provided, show selected rows */}
-            {queryPublicKey && players[0] && (
-              <>
-                {/* Show the first player */}
-                <tr
-                  className={`${
-                    highlightedIndex === 0 ? "bg-yellow-500 text-black" : ""
-                  }`}
-                >
-                  <td className="p-4">
-                    1. {truncatePublicKey(players[0].publicKey)} 🏆
-                    {highlightedIndex === 0 && " (you)"}
-                  </td>
-                  <td className="p-4">{players[0].score}</td>
-                </tr>
-
-                {/* Show ellipsis if the highlighted player isn't the first player */}
-                {highlightedIndex > 2 && (
-                  <tr>
-                    <td className="p-4 text-center" colSpan={2}>
-                      ...
-                    </td>
-                  </tr>
-                )}
-
-                {/* Show the player before, highlighted player, and player after */}
-                {highlightedIndex > 0 && (
-                  <>
-                    {highlightedIndex > 1 && (
-                      <tr className="even:bg-gray-900">
-                        <td className="p-4">
-                          {highlightedIndex}.{" "}
-                          {truncatePublicKey(
-                            players[highlightedIndex - 1].publicKey,
-                          )}
-                        </td>
-                        <td className="p-4">
-                          {players[highlightedIndex - 1].score}
-                        </td>
-                      </tr>
-                    )}
-
-                    <tr className="bg-yellow-500 text-black">
-                      <td className="p-4">
-                        {highlightedIndex + 1}.{" "}
-                        {truncatePublicKey(players[highlightedIndex].publicKey)}
-                        {" (you)"}
-                      </td>
-                      <td className="p-4">{players[highlightedIndex].score}</td>
-                    </tr>
-
-                    {highlightedIndex < lastIndex && (
-                      <tr className="even:bg-gray-900">
-                        <td className="p-4">
-                          {highlightedIndex + 2}.{" "}
-                          {truncatePublicKey(
-                            players[highlightedIndex + 1].publicKey,
-                          )}
-                        </td>
-                        <td className="p-4">
-                          {players[highlightedIndex + 1].score}
-                        </td>
-                      </tr>
-                    )}
-                  </>
-                )}
-
-                {/* Show ellipsis if the highlighted player is not second-to-last or last */}
-                {highlightedIndex < lastIndex - 1 && (
-                  <tr>
-                    <td className="p-4 text-center" colSpan={2}>
-                      ...
-                    </td>
-                  </tr>
-                )}
-
-                {/* Show the last player only if it’s not the highlighted player */}
-                {highlightedIndex !== lastIndex && players[lastIndex] && (
-                  <tr
-                    className={`${
-                      highlightedIndex === lastIndex
-                        ? "bg-yellow-500 text-black"
-                        : "even:bg-gray-900"
-                    }`}
-                  >
-                    <td className="p-4">
-                      {lastIndex + 1}.{" "}
-                      {truncatePublicKey(players[lastIndex].publicKey)}
-                      {" (you)"}
-                    </td>
-                    <td className="p-4">{players[lastIndex].score}</td>
-                  </tr>
-                )}
-              </>
-            )}
-          </tbody>
-        </table>
-      </div>
+      <Scoreboard />
     </Suspense>
   );
 }

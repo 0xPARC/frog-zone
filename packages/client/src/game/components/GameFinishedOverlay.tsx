@@ -50,7 +50,12 @@ export const GameFinishedOverlay: React.FC = () => {
 				src={`${LOGIN_SERVER_URL}/score-board?publicKey=${encodeURIComponent(
 					publicKey,
 				)}`}
-				style={{ border: "none", width: "700px", height: "500px" }}
+				style={{
+					border: "none",
+					width: "700px",
+					height: "500px",
+					background: "#242323",
+				}}
 			/>
 			<div>
 				<Button onClick={handleNewGame}>Start New Game Now</Button>
