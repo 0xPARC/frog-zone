@@ -208,9 +208,13 @@ struct MoveResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct ResetGameRequest {
-    player_id: usize,
-}
+struct ResetRequest {}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct ResetResponse {}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct ResetGameRequest {}
 
 #[derive(Debug, Serialize, Deserialize)]
 struct ResetGameResponse {}
@@ -318,7 +322,7 @@ async fn reset_game(
     state: &State<SharedState>,
     _request: Json<ResetGameRequest>,
 ) -> Result<Json<ResetGameResponse>, Custom<String>> {
-    let app_state = state.lock().await;
+    let mut app_state = state.lock().await;
 
     let post_data = proxy::ResetGameRequest {
         player_id: app_state.user.user_id(),
@@ -328,7 +332,25 @@ async fn reset_game(
         .await?
         .0;
 
+    app_state.player_coord = Coord { x: 0, y: 0 };
+
     Ok(Json(ResetGameResponse {}))
+}
+
+#[post("/reset", format = "json", data = "<_request>")]
+async fn reset(
+    state: &State<SharedState>,
+    _request: Json<ResetRequest>,
+) -> Result<Json<ResetResponse>, Custom<String>> {
+    let mut app_state = state.lock().await;
+
+    let post_data = proxy::ResetRequest {};
+
+    let proxy::ResetResponse {} = proxy::proxy(&*SERVER_URI, "/reset", post_data).await?.0;
+
+    *app_state = AppState::new(*PLAYER_ID);
+
+    Ok(Json(ResetResponse {}))
 }
 
 #[post("/mock_get_cells", format = "json", data = "<request>")]
@@ -873,6 +895,7 @@ async fn main() -> Result<(), rocket::Error> {
         .mount(
             "/",
             routes![
+                reset,
                 reset_game,
                 mock_move,
                 queue_move,

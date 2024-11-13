@@ -15,9 +15,7 @@ pub struct InitRequest {
     pub zone_width: u8,
     pub zone_height: u8,
     pub zone_cts: Vec<PhantomCt>,
-    pub pk: PhantomPk,
-    pub bs_key: PhantomBsKey,
-    pub rp_key: PhantomRpKey,
+    pub keys: Option<(PhantomPk, PhantomBsKey, PhantomRpKey)>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

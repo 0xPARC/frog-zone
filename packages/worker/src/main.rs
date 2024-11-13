@@ -57,14 +57,14 @@ async fn init(state: &State<SharedState>, request: Json<InitRequest>) -> Json<In
         zone_width,
         zone_height,
         zone_cts,
-        pk,
-        bs_key,
-        rp_key,
+        keys,
     } = request.0;
     let mut app_state = state.lock().await;
-    app_state.evaluator.set_pk(pk);
-    app_state.evaluator.set_bs_key(bs_key);
-    app_state.evaluator.set_rp_key(rp_key);
+    if let Some((pk, bs_key, rp_key)) = keys {
+        app_state.evaluator.set_pk(pk);
+        app_state.evaluator.set_bs_key(bs_key);
+        app_state.evaluator.set_rp_key(rp_key);
+    }
     app_state.zone = Some(Zone::from_cts(
         zone_width,
         zone_height,

@@ -145,25 +145,61 @@ async fn reset_game(
     state: &State<SharedState>,
     _request: Json<ResetGameRequest>,
 ) -> Result<Json<ResetGameResponse>, Custom<String>> {
-    let notify = Arc::new(Notify::new());
-    let notify_clone = notify.clone();
+    let mut game_state = state.lock().await;
 
-    {
-        let mut game_state = state.lock().await;
-        game_state.action_queue.push_back((
-            ActionType::ResetGame,
-            None,
-            None,
-            None,
-            Some(notify_clone),
-        ));
+    // Don't reset again if the game state is just reset.
+    if game_state.player_last_move_time == [0, 0, 0, 0] {
+        return Ok(Json(ResetGameResponse {}));
     }
 
-    notify.notified().await;
+    game_state.zone = Some(Zone::new(32, 32, &game_state.evaluator));
+    game_state.mock_zone = Some(MockZone::new(32, 32));
+    game_state.action_queue = VecDeque::new();
+    game_state.player_last_move_time = [0, 0, 0, 0];
+    game_state.work_counter = 0;
+    game_state.worker_diff = vec![Default::default(); WORKER_URIS.len()];
+
+    // Call /init without keys to all workers
+    let request = InitRequest {
+        zone_width: 32,
+        zone_height: 32,
+        zone_cts: game_state.zone.as_ref().unwrap().cts(),
+        keys: None,
+    };
+    WORKER_URIS
+        .iter()
+        .map(|worker_uri| worker::request::<_, InitResponse>(worker_uri, "/init", request.clone()))
+        .collect::<FuturesUnordered<_>>()
+        .try_collect::<Vec<_>>()
+        .await?;
 
     info!("processed /reset_game request");
 
     Ok(Json(ResetGameResponse {}))
+}
+
+#[post("/reset", format = "json", data = "<_request>")]
+async fn reset(
+    state: &State<SharedState>,
+    _request: Json<ResetRequest>,
+) -> Result<Json<ResetResponse>, Custom<String>> {
+    let mut game_state = state.lock().await;
+
+    *game_state = GameState {
+        zone: None, // 32x32 zone, will be initialized when keygen is finished.
+        mock_zone: None,
+        action_queue: VecDeque::new(),
+        player_last_move_time: [0, 0, 0, 0],
+        evaluator: PhantomEvaluator::new(PhantomParam::I_4P_40),
+        player_round_1_key: [None, None, None, None],
+        player_round_2_key: [None, None, None, None],
+        work_counter: 0,
+        worker_diff: vec![Default::default(); WORKER_URIS.len()],
+    };
+
+    info!("processed /reset request");
+
+    Ok(Json(ResetResponse {}))
 }
 
 #[post("/get_cells", format = "json", data = "<request>")]
@@ -442,17 +478,7 @@ async fn process_actions(state: SharedState) {
                     let unwrapped_notify = notify.unwrap();
                     unwrapped_notify.notify_one();
                 }
-                ActionType::ResetGame => {
-                    let mut game_state = state.lock().await;
-
-                    game_state.zone = Some(Zone::new(32, 32, &game_state.evaluator));
-                    game_state.mock_zone = Some(MockZone::new(32, 32));
-                    game_state.action_queue = VecDeque::new();
-                    game_state.player_last_move_time = [0, 0, 0, 0];
-
-                    let unwrapped_notify = notify.unwrap();
-                    unwrapped_notify.notify_one();
-                }
+                ActionType::ResetGame => {}
                 ActionType::MoveMonster => {
                     let mut game_state = state.lock().await;
                     let mut has_started = false;
@@ -543,6 +569,12 @@ async fn submit_r1(
     request: Json<SubmitRound1KeyRequest>,
 ) -> Json<SubmitRound1KeyResponse> {
     let mut game_state = state.lock().await;
+
+    // Ignore key share submission if keygen is already done.
+    if game_state.zone.is_some() {
+        return Json(SubmitRound1KeyResponse {});
+    }
+
     game_state.player_round_1_key[request.0.player_id] = Some(request.0.key);
 
     if game_state.player_round_1_key.iter().all(Option::is_some) {
@@ -576,6 +608,12 @@ async fn submit_r2(
     request: Json<SubmitRound2KeyRequest>,
 ) -> Result<Json<SubmitRound2KeyResponse>, Custom<String>> {
     let mut game_state = state.lock().await;
+
+    // Ignore key share submission if keygen is already done.
+    if game_state.zone.is_some() {
+        return Ok(Json(SubmitRound2KeyResponse {}));
+    }
+
     game_state.player_round_2_key[request.0.player_id] = Some(request.0.key);
 
     if game_state.player_round_2_key.iter().all(Option::is_some) {
@@ -594,9 +632,11 @@ async fn submit_r2(
             zone_width: 32,
             zone_height: 32,
             zone_cts: game_state.zone.as_ref().unwrap().cts(),
-            pk: game_state.evaluator.pk().unwrap().clone(),
-            bs_key: game_state.evaluator.bs_key().unwrap().clone(),
-            rp_key: game_state.evaluator.rp_key().unwrap().clone(),
+            keys: Some((
+                game_state.evaluator.pk().unwrap().clone(),
+                game_state.evaluator.bs_key().unwrap().clone(),
+                game_state.evaluator.rp_key().unwrap().clone(),
+            )),
         };
         WORKER_URIS
             .iter()
@@ -660,6 +700,7 @@ async fn rocket() -> _ {
             "/",
             routes![
                 reset_game,
+                reset,
                 mock_move,
                 queue_move,
                 mock_get_cells,
