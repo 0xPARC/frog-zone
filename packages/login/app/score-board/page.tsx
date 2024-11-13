@@ -47,6 +47,7 @@ function Scoreboard() {
   const highlightedIndex = players.findIndex(
     (player) => player.publicKey === queryPublicKey,
   );
+  const notFound = highlightedIndex < 0;
   const lastIndex = players.length - 1;
 
   return (
@@ -79,8 +80,43 @@ function Scoreboard() {
               </tr>
             ))}
 
+          {/* match for public key not found */}
+          {queryPublicKey && notFound && (
+            <>
+              {players.slice(0, 2).map((player, index) => (
+                <tr key={index} className="even:bg-gray-900">
+                  <td className="p-4">
+                    {index + 1}. {truncatePublicKey(player.publicKey)}
+                    {index === 0 && " 🏆"}
+                  </td>
+                  <td className="p-4">{player.score}</td>
+                </tr>
+              ))}
+              <tr>
+                <td className="p-4 text-center" colSpan={2}>
+                  ...
+                </td>
+              </tr>
+              {players[lastIndex] && (
+                <tr
+                  className={`${
+                    highlightedIndex === lastIndex
+                      ? "bg-yellow-500 text-black"
+                      : "even:bg-gray-900"
+                  }`}
+                >
+                  <td className="p-4">
+                    {lastIndex + 1}.{" "}
+                    {truncatePublicKey(players[lastIndex].publicKey)}
+                  </td>
+                  <td className="p-4">{players[lastIndex].score}</td>
+                </tr>
+              )}
+            </>
+          )}
+
           {/* If a queryPublicKey is provided, show selected rows */}
-          {queryPublicKey && players[0] && (
+          {queryPublicKey && players[0] && !notFound && (
             <>
               {/* Show the first player */}
               <tr
@@ -94,7 +130,6 @@ function Scoreboard() {
                 </td>
                 <td className="p-4">{players[0].score}</td>
               </tr>
-
               {/* Show ellipsis if the highlighted player isn't the first player */}
               {highlightedIndex > 2 && (
                 <tr>
