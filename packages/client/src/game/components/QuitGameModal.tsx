@@ -5,6 +5,7 @@ import { Modal } from "../../components/Modal";
 import { getPlayerId } from "../../utils/getPlayerId";
 import { requestEndGame } from "../../utils/requestEndGame";
 import useStore from "../store";
+import { updateGameStatus } from "../../utils/updateGameStatus";
 
 // CTRL + Q triggers the modal. Allows users to quit the game, the game will end if all users quit
 
@@ -47,6 +48,19 @@ export const QuitGameModal: React.FC = () => {
 		}
 	};
 
+	const handleQuitAll = async () => {
+		if (gameId) {
+			setRequestedEndGame(true);
+			const data = await updateGameStatus({
+				gameId,
+				status: "completed",
+			});
+			if (!data.success) {
+				setRequestedEndGame(false);
+			}
+		}
+	};
+
 	const handleKeyPress = (event: KeyboardEvent) => {
 		if (event.ctrlKey && event.key === "q") {
 			setIsOpen(true);
@@ -78,8 +92,17 @@ export const QuitGameModal: React.FC = () => {
 							>
 								Cancel
 							</Button>
-							<Button onClick={handleQuit} style={{ backgroundColor: "red" }}>
+							<Button
+								onClick={handleQuit}
+								style={{ backgroundColor: "orange" }}
+							>
 								Quit
+							</Button>
+							<Button
+								onClick={handleQuitAll}
+								style={{ backgroundColor: "red" }}
+							>
+								QUIT ALL
 							</Button>
 						</div>
 					</>

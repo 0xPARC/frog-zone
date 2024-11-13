@@ -30,7 +30,7 @@ function App() {
 			{!DEV_MODE && <Login />}
 			{isLoggedIn && (
 				<>
-          <Dead playerId={playerId} />
+					<Dead playerId={playerId} />
 					<PlayerInfo playerId={playerId} />
 					<TileInfo />
 					<MoveCountdownTimer />
@@ -39,7 +39,7 @@ function App() {
 					{gameId && gameStatus === "ongoing" && (
 						<>
 							<EnterGameAnimation />
-              {/*<div
+							{/*<div
 								style={{
 									position: "absolute",
 									top: "10px",
@@ -60,16 +60,21 @@ function App() {
 						gameMachines?.length < MIN_PLAYERS && (
 							<WaitingForPlayersOverlay
 								allowForceStart={
-									gameMachines.length >= MIN_PLAYERS_TO_FORCE_START
+									gameMachines.length >=
+									MIN_PLAYERS_TO_FORCE_START
 								}
 								minPlayers={MIN_PLAYERS}
 								numPlayers={gameMachines.length}
 							/>
 						)}
-					{gameId && gameStatus === "completed" && <GameFinishedOverlay />}
+					{gameId && gameStatus === "completed" && (
+						<GameFinishedOverlay />
+					)}
 					{gameId &&
 						(gameStatus === "ongoing" ||
-							gameStatus === "waiting_for_players") && <QuitGameModal />}
+							gameStatus === "waiting_for_players") && (
+							<QuitGameModal />
+						)}
 				</>
 			)}
 			{DEV_MODE && <TileMapEditor />}
