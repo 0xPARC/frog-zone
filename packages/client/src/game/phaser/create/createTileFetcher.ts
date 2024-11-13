@@ -3,7 +3,7 @@ import { fetchTiles } from "../../../utils/fetchTiles";
 import { getSurroundingCoordinates } from "../../../utils/getSurroundingCoordinates";
 import useStore, { type Coord, type TileWithCoord } from "../../store";
 
-const FETCH_INTERVAL = IS_MOCK ? 1000 : 15000;
+const FETCH_INTERVAL = IS_MOCK ? 1000 : 700;
 const STALE_TIME_MS = 5000;
 
 export const createTileFetcher = ({
@@ -28,7 +28,10 @@ export const createTileFetcher = ({
 	const addActionLog = useStore.getState().addActionLog;
 
 	const fetchNextBatch = async () => {
-		const nextBatch = coordinates.slice(currentIndex, currentIndex + batchSize);
+		const nextBatch = coordinates.slice(
+			currentIndex,
+			currentIndex + batchSize,
+		);
 
 		const newTiles = await fetchTiles(initialCoordinate, nextBatch);
 
@@ -84,7 +87,8 @@ export const createTileFetcher = ({
 		const staleCoordinates = nonPriorityCoords.filter((coord) => {
 			const tile = grid.get(`${coord.x},${coord.y}`);
 			return (
-				tile && (tile.fetchedAt === 0 || now - tile.fetchedAt >= STALE_TIME_MS)
+				tile &&
+				(tile.fetchedAt === 0 || now - tile.fetchedAt >= STALE_TIME_MS)
 			);
 		});
 
