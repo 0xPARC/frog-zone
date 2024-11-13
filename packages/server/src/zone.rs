@@ -337,26 +337,27 @@ pub fn fhe_apply_move_monster(
     monster_coords: [EncryptedCoord; NUM_MONSTERS],
     item_coords: [EncryptedCoord; NUM_ITEMS],
 ) -> EncryptedCoord {
-    let mut output_bits = phantom_benchs::frogzone_apply_move_flying_rs_fhe_lib::apply_move_flying(
-        &direction.to_vec(),
-        &item_coords
-            .iter()
-            .flat_map(|item| item.bits())
-            .cloned()
-            .collect_vec(),
-        &monster_coords
-            .iter()
-            .flat_map(|item| item.bits())
-            .cloned()
-            .collect_vec(),
-        &old_coords.bits().cloned().collect_vec(),
-        &player_coords
-            .iter()
-            .flat_map(|item| item.bits())
-            .cloned()
-            .collect_vec(),
-    )
-    .into_iter();
+    let mut output_bits =
+        phantom_benchs::frogzone_apply_move_monster_rs_fhe_lib::apply_move_monster(
+            &direction.to_vec(),
+            &item_coords
+                .iter()
+                .flat_map(|item| item.bits())
+                .cloned()
+                .collect_vec(),
+            &monster_coords
+                .iter()
+                .flat_map(|item| item.bits())
+                .cloned()
+                .collect_vec(),
+            &old_coords.bits().cloned().collect_vec(),
+            &player_coords
+                .iter()
+                .flat_map(|item| item.bits())
+                .cloned()
+                .collect_vec(),
+        )
+        .into_iter();
 
     let output = EncryptedCoord {
         x: from_fn(|_| output_bits.next().unwrap()),
@@ -837,7 +838,7 @@ impl Zone {
             };
         }
 
-        let random_state = pk_encrypt(evaluator, thread_rng().gen());
+        let random_state = pk_encrypt(evaluator, 0);
 
         let precomputed_ids = [
             pk_encrypt(evaluator, 0),
@@ -916,8 +917,8 @@ impl Zone {
 
         self.monsters[idx as usize].data.loc = new_coords;
 
-        // just pick some prime number to increment by
-        self.mix_random_input(0, self.precomputed_ids[17].clone());
+        // just pick some number to xor
+        self.mix_random_input(0, self.precomputed_ids[11].clone());
         println!("Moving random monster {}", idx);
     }
 
@@ -939,7 +940,7 @@ impl Zone {
 
         let item_coords = self.items.each_ref().map(|i| i.data.loc.clone());
 
-        let new_coords = fhe_apply_move_monster(
+        let new_coords = fhe_apply_move_flying(
             old_coords,
             direction,
             player_coords,
@@ -949,7 +950,7 @@ impl Zone {
 
         self.monsters[idx as usize].data.loc = new_coords;
 
-        // just pick some prime number to increment by
+        // pick some number to xor
         self.mix_random_input(0, self.precomputed_ids[13].clone());
 
         println!("Moving random flyer {}", idx);

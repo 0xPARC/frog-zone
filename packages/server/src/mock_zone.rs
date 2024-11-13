@@ -9,8 +9,8 @@ const NUM_ITEMS: usize = 12;
 const NUM_MONSTERS: usize = 23;
 const NUM_OBSTACLES: usize = 193;
 
-// const NUM_MOVABLE_MONSTERS: usize = 4;
-// const NUM_MOVABLE_FLYERS: usize = 6;
+const NUM_MOVABLE_MONSTERS: usize = 4;
+const NUM_MOVABLE_FLYERS: usize = 6;
 
 pub type MockEncrypted<T> = T;
 
@@ -150,6 +150,77 @@ pub fn fhe_apply_move_check_collisions(
             // note that if fhe_apply_move_raw returned the original coordinates,
             // we'll end up in here because the player's old_coords are part of obstacles
             // this is fine since we're returning old_coords anyways
+            return old_coords;
+        }
+    }
+
+    new_coords
+}
+
+pub fn fhe_apply_move_monster(
+    old_coords: MockEncryptedCoord,
+    direction: MockEncrypted<Direction>,
+    player_coords: [MockEncryptedCoord; 4],
+    height: u8,
+    width: u8,
+    obstacle_coords: [MockEncryptedCoord; NUM_OBSTACLES],
+    monster_coords: [MockEncryptedCoord; NUM_MONSTERS],
+    item_coords: [MockEncryptedCoord; NUM_ITEMS],
+) -> MockEncryptedCoord {
+    let new_coords = fhe_apply_move_raw(old_coords, direction, height, width);
+
+    for player_coord in player_coords {
+        if new_coords == player_coord {
+            return old_coords;
+        }
+    }
+
+    for obstacle_coord in obstacle_coords {
+        if new_coords == obstacle_coord {
+            return old_coords;
+        }
+    }
+
+    for monster_coord in monster_coords {
+        if new_coords == monster_coord {
+            return old_coords;
+        }
+    }
+
+    for item_coord in item_coords {
+        if new_coords == item_coord {
+            return old_coords;
+        }
+    }
+
+    new_coords
+}
+
+pub fn fhe_apply_move_flying(
+    old_coords: MockEncryptedCoord,
+    direction: MockEncrypted<Direction>,
+    player_coords: [MockEncryptedCoord; 4],
+    height: u8,
+    width: u8,
+    monster_coords: [MockEncryptedCoord; NUM_MONSTERS],
+    item_coords: [MockEncryptedCoord; NUM_ITEMS],
+) -> MockEncryptedCoord {
+    let new_coords = fhe_apply_move_raw(old_coords, direction, height, width);
+
+    for player_coord in player_coords {
+        if new_coords == player_coord {
+            return old_coords;
+        }
+    }
+
+    for monster_coord in monster_coords {
+        if new_coords == monster_coord {
+            return old_coords;
+        }
+    }
+
+    for item_coord in item_coords {
+        if new_coords == item_coord {
             return old_coords;
         }
     }
@@ -605,11 +676,79 @@ impl MockZone {
     }
 
     pub fn move_random_monster(&mut self) {
-        println!("MOCK: Moving random monster");
+        let mut monster_idx = thread_rng().gen_range(0..NUM_MOVABLE_MONSTERS);
+        monster_idx += NUM_MONSTERS - NUM_MOVABLE_MONSTERS - NUM_MOVABLE_FLYERS;
+        println!("MOCK: Moving random monster {}", monster_idx);
+
+        let direction_idx = thread_rng().gen_range(0..4);
+
+        let direction = match direction_idx {
+            0 => Direction::Up,
+            1 => Direction::Down,
+            2 => Direction::Left,
+            3 => Direction::Right,
+            _ => Direction::Down,
+        };
+
+        let old_coords = self.monsters[monster_idx as usize].data.loc.clone();
+
+        let player_coords = self.players.each_ref().map(|i| i.data.loc.clone());
+
+        let monster_coords = self.monsters.each_ref().map(|i| i.data.loc.clone());
+
+        let item_coords = self.items.each_ref().map(|i| i.data.loc.clone());
+
+        let obstacle_coords = self.obstacles.each_ref().map(|i| i.clone());
+
+        let new_coords = fhe_apply_move_monster(
+            old_coords,
+            direction,
+            player_coords,
+            32,
+            32,
+            obstacle_coords,
+            monster_coords,
+            item_coords,
+        );
+
+        self.monsters[monster_idx as usize].data.loc = new_coords;
     }
 
     pub fn move_random_flyer(&mut self) {
-        println!("MOCK: Moving random flyer");
+        let mut monster_idx = thread_rng().gen_range(0..NUM_MOVABLE_MONSTERS);
+        monster_idx += NUM_MONSTERS - NUM_MOVABLE_MONSTERS - NUM_MOVABLE_FLYERS;
+
+        println!("MOCK: Moving random flyer {}", monster_idx);
+
+        let direction_idx = thread_rng().gen_range(0..4);
+
+        let direction = match direction_idx {
+            0 => Direction::Up,
+            1 => Direction::Down,
+            2 => Direction::Left,
+            3 => Direction::Right,
+            _ => Direction::Down,
+        };
+
+        let old_coords = self.monsters[monster_idx as usize].data.loc.clone();
+
+        let player_coords = self.players.each_ref().map(|i| i.data.loc.clone());
+
+        let monster_coords = self.monsters.each_ref().map(|i| i.data.loc.clone());
+
+        let item_coords = self.items.each_ref().map(|i| i.data.loc.clone());
+
+        let new_coords = fhe_apply_move_flying(
+            old_coords,
+            direction,
+            player_coords,
+            32,
+            32,
+            monster_coords,
+            item_coords,
+        );
+
+        self.monsters[monster_idx as usize].data.loc = new_coords;
     }
 
     pub fn move_player(

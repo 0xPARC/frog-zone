@@ -61,6 +61,7 @@ struct GameState {
         Option<Arc<Notify>>,
     )>,
     player_last_move_time: [u64; 4],
+    mock_player_last_move_time: [u64; 4],
     // Phantom
     evaluator: PhantomEvaluator,
     player_round_1_key: [Option<PhantomRound1Key>; 4],
@@ -193,6 +194,7 @@ async fn reset(
         mock_zone: None,
         action_queue: VecDeque::new(),
         player_last_move_time: [0, 0, 0, 0],
+        mock_player_last_move_time: [0, 0, 0, 0],
         evaluator: PhantomEvaluator::new(PhantomParam::I_4P_40),
         player_round_1_key: [None, None, None, None],
         player_round_2_key: [None, None, None, None],
@@ -336,7 +338,7 @@ async fn mock_move(
             .unwrap()
             .as_millis() as u64;
         let game_state = state.lock().await;
-        let last_request_time = game_state.player_last_move_time[move_request.player_id];
+        let last_request_time = game_state.mock_player_last_move_time[move_request.player_id];
         current_time - last_request_time > MOVE_TIME_RATE_LIMIT_MILLIS
     };
 
@@ -357,10 +359,11 @@ async fn mock_move(
 
     {
         let mut game_state = state.lock().await;
-        game_state.player_last_move_time[move_request.player_id] = std::time::SystemTime::now()
+        game_state.mock_player_last_move_time[move_request.player_id] = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap()
-            .as_millis() as u64;
+            .as_millis()
+            as u64;
     }
 
     let my_new_coords = {
@@ -535,8 +538,11 @@ async fn start_monster_loop(state: SharedState) {
             game_state
                 .action_queue
                 .push_back((ActionType::MoveFlyer, None, None, None, None));
+            game_state
+                .action_queue
+                .push_back((ActionType::MoveFlyer, None, None, None, None));
         }
-        tokio::time::sleep(tokio::time::Duration::from_millis(5000)).await;
+        tokio::time::sleep(tokio::time::Duration::from_millis(7000)).await;
     }
 }
 
@@ -546,7 +552,7 @@ async fn start_mock_monster_loop(state: SharedState) {
             let mut game_state = state.lock().await;
 
             let mut has_started = false;
-            for move_time in game_state.player_last_move_time.iter() {
+            for move_time in game_state.mock_player_last_move_time.iter() {
                 if *move_time > 0 {
                     has_started = true;
                     break;
@@ -674,6 +680,7 @@ async fn rocket() -> _ {
         mock_zone: None,
         action_queue: VecDeque::new(),
         player_last_move_time: [0, 0, 0, 0],
+        mock_player_last_move_time: [0, 0, 0, 0],
         evaluator,
         player_round_1_key: [None, None, None, None],
         player_round_2_key: [None, None, None, None],
