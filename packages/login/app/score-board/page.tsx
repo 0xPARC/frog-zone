@@ -44,8 +44,10 @@ function Scoreboard() {
   if (error)
     return <p className="text-center p-4">Error loading all scores: {error}</p>;
 
+  // hack: compare only the start ofthe string to avoid encoding issues with // and other character commbos
   const highlightedIndex = players.findIndex(
-    (player) => player.publicKey === queryPublicKey,
+    (player) =>
+      player.publicKey.substring(0, 7) === queryPublicKey?.substring(0, 7),
   );
   const notFound = highlightedIndex < 0;
   const lastIndex = players.length - 1;
