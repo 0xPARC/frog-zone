@@ -1,0 +1,1765 @@
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_apply_move_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_cell_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_cross_cells_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_five_cells_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_horizontal_cells_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_vertical_cells_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: `phantom-benchs` (lib) generated 6 warnings
+warning: unused imports: `Deserialize` and `Serialize`
+ --> src/zone.rs:5:13
+  |
+5 | use serde::{Deserialize, Serialize};
+  |             ^^^^^^^^^^^  ^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused variable: `old_coords`
+   --> src/zone.rs:268:5
+    |
+268 |     old_coords: EncryptedCoord,
+    |     ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_old_coords`
+    |
+    = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `direction`
+   --> src/zone.rs:269:5
+    |
+269 |     direction: EncryptedDirection,
+    |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_direction`
+
+warning: unused variable: `height`
+   --> src/zone.rs:270:5
+    |
+270 |     height: u8,
+    |     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_height`
+
+warning: unused variable: `width`
+   --> src/zone.rs:271:5
+    |
+271 |     width: u8,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_width`
+
+warning: unused variable: `old_coords`
+   --> src/zone.rs:309:5
+    |
+309 |     old_coords: EncryptedCoord,
+    |     ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_old_coords`
+
+warning: unused variable: `direction`
+   --> src/zone.rs:310:5
+    |
+310 |     direction: EncryptedDirection,
+    |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_direction`
+
+warning: unused variable: `height`
+   --> src/zone.rs:311:5
+    |
+311 |     height: u8,
+    |     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_height`
+
+warning: unused variable: `width`
+   --> src/zone.rs:312:5
+    |
+312 |     width: u8,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_width`
+
+warning: unused variable: `obstacles`
+   --> src/zone.rs:313:5
+    |
+313 |     obstacles: [EncryptedCoord; 100],
+    |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_obstacles`
+
+warning: unused variable: `height`
+   --> src/zone.rs:333:5
+    |
+333 |     height: u8,
+    |     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_height`
+
+warning: unused variable: `width`
+   --> src/zone.rs:334:5
+    |
+334 |     width: u8,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_width`
+
+warning: unused variable: `coord`
+   --> src/zone.rs:398:5
+    |
+398 |     coord: EncryptedCoord,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_coord`
+
+warning: unused variable: `items`
+   --> src/zone.rs:399:5
+    |
+399 |     items: [ItemWithEncryptedId; NUM_ITEMS],
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_items`
+
+warning: unused variable: `players`
+   --> src/zone.rs:400:5
+    |
+400 |     players: [PlayerWithEncryptedId; 4],
+    |     ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_players`
+
+warning: function `fhe_get_cell_no_check` is never used
+   --> src/zone.rs:397:4
+    |
+397 | fn fhe_get_cell_no_check(
+    |    ^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` on by default
+
+warning: `server` (lib) generated 16 warnings (run `cargo fix --lib -p server` to apply 1 suggestion)
+warning: unused imports: `Figment` and `util::map`
+ --> src/main.rs:6:23
+  |
+6 | use rocket::figment::{util::map, Figment};
+  |                       ^^^^^^^^^  ^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: constant `MOVE_TIME_MILLIS` is never used
+  --> src/main.rs:39:7
+   |
+39 | const MOVE_TIME_MILLIS: u64 = 500;
+   |       ^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+warning: constant `GET_CELL_TIME_MILLIS` is never used
+  --> src/main.rs:40:7
+   |
+40 | const GET_CELL_TIME_MILLIS: u64 = 140; // based on benchmark of 700ms for 5 cells
+   |       ^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `GET_PLAYER_TIME_MILLIS` is never used
+  --> src/main.rs:41:7
+   |
+41 | const GET_PLAYER_TIME_MILLIS: u64 = 140;
+   |       ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: fields `player_round_1_key` and `player_round_2_key` are never read
+  --> src/main.rs:64:5
+   |
+51 | struct GameState {
+   |        --------- fields in this struct
+...
+64 |     player_round_1_key: [Option<PhantomRound1Key>; 4],
+   |     ^^^^^^^^^^^^^^^^^^
+65 |     player_round_2_key: [Option<PhantomRound2Key>; 4],
+   |     ^^^^^^^^^^^^^^^^^^
+
+warning: struct `SubmitRound2KeyResponse` is never constructed
+   --> src/main.rs:114:8
+    |
+114 | struct SubmitRound2KeyResponse {}
+    |        ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `submit_r1` is never used
+   --> src/main.rs:489:10
+    |
+489 | async fn submit_r1(
+    |          ^^^^^^^^^
+
+warning: function `get_pk` is never used
+   --> src/main.rs:516:10
+    |
+516 | async fn get_pk(
+    |          ^^^^^^
+
+warning: function `submit_r2` is never used
+   --> src/main.rs:528:10
+    |
+528 | async fn submit_r2(
+    |          ^^^^^^^^^
+
+warning: `server` (bin "server") generated 9 warnings (run `cargo fix --bin "server"` to apply 1 suggestion)
+    Finished `release` profile [optimized] target(s) in 0.09s
+     Running `target/release/server 'http://localhost:8005,http://localhost:8006,http://localhost:8007,http://localhost:8008'`
+thread 'rocket-worker-thread' panicked at src/main.rs:464:54:
+called `Result::unwrap()` on an `Err` value: Custom(Status { code: 400 }, "Game is not ready yet")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+[2m2024-11-13T07:00:06.724668Z[0m [31mERROR[0m [2mrocket::error[0m[2m:[0m Rocket failed to shutdown gracefully.    
+thread 'main' panicked at /Users/han/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rocket-0.5.1/src/error.rs:279:9:
+aborting due to failed shutdown
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_apply_move_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_cell_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_cross_cells_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_five_cells_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_horizontal_cells_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_vertical_cells_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: `phantom-benchs` (lib) generated 6 warnings
+warning: unused imports: `Deserialize` and `Serialize`
+ --> src/zone.rs:5:13
+  |
+5 | use serde::{Deserialize, Serialize};
+  |             ^^^^^^^^^^^  ^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused variable: `old_coords`
+   --> src/zone.rs:268:5
+    |
+268 |     old_coords: EncryptedCoord,
+    |     ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_old_coords`
+    |
+    = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `direction`
+   --> src/zone.rs:269:5
+    |
+269 |     direction: EncryptedDirection,
+    |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_direction`
+
+warning: unused variable: `height`
+   --> src/zone.rs:270:5
+    |
+270 |     height: u8,
+    |     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_height`
+
+warning: unused variable: `width`
+   --> src/zone.rs:271:5
+    |
+271 |     width: u8,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_width`
+
+warning: unused variable: `old_coords`
+   --> src/zone.rs:309:5
+    |
+309 |     old_coords: EncryptedCoord,
+    |     ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_old_coords`
+
+warning: unused variable: `direction`
+   --> src/zone.rs:310:5
+    |
+310 |     direction: EncryptedDirection,
+    |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_direction`
+
+warning: unused variable: `height`
+   --> src/zone.rs:311:5
+    |
+311 |     height: u8,
+    |     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_height`
+
+warning: unused variable: `width`
+   --> src/zone.rs:312:5
+    |
+312 |     width: u8,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_width`
+
+warning: unused variable: `obstacles`
+   --> src/zone.rs:313:5
+    |
+313 |     obstacles: [EncryptedCoord; 100],
+    |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_obstacles`
+
+warning: unused variable: `height`
+   --> src/zone.rs:333:5
+    |
+333 |     height: u8,
+    |     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_height`
+
+warning: unused variable: `width`
+   --> src/zone.rs:334:5
+    |
+334 |     width: u8,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_width`
+
+warning: unused variable: `coord`
+   --> src/zone.rs:398:5
+    |
+398 |     coord: EncryptedCoord,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_coord`
+
+warning: unused variable: `items`
+   --> src/zone.rs:399:5
+    |
+399 |     items: [ItemWithEncryptedId; NUM_ITEMS],
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_items`
+
+warning: unused variable: `players`
+   --> src/zone.rs:400:5
+    |
+400 |     players: [PlayerWithEncryptedId; 4],
+    |     ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_players`
+
+warning: function `fhe_get_cell_no_check` is never used
+   --> src/zone.rs:397:4
+    |
+397 | fn fhe_get_cell_no_check(
+    |    ^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` on by default
+
+warning: `server` (lib) generated 16 warnings (run `cargo fix --lib -p server` to apply 1 suggestion)
+warning: unused imports: `Figment` and `util::map`
+ --> src/main.rs:6:23
+  |
+6 | use rocket::figment::{util::map, Figment};
+  |                       ^^^^^^^^^  ^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: constant `MOVE_TIME_MILLIS` is never used
+  --> src/main.rs:39:7
+   |
+39 | const MOVE_TIME_MILLIS: u64 = 500;
+   |       ^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+warning: constant `GET_CELL_TIME_MILLIS` is never used
+  --> src/main.rs:40:7
+   |
+40 | const GET_CELL_TIME_MILLIS: u64 = 140; // based on benchmark of 700ms for 5 cells
+   |       ^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `GET_PLAYER_TIME_MILLIS` is never used
+  --> src/main.rs:41:7
+   |
+41 | const GET_PLAYER_TIME_MILLIS: u64 = 140;
+   |       ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: fields `player_round_1_key` and `player_round_2_key` are never read
+  --> src/main.rs:64:5
+   |
+51 | struct GameState {
+   |        --------- fields in this struct
+...
+64 |     player_round_1_key: [Option<PhantomRound1Key>; 4],
+   |     ^^^^^^^^^^^^^^^^^^
+65 |     player_round_2_key: [Option<PhantomRound2Key>; 4],
+   |     ^^^^^^^^^^^^^^^^^^
+
+warning: struct `SubmitRound2KeyResponse` is never constructed
+   --> src/main.rs:114:8
+    |
+114 | struct SubmitRound2KeyResponse {}
+    |        ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reset` is never used
+   --> src/main.rs:183:10
+    |
+183 | async fn reset(
+    |          ^^^^^
+
+warning: function `submit_r1` is never used
+   --> src/main.rs:489:10
+    |
+489 | async fn submit_r1(
+    |          ^^^^^^^^^
+
+warning: function `get_pk` is never used
+   --> src/main.rs:516:10
+    |
+516 | async fn get_pk(
+    |          ^^^^^^
+
+warning: function `submit_r2` is never used
+   --> src/main.rs:528:10
+    |
+528 | async fn submit_r2(
+    |          ^^^^^^^^^
+
+warning: `server` (bin "server") generated 10 warnings (run `cargo fix --bin "server"` to apply 1 suggestion)
+    Finished `release` profile [optimized] target(s) in 0.09s
+     Running `target/release/server 'http://localhost:8005,http://localhost:8006,http://localhost:8007,http://localhost:8008'`
+[2m2024-11-13T07:04:51.675870Z[0m [31mERROR[0m [2mserver::worker[0m[2m:[0m Request failed with status: 400 Bad Request body: Worker is not init yet
+[2m2024-11-13T07:04:51.761001Z[0m [31mERROR[0m [2mserver::worker[0m[2m:[0m Request failed with status: 400 Bad Request body: Worker is not init yet
+[2m2024-11-13T07:04:51.845135Z[0m [31mERROR[0m [2mserver::worker[0m[2m:[0m Request failed with status: 400 Bad Request body: Worker is not init yet
+[2m2024-11-13T07:04:51.929872Z[0m [31mERROR[0m [2mserver::worker[0m[2m:[0m Request failed with status: 400 Bad Request body: Worker is not init yet
+[2m2024-11-13T07:04:52.013088Z[0m [31mERROR[0m [2mserver::worker[0m[2m:[0m Request failed with status: 400 Bad Request body: Worker is not init yet
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_apply_move_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_cell_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_cross_cells_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_five_cells_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_horizontal_cells_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_vertical_cells_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: `phantom-benchs` (lib) generated 6 warnings
+warning: unused imports: `Deserialize` and `Serialize`
+ --> src/zone.rs:5:13
+  |
+5 | use serde::{Deserialize, Serialize};
+  |             ^^^^^^^^^^^  ^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused variable: `old_coords`
+   --> src/zone.rs:268:5
+    |
+268 |     old_coords: EncryptedCoord,
+    |     ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_old_coords`
+    |
+    = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `direction`
+   --> src/zone.rs:269:5
+    |
+269 |     direction: EncryptedDirection,
+    |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_direction`
+
+warning: unused variable: `height`
+   --> src/zone.rs:270:5
+    |
+270 |     height: u8,
+    |     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_height`
+
+warning: unused variable: `width`
+   --> src/zone.rs:271:5
+    |
+271 |     width: u8,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_width`
+
+warning: unused variable: `old_coords`
+   --> src/zone.rs:309:5
+    |
+309 |     old_coords: EncryptedCoord,
+    |     ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_old_coords`
+
+warning: unused variable: `direction`
+   --> src/zone.rs:310:5
+    |
+310 |     direction: EncryptedDirection,
+    |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_direction`
+
+warning: unused variable: `height`
+   --> src/zone.rs:311:5
+    |
+311 |     height: u8,
+    |     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_height`
+
+warning: unused variable: `width`
+   --> src/zone.rs:312:5
+    |
+312 |     width: u8,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_width`
+
+warning: unused variable: `obstacles`
+   --> src/zone.rs:313:5
+    |
+313 |     obstacles: [EncryptedCoord; 100],
+    |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_obstacles`
+
+warning: unused variable: `height`
+   --> src/zone.rs:333:5
+    |
+333 |     height: u8,
+    |     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_height`
+
+warning: unused variable: `width`
+   --> src/zone.rs:334:5
+    |
+334 |     width: u8,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_width`
+
+warning: unused variable: `coord`
+   --> src/zone.rs:398:5
+    |
+398 |     coord: EncryptedCoord,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_coord`
+
+warning: unused variable: `items`
+   --> src/zone.rs:399:5
+    |
+399 |     items: [ItemWithEncryptedId; NUM_ITEMS],
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_items`
+
+warning: unused variable: `players`
+   --> src/zone.rs:400:5
+    |
+400 |     players: [PlayerWithEncryptedId; 4],
+    |     ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_players`
+
+warning: function `fhe_get_cell_no_check` is never used
+   --> src/zone.rs:397:4
+    |
+397 | fn fhe_get_cell_no_check(
+    |    ^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` on by default
+
+warning: `server` (lib) generated 16 warnings (run `cargo fix --lib -p server` to apply 1 suggestion)
+warning: unused imports: `Figment` and `util::map`
+ --> src/main.rs:6:23
+  |
+6 | use rocket::figment::{util::map, Figment};
+  |                       ^^^^^^^^^  ^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: constant `MOVE_TIME_MILLIS` is never used
+  --> src/main.rs:39:7
+   |
+39 | const MOVE_TIME_MILLIS: u64 = 500;
+   |       ^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+warning: constant `GET_CELL_TIME_MILLIS` is never used
+  --> src/main.rs:40:7
+   |
+40 | const GET_CELL_TIME_MILLIS: u64 = 140; // based on benchmark of 700ms for 5 cells
+   |       ^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `GET_PLAYER_TIME_MILLIS` is never used
+  --> src/main.rs:41:7
+   |
+41 | const GET_PLAYER_TIME_MILLIS: u64 = 140;
+   |       ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: fields `player_round_1_key` and `player_round_2_key` are never read
+  --> src/main.rs:64:5
+   |
+51 | struct GameState {
+   |        --------- fields in this struct
+...
+64 |     player_round_1_key: [Option<PhantomRound1Key>; 4],
+   |     ^^^^^^^^^^^^^^^^^^
+65 |     player_round_2_key: [Option<PhantomRound2Key>; 4],
+   |     ^^^^^^^^^^^^^^^^^^
+
+warning: struct `SubmitRound2KeyResponse` is never constructed
+   --> src/main.rs:114:8
+    |
+114 | struct SubmitRound2KeyResponse {}
+    |        ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reset` is never used
+   --> src/main.rs:183:10
+    |
+183 | async fn reset(
+    |          ^^^^^
+
+warning: function `submit_r1` is never used
+   --> src/main.rs:489:10
+    |
+489 | async fn submit_r1(
+    |          ^^^^^^^^^
+
+warning: function `get_pk` is never used
+   --> src/main.rs:516:10
+    |
+516 | async fn get_pk(
+    |          ^^^^^^
+
+warning: function `submit_r2` is never used
+   --> src/main.rs:528:10
+    |
+528 | async fn submit_r2(
+    |          ^^^^^^^^^
+
+warning: `server` (bin "server") generated 10 warnings (run `cargo fix --bin "server"` to apply 1 suggestion)
+    Finished `release` profile [optimized] target(s) in 0.17s
+     Running `target/release/server 'http://localhost:8005,http://localhost:8006,http://localhost:8007,http://localhost:8008'`
+[2m2024-11-13T07:06:29.052176Z[0m [31mERROR[0m [2mserver::worker[0m[2m:[0m Request failed with status: 400 Bad Request body: Worker is not init yet
+[2m2024-11-13T07:06:29.136229Z[0m [31mERROR[0m [2mserver::worker[0m[2m:[0m Request failed with status: 400 Bad Request body: Worker is not init yet
+[2m2024-11-13T07:06:29.225052Z[0m [31mERROR[0m [2mserver::worker[0m[2m:[0m Request failed with status: 400 Bad Request body: Worker is not init yet
+[2m2024-11-13T07:06:29.312389Z[0m [31mERROR[0m [2mserver::worker[0m[2m:[0m Request failed with status: 400 Bad Request body: Worker is not init yet
+[2m2024-11-13T07:06:29.400151Z[0m [31mERROR[0m [2mserver::worker[0m[2m:[0m Request failed with status: 400 Bad Request body: Worker is not init yet
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_apply_move_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_cell_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_cross_cells_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_five_cells_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_horizontal_cells_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_vertical_cells_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: `phantom-benchs` (lib) generated 6 warnings
+warning: unused imports: `Deserialize` and `Serialize`
+ --> src/zone.rs:5:13
+  |
+5 | use serde::{Deserialize, Serialize};
+  |             ^^^^^^^^^^^  ^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused variable: `old_coords`
+   --> src/zone.rs:268:5
+    |
+268 |     old_coords: EncryptedCoord,
+    |     ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_old_coords`
+    |
+    = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `direction`
+   --> src/zone.rs:269:5
+    |
+269 |     direction: EncryptedDirection,
+    |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_direction`
+
+warning: unused variable: `height`
+   --> src/zone.rs:270:5
+    |
+270 |     height: u8,
+    |     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_height`
+
+warning: unused variable: `width`
+   --> src/zone.rs:271:5
+    |
+271 |     width: u8,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_width`
+
+warning: unused variable: `old_coords`
+   --> src/zone.rs:309:5
+    |
+309 |     old_coords: EncryptedCoord,
+    |     ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_old_coords`
+
+warning: unused variable: `direction`
+   --> src/zone.rs:310:5
+    |
+310 |     direction: EncryptedDirection,
+    |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_direction`
+
+warning: unused variable: `height`
+   --> src/zone.rs:311:5
+    |
+311 |     height: u8,
+    |     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_height`
+
+warning: unused variable: `width`
+   --> src/zone.rs:312:5
+    |
+312 |     width: u8,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_width`
+
+warning: unused variable: `obstacles`
+   --> src/zone.rs:313:5
+    |
+313 |     obstacles: [EncryptedCoord; 100],
+    |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_obstacles`
+
+warning: unused variable: `height`
+   --> src/zone.rs:333:5
+    |
+333 |     height: u8,
+    |     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_height`
+
+warning: unused variable: `width`
+   --> src/zone.rs:334:5
+    |
+334 |     width: u8,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_width`
+
+warning: unused variable: `coord`
+   --> src/zone.rs:398:5
+    |
+398 |     coord: EncryptedCoord,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_coord`
+
+warning: unused variable: `items`
+   --> src/zone.rs:399:5
+    |
+399 |     items: [ItemWithEncryptedId; NUM_ITEMS],
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_items`
+
+warning: unused variable: `players`
+   --> src/zone.rs:400:5
+    |
+400 |     players: [PlayerWithEncryptedId; 4],
+    |     ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_players`
+
+warning: function `fhe_get_cell_no_check` is never used
+   --> src/zone.rs:397:4
+    |
+397 | fn fhe_get_cell_no_check(
+    |    ^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` on by default
+
+warning: `server` (lib) generated 16 warnings (run `cargo fix --lib -p server` to apply 1 suggestion)
+warning: unused imports: `Figment` and `util::map`
+ --> src/main.rs:6:23
+  |
+6 | use rocket::figment::{util::map, Figment};
+  |                       ^^^^^^^^^  ^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: constant `MOVE_TIME_MILLIS` is never used
+  --> src/main.rs:39:7
+   |
+39 | const MOVE_TIME_MILLIS: u64 = 500;
+   |       ^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+warning: constant `GET_CELL_TIME_MILLIS` is never used
+  --> src/main.rs:40:7
+   |
+40 | const GET_CELL_TIME_MILLIS: u64 = 140; // based on benchmark of 700ms for 5 cells
+   |       ^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `GET_PLAYER_TIME_MILLIS` is never used
+  --> src/main.rs:41:7
+   |
+41 | const GET_PLAYER_TIME_MILLIS: u64 = 140;
+   |       ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: fields `player_round_1_key` and `player_round_2_key` are never read
+  --> src/main.rs:64:5
+   |
+51 | struct GameState {
+   |        --------- fields in this struct
+...
+64 |     player_round_1_key: [Option<PhantomRound1Key>; 4],
+   |     ^^^^^^^^^^^^^^^^^^
+65 |     player_round_2_key: [Option<PhantomRound2Key>; 4],
+   |     ^^^^^^^^^^^^^^^^^^
+
+warning: struct `SubmitRound2KeyResponse` is never constructed
+   --> src/main.rs:114:8
+    |
+114 | struct SubmitRound2KeyResponse {}
+    |        ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reset` is never used
+   --> src/main.rs:183:10
+    |
+183 | async fn reset(
+    |          ^^^^^
+
+warning: function `submit_r1` is never used
+   --> src/main.rs:489:10
+    |
+489 | async fn submit_r1(
+    |          ^^^^^^^^^
+
+warning: function `get_pk` is never used
+   --> src/main.rs:516:10
+    |
+516 | async fn get_pk(
+    |          ^^^^^^
+
+warning: function `submit_r2` is never used
+   --> src/main.rs:528:10
+    |
+528 | async fn submit_r2(
+    |          ^^^^^^^^^
+
+warning: `server` (bin "server") generated 10 warnings (run `cargo fix --bin "server"` to apply 1 suggestion)
+    Finished `release` profile [optimized] target(s) in 0.08s
+     Running `target/release/server 'http://localhost:8005,http://localhost:8006,http://localhost:8007,http://localhost:8008'`
+[2m2024-11-13T07:06:46.452870Z[0m [31mERROR[0m [2mserver::worker[0m[2m:[0m Request failed with status: 400 Bad Request body: Worker is not init yet
+[2m2024-11-13T07:06:46.535759Z[0m [31mERROR[0m [2mserver::worker[0m[2m:[0m Request failed with status: 400 Bad Request body: Worker is not init yet
+[2m2024-11-13T07:06:46.619225Z[0m [31mERROR[0m [2mserver::worker[0m[2m:[0m Request failed with status: 400 Bad Request body: Worker is not init yet
+[2m2024-11-13T07:06:46.706469Z[0m [31mERROR[0m [2mserver::worker[0m[2m:[0m Request failed with status: 400 Bad Request body: Worker is not init yet
+[2m2024-11-13T07:06:46.796576Z[0m [31mERROR[0m [2mserver::worker[0m[2m:[0m Request failed with status: 400 Bad Request body: Worker is not init yet
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_apply_move_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_cell_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_cross_cells_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_five_cells_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_horizontal_cells_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_vertical_cells_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: `phantom-benchs` (lib) generated 6 warnings
+warning: unused imports: `Deserialize` and `Serialize`
+ --> src/zone.rs:5:13
+  |
+5 | use serde::{Deserialize, Serialize};
+  |             ^^^^^^^^^^^  ^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused variable: `old_coords`
+   --> src/zone.rs:268:5
+    |
+268 |     old_coords: EncryptedCoord,
+    |     ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_old_coords`
+    |
+    = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `direction`
+   --> src/zone.rs:269:5
+    |
+269 |     direction: EncryptedDirection,
+    |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_direction`
+
+warning: unused variable: `height`
+   --> src/zone.rs:270:5
+    |
+270 |     height: u8,
+    |     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_height`
+
+warning: unused variable: `width`
+   --> src/zone.rs:271:5
+    |
+271 |     width: u8,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_width`
+
+warning: unused variable: `old_coords`
+   --> src/zone.rs:309:5
+    |
+309 |     old_coords: EncryptedCoord,
+    |     ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_old_coords`
+
+warning: unused variable: `direction`
+   --> src/zone.rs:310:5
+    |
+310 |     direction: EncryptedDirection,
+    |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_direction`
+
+warning: unused variable: `height`
+   --> src/zone.rs:311:5
+    |
+311 |     height: u8,
+    |     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_height`
+
+warning: unused variable: `width`
+   --> src/zone.rs:312:5
+    |
+312 |     width: u8,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_width`
+
+warning: unused variable: `obstacles`
+   --> src/zone.rs:313:5
+    |
+313 |     obstacles: [EncryptedCoord; 100],
+    |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_obstacles`
+
+warning: unused variable: `height`
+   --> src/zone.rs:333:5
+    |
+333 |     height: u8,
+    |     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_height`
+
+warning: unused variable: `width`
+   --> src/zone.rs:334:5
+    |
+334 |     width: u8,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_width`
+
+warning: unused variable: `coord`
+   --> src/zone.rs:398:5
+    |
+398 |     coord: EncryptedCoord,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_coord`
+
+warning: unused variable: `items`
+   --> src/zone.rs:399:5
+    |
+399 |     items: [ItemWithEncryptedId; NUM_ITEMS],
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_items`
+
+warning: unused variable: `players`
+   --> src/zone.rs:400:5
+    |
+400 |     players: [PlayerWithEncryptedId; 4],
+    |     ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_players`
+
+warning: function `fhe_get_cell_no_check` is never used
+   --> src/zone.rs:397:4
+    |
+397 | fn fhe_get_cell_no_check(
+    |    ^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` on by default
+
+warning: `server` (lib) generated 16 warnings (run `cargo fix --lib -p server` to apply 1 suggestion)
+warning: unused imports: `Figment` and `util::map`
+ --> src/main.rs:6:23
+  |
+6 | use rocket::figment::{util::map, Figment};
+  |                       ^^^^^^^^^  ^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: constant `MOVE_TIME_MILLIS` is never used
+  --> src/main.rs:39:7
+   |
+39 | const MOVE_TIME_MILLIS: u64 = 500;
+   |       ^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+warning: constant `GET_CELL_TIME_MILLIS` is never used
+  --> src/main.rs:40:7
+   |
+40 | const GET_CELL_TIME_MILLIS: u64 = 140; // based on benchmark of 700ms for 5 cells
+   |       ^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `GET_PLAYER_TIME_MILLIS` is never used
+  --> src/main.rs:41:7
+   |
+41 | const GET_PLAYER_TIME_MILLIS: u64 = 140;
+   |       ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: fields `player_round_1_key` and `player_round_2_key` are never read
+  --> src/main.rs:64:5
+   |
+51 | struct GameState {
+   |        --------- fields in this struct
+...
+64 |     player_round_1_key: [Option<PhantomRound1Key>; 4],
+   |     ^^^^^^^^^^^^^^^^^^
+65 |     player_round_2_key: [Option<PhantomRound2Key>; 4],
+   |     ^^^^^^^^^^^^^^^^^^
+
+warning: struct `SubmitRound2KeyResponse` is never constructed
+   --> src/main.rs:114:8
+    |
+114 | struct SubmitRound2KeyResponse {}
+    |        ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reset` is never used
+   --> src/main.rs:183:10
+    |
+183 | async fn reset(
+    |          ^^^^^
+
+warning: function `submit_r1` is never used
+   --> src/main.rs:489:10
+    |
+489 | async fn submit_r1(
+    |          ^^^^^^^^^
+
+warning: function `get_pk` is never used
+   --> src/main.rs:516:10
+    |
+516 | async fn get_pk(
+    |          ^^^^^^
+
+warning: function `submit_r2` is never used
+   --> src/main.rs:528:10
+    |
+528 | async fn submit_r2(
+    |          ^^^^^^^^^
+
+warning: `server` (bin "server") generated 10 warnings (run `cargo fix --bin "server"` to apply 1 suggestion)
+    Finished `release` profile [optimized] target(s) in 0.09s
+     Running `target/release/server 'http://localhost:8005,http://localhost:8006,http://localhost:8007,http://localhost:8008'`
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_apply_move_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_cell_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_cross_cells_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_five_cells_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_horizontal_cells_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_vertical_cells_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: `phantom-benchs` (lib) generated 6 warnings
+warning: unused imports: `Deserialize` and `Serialize`
+ --> src/zone.rs:5:13
+  |
+5 | use serde::{Deserialize, Serialize};
+  |             ^^^^^^^^^^^  ^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused variable: `old_coords`
+   --> src/zone.rs:268:5
+    |
+268 |     old_coords: EncryptedCoord,
+    |     ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_old_coords`
+    |
+    = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `direction`
+   --> src/zone.rs:269:5
+    |
+269 |     direction: EncryptedDirection,
+    |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_direction`
+
+warning: unused variable: `height`
+   --> src/zone.rs:270:5
+    |
+270 |     height: u8,
+    |     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_height`
+
+warning: unused variable: `width`
+   --> src/zone.rs:271:5
+    |
+271 |     width: u8,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_width`
+
+warning: unused variable: `old_coords`
+   --> src/zone.rs:309:5
+    |
+309 |     old_coords: EncryptedCoord,
+    |     ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_old_coords`
+
+warning: unused variable: `direction`
+   --> src/zone.rs:310:5
+    |
+310 |     direction: EncryptedDirection,
+    |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_direction`
+
+warning: unused variable: `height`
+   --> src/zone.rs:311:5
+    |
+311 |     height: u8,
+    |     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_height`
+
+warning: unused variable: `width`
+   --> src/zone.rs:312:5
+    |
+312 |     width: u8,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_width`
+
+warning: unused variable: `obstacles`
+   --> src/zone.rs:313:5
+    |
+313 |     obstacles: [EncryptedCoord; 100],
+    |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_obstacles`
+
+warning: unused variable: `height`
+   --> src/zone.rs:333:5
+    |
+333 |     height: u8,
+    |     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_height`
+
+warning: unused variable: `width`
+   --> src/zone.rs:334:5
+    |
+334 |     width: u8,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_width`
+
+warning: unused variable: `coord`
+   --> src/zone.rs:398:5
+    |
+398 |     coord: EncryptedCoord,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_coord`
+
+warning: unused variable: `items`
+   --> src/zone.rs:399:5
+    |
+399 |     items: [ItemWithEncryptedId; NUM_ITEMS],
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_items`
+
+warning: unused variable: `players`
+   --> src/zone.rs:400:5
+    |
+400 |     players: [PlayerWithEncryptedId; 4],
+    |     ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_players`
+
+warning: function `fhe_get_cell_no_check` is never used
+   --> src/zone.rs:397:4
+    |
+397 | fn fhe_get_cell_no_check(
+    |    ^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` on by default
+
+warning: `server` (lib) generated 16 warnings (run `cargo fix --lib -p server` to apply 1 suggestion)
+warning: unused imports: `Figment` and `util::map`
+ --> src/main.rs:6:23
+  |
+6 | use rocket::figment::{util::map, Figment};
+  |                       ^^^^^^^^^  ^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: constant `MOVE_TIME_MILLIS` is never used
+  --> src/main.rs:39:7
+   |
+39 | const MOVE_TIME_MILLIS: u64 = 500;
+   |       ^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+warning: constant `GET_CELL_TIME_MILLIS` is never used
+  --> src/main.rs:40:7
+   |
+40 | const GET_CELL_TIME_MILLIS: u64 = 140; // based on benchmark of 700ms for 5 cells
+   |       ^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `GET_PLAYER_TIME_MILLIS` is never used
+  --> src/main.rs:41:7
+   |
+41 | const GET_PLAYER_TIME_MILLIS: u64 = 140;
+   |       ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: fields `player_round_1_key` and `player_round_2_key` are never read
+  --> src/main.rs:64:5
+   |
+51 | struct GameState {
+   |        --------- fields in this struct
+...
+64 |     player_round_1_key: [Option<PhantomRound1Key>; 4],
+   |     ^^^^^^^^^^^^^^^^^^
+65 |     player_round_2_key: [Option<PhantomRound2Key>; 4],
+   |     ^^^^^^^^^^^^^^^^^^
+
+warning: struct `SubmitRound2KeyResponse` is never constructed
+   --> src/main.rs:114:8
+    |
+114 | struct SubmitRound2KeyResponse {}
+    |        ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reset` is never used
+   --> src/main.rs:183:10
+    |
+183 | async fn reset(
+    |          ^^^^^
+
+warning: function `submit_r1` is never used
+   --> src/main.rs:489:10
+    |
+489 | async fn submit_r1(
+    |          ^^^^^^^^^
+
+warning: function `get_pk` is never used
+   --> src/main.rs:516:10
+    |
+516 | async fn get_pk(
+    |          ^^^^^^
+
+warning: function `submit_r2` is never used
+   --> src/main.rs:528:10
+    |
+528 | async fn submit_r2(
+    |          ^^^^^^^^^
+
+warning: `server` (bin "server") generated 10 warnings (run `cargo fix --bin "server"` to apply 1 suggestion)
+    Finished `release` profile [optimized] target(s) in 0.10s
+     Running `target/release/server 'http://localhost:8005,http://localhost:8006,http://localhost:8007,http://localhost:8008'`
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_apply_move_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_cell_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_cross_cells_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_five_cells_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_horizontal_cells_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: variants `Output` and `Cst` are never constructed
+  --> /Users/han/playground/pse/frog-zone/packages/circuits/src/frogzone_get_vertical_cells_rs_fhe_lib.rs:9:5
+   |
+7  | enum GateInput {
+   |      --------- variants in this enum
+8  |     Arg(usize, usize), // arg + index
+9  |     Output(usize), // reuse of output wire
+   |     ^^^^^^
+10 |     Tv(usize),  // temp value
+11 |     Cst(bool),  // constant
+   |     ^^^
+
+warning: `phantom-benchs` (lib) generated 6 warnings
+warning: unused imports: `Deserialize` and `Serialize`
+ --> src/zone.rs:5:13
+  |
+5 | use serde::{Deserialize, Serialize};
+  |             ^^^^^^^^^^^  ^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused variable: `old_coords`
+   --> src/zone.rs:268:5
+    |
+268 |     old_coords: EncryptedCoord,
+    |     ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_old_coords`
+    |
+    = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `direction`
+   --> src/zone.rs:269:5
+    |
+269 |     direction: EncryptedDirection,
+    |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_direction`
+
+warning: unused variable: `height`
+   --> src/zone.rs:270:5
+    |
+270 |     height: u8,
+    |     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_height`
+
+warning: unused variable: `width`
+   --> src/zone.rs:271:5
+    |
+271 |     width: u8,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_width`
+
+warning: unused variable: `old_coords`
+   --> src/zone.rs:309:5
+    |
+309 |     old_coords: EncryptedCoord,
+    |     ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_old_coords`
+
+warning: unused variable: `direction`
+   --> src/zone.rs:310:5
+    |
+310 |     direction: EncryptedDirection,
+    |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_direction`
+
+warning: unused variable: `height`
+   --> src/zone.rs:311:5
+    |
+311 |     height: u8,
+    |     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_height`
+
+warning: unused variable: `width`
+   --> src/zone.rs:312:5
+    |
+312 |     width: u8,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_width`
+
+warning: unused variable: `obstacles`
+   --> src/zone.rs:313:5
+    |
+313 |     obstacles: [EncryptedCoord; 100],
+    |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_obstacles`
+
+warning: unused variable: `height`
+   --> src/zone.rs:333:5
+    |
+333 |     height: u8,
+    |     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_height`
+
+warning: unused variable: `width`
+   --> src/zone.rs:334:5
+    |
+334 |     width: u8,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_width`
+
+warning: unused variable: `coord`
+   --> src/zone.rs:398:5
+    |
+398 |     coord: EncryptedCoord,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_coord`
+
+warning: unused variable: `items`
+   --> src/zone.rs:399:5
+    |
+399 |     items: [ItemWithEncryptedId; NUM_ITEMS],
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_items`
+
+warning: unused variable: `players`
+   --> src/zone.rs:400:5
+    |
+400 |     players: [PlayerWithEncryptedId; 4],
+    |     ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_players`
+
+warning: function `fhe_get_cell_no_check` is never used
+   --> src/zone.rs:397:4
+    |
+397 | fn fhe_get_cell_no_check(
+    |    ^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` on by default
+
+warning: `server` (lib) generated 16 warnings (run `cargo fix --lib -p server` to apply 1 suggestion)
+warning: unused imports: `Figment` and `util::map`
+ --> src/main.rs:6:23
+  |
+6 | use rocket::figment::{util::map, Figment};
+  |                       ^^^^^^^^^  ^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: constant `MOVE_TIME_MILLIS` is never used
+  --> src/main.rs:39:7
+   |
+39 | const MOVE_TIME_MILLIS: u64 = 500;
+   |       ^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+warning: constant `GET_CELL_TIME_MILLIS` is never used
+  --> src/main.rs:40:7
+   |
+40 | const GET_CELL_TIME_MILLIS: u64 = 140; // based on benchmark of 700ms for 5 cells
+   |       ^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `GET_PLAYER_TIME_MILLIS` is never used
+  --> src/main.rs:41:7
+   |
+41 | const GET_PLAYER_TIME_MILLIS: u64 = 140;
+   |       ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: fields `player_round_1_key` and `player_round_2_key` are never read
+  --> src/main.rs:64:5
+   |
+51 | struct GameState {
+   |        --------- fields in this struct
+...
+64 |     player_round_1_key: [Option<PhantomRound1Key>; 4],
+   |     ^^^^^^^^^^^^^^^^^^
+65 |     player_round_2_key: [Option<PhantomRound2Key>; 4],
+   |     ^^^^^^^^^^^^^^^^^^
+
+warning: struct `SubmitRound2KeyResponse` is never constructed
+   --> src/main.rs:114:8
+    |
+114 | struct SubmitRound2KeyResponse {}
+    |        ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reset` is never used
+   --> src/main.rs:183:10
+    |
+183 | async fn reset(
+    |          ^^^^^
+
+warning: function `submit_r1` is never used
+   --> src/main.rs:489:10
+    |
+489 | async fn submit_r1(
+    |          ^^^^^^^^^
+
+warning: function `get_pk` is never used
+   --> src/main.rs:516:10
+    |
+516 | async fn get_pk(
+    |          ^^^^^^
+
+warning: function `submit_r2` is never used
+   --> src/main.rs:528:10
+    |
+528 | async fn submit_r2(
+    |          ^^^^^^^^^
+
+warning: `server` (bin "server") generated 10 warnings (run `cargo fix --bin "server"` to apply 1 suggestion)
+    Finished `release` profile [optimized] target(s) in 0.15s
+     Running `target/release/server 'http://localhost:8005,http://localhost:8006,http://localhost:8007,http://localhost:8008'`

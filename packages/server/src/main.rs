@@ -1,4 +1,7 @@
-use phantom::{PhantomEvaluator, PhantomParam, PhantomRound1Key, PhantomRound2Key};
+use phantom::{
+    PhantomBsKey, PhantomEvaluator, PhantomParam, PhantomPk, PhantomRound1Key, PhantomRound2Key,
+    PhantomRpKey,
+};
 use rocket::data::{Limits, ToByteUnit};
 use rocket::figment::{util::map, Figment};
 use rocket::futures::stream::FuturesUnordered;
@@ -148,7 +151,7 @@ async fn reset_game(
     let mut game_state = state.lock().await;
 
     // Don't reset again if the game state is just reset.
-    if game_state.player_last_move_time == [0, 0, 0, 0] {
+    if game_state.zone.is_some() && game_state.player_last_move_time == [0, 0, 0, 0] {
         return Ok(Json(ResetGameResponse {}));
     }
 
@@ -658,12 +661,20 @@ async fn rocket() -> _ {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
+    let pk: PhantomPk = bincode::deserialize(include_bytes!(".././pk")).unwrap();
+    let rp_key: PhantomRpKey = bincode::deserialize(include_bytes!(".././rp_key")).unwrap();
+    let bs_key: PhantomBsKey = bincode::deserialize(include_bytes!(".././bs_key")).unwrap();
+
+    let mut evaluator = PhantomEvaluator::new(PhantomParam::I_4P_40);
+    evaluator.set_pk(pk);
+    evaluator.set_rp_key(rp_key);
+    evaluator.set_bs_key(bs_key);
     let shared_state: Arc<Mutex<GameState>> = Arc::new(Mutex::new(GameState {
-        zone: None, // 32x32 zone, will be initialized when keygen is finished.
+        zone: None,
         mock_zone: None,
         action_queue: VecDeque::new(),
         player_last_move_time: [0, 0, 0, 0],
-        evaluator: PhantomEvaluator::new(PhantomParam::I_4P_40),
+        evaluator,
         player_round_1_key: [None, None, None, None],
         player_round_2_key: [None, None, None, None],
         work_counter: 0,
@@ -700,7 +711,7 @@ async fn rocket() -> _ {
             "/",
             routes![
                 reset_game,
-                reset,
+                // reset,
                 mock_move,
                 queue_move,
                 mock_get_cells,
@@ -711,9 +722,9 @@ async fn rocket() -> _ {
                 get_horizontal_cells,
                 mock_get_player,
                 get_player,
-                submit_r1,
-                get_pk,
-                submit_r2,
+                // submit_r1,
+                // get_pk,
+                // submit_r2,
             ],
         )
         .attach(make_cors())

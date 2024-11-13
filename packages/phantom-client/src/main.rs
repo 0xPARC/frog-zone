@@ -1,7 +1,7 @@
 mod proxy;
 
 use itertools::{chain, Itertools};
-use phantom::{PhantomPackedCt, PhantomPackedCtDecShare, PhantomParam, PhantomUser};
+use phantom::{PhantomPackedCt, PhantomPackedCtDecShare, PhantomParam, PhantomPk, PhantomUser};
 use rand::thread_rng;
 use rand::{rngs::StdRng, Rng, SeedableRng};
 use reqwest::StatusCode;
@@ -68,8 +68,12 @@ struct AppState {
 
 impl AppState {
     fn new(player_id: usize) -> Self {
-        let seed = StdRng::from_entropy().gen::<[u8; 32]>().to_vec();
-        let user = PhantomUser::new(PhantomParam::I_4P_40, player_id, seed);
+        let seed = StdRng::seed_from_u64(player_id as u64)
+            .gen::<[u8; 32]>()
+            .to_vec();
+        let mut user = PhantomUser::new(PhantomParam::I_4P_40, player_id, seed);
+        let pk: PhantomPk = bincode::deserialize(include_bytes!("../../server/pk")).unwrap();
+        user.set_pk(pk);
         Self {
             user,
             player_coord: Coord { x: 0, y: 0 },
@@ -909,9 +913,9 @@ async fn main() -> Result<(), rocket::Error> {
                 get_player,
                 get_id,
                 set_id,
-                get_pk,
-                submit_r1,
-                submit_r2,
+                // get_pk,
+                // submit_r1,
+                // submit_r2,
                 get_dec_share
             ],
         )
