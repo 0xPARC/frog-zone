@@ -54,7 +54,7 @@ export const Scoreboard: React.FC = () => {
 									</td>
 									<td style={styles.td}>
 										<span style={styles.score}>
-											{player.score}
+											{player.score * 10}
 										</span>
 									</td>
 								</tr>

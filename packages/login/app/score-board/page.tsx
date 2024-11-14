@@ -78,7 +78,7 @@ function Scoreboard() {
                   {index + 1}. {truncatePublicKey(player.publicKey)}
                   {index === 0 && " 🏆"}
                 </td>
-                <td className="p-4">{player.score}</td>
+                <td className="p-4">{player.score * 10}</td>
               </tr>
             ))}
 
@@ -91,7 +91,7 @@ function Scoreboard() {
                     {index + 1}. {truncatePublicKey(player.publicKey)}
                     {index === 0 && " 🏆"}
                   </td>
-                  <td className="p-4">{player.score}</td>
+                  <td className="p-4">{player.score * 10}</td>
                 </tr>
               ))}
               <tr>
@@ -111,7 +111,7 @@ function Scoreboard() {
                     {lastIndex + 1}.{" "}
                     {truncatePublicKey(players[lastIndex].publicKey)}
                   </td>
-                  <td className="p-4">{players[lastIndex].score}</td>
+                  <td className="p-4">{players[lastIndex].score * 10}</td>
                 </tr>
               )}
             </>
@@ -130,7 +130,7 @@ function Scoreboard() {
                   1. {truncatePublicKey(players[0].publicKey)} 🏆
                   {highlightedIndex === 0 && " (you)"}
                 </td>
-                <td className="p-4">{players[0].score}</td>
+                <td className="p-4">{players[0].score * 10}</td>
               </tr>
               {/* Show ellipsis if the highlighted player isn't the first player */}
               {highlightedIndex > 2 && (
@@ -153,7 +153,7 @@ function Scoreboard() {
                         )}
                       </td>
                       <td className="p-4">
-                        {players[highlightedIndex - 1].score}
+                        {players[highlightedIndex - 1].score * 10}
                       </td>
                     </tr>
                   )}
@@ -164,7 +164,9 @@ function Scoreboard() {
                       {truncatePublicKey(players[highlightedIndex].publicKey)}
                       {" (you)"}
                     </td>
-                    <td className="p-4">{players[highlightedIndex].score}</td>
+                    <td className="p-4">
+                      {players[highlightedIndex].score * 10}
+                    </td>
                   </tr>
 
                   {highlightedIndex < lastIndex && (
@@ -176,7 +178,7 @@ function Scoreboard() {
                         )}
                       </td>
                       <td className="p-4">
-                        {players[highlightedIndex + 1].score}
+                        {players[highlightedIndex + 1].score * 10}
                       </td>
                     </tr>
                   )}
@@ -206,7 +208,7 @@ function Scoreboard() {
                     {truncatePublicKey(players[lastIndex].publicKey)}
                     {" (you)"}
                   </td>
-                  <td className="p-4">{players[lastIndex].score}</td>
+                  <td className="p-4">{players[lastIndex].score * 10}</td>
                 </tr>
               )}
             </>
